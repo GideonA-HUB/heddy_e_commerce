@@ -1,0 +1,33 @@
+db:
+  image: postgres:15-alpine
+  environment:
+    POSTGRES_DB: heddiekitchen
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  ports:
+    - "5432:5432"
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+
+redis:
+  image: redis:7-alpine
+  ports:
+    - "6379:6379"
+
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000
+  ports:
+    - "8000:8000"
+  environment:
+    DEBUG: "True"
+    DATABASE_URL: postgresql://postgres:postgres@db:5432/heddiekitchen
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    - db
+    - redis
+  volumes:
+    - .:/app
+
+volumes:
+  postgres_data:
