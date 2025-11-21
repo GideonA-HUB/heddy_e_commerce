@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Phone, MapPin, Mail } from 'lucide-react';
+import { AlertCircle, MapPin } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { orderAPI } from '../api';
@@ -23,7 +23,7 @@ const CheckoutPage: React.FC = () => {
     postal_code: '',
   });
 
-  const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.price) * item.quantity, 0) || 0;
+  const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
   const shippingFee = 5000;
   const tax = subtotal * 0.075;
   const total = subtotal + shippingFee + tax;
@@ -214,7 +214,7 @@ const CheckoutPage: React.FC = () => {
                         {item.menu_item.name} x {item.quantity}
                       </span>
                       <span className="font-semibold">
-                        ₦{(item.price * item.quantity).toLocaleString()}
+                        ₦{((item.price_at_add || item.menu_item.price) * item.quantity).toLocaleString()}
                       </span>
                     </div>
                   ))}

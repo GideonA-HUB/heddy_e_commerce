@@ -32,7 +32,7 @@ class TestAuth:
             'password': 'password123',
             'first_name': 'Test',
             'last_name': 'User'
-        })
+        }, follow=True)
         assert response.status_code == 201
         assert 'token' in response.data
 
@@ -41,14 +41,14 @@ class TestAuth:
         response = api_client.post('/api/auth/login/', {
             'username': 'testuser',
             'password': 'testpass123'
-        })
+        }, follow=True)
         assert response.status_code == 200
         assert 'token' in response.data
 
     def test_current_user(self, api_client, test_user):
         """Test get current user."""
         api_client.force_authenticate(user=test_user)
-        response = api_client.get('/api/auth/me/')
+        response = api_client.get('/api/auth/me/', follow=True)
         assert response.status_code == 200
         assert response.data['user']['username'] == 'testuser'
 
@@ -60,7 +60,7 @@ class TestNewsletter:
         """Test newsletter subscription."""
         response = api_client.post('/api/auth/newsletter/', {
             'email': 'subscriber@example.com'
-        })
+        }, follow=True)
         assert response.status_code == 201
         assert Newsletter.objects.filter(email='subscriber@example.com').exists()
 
@@ -75,6 +75,6 @@ class TestContact:
             'email': 'john@example.com',
             'phone': '1234567890',
             'message': 'Test message'
-        })
+        }, follow=True)
         assert response.status_code == 201
         assert Contact.objects.filter(email='john@example.com').exists()

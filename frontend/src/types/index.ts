@@ -15,6 +15,7 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  userprofile?: UserProfile;
 }
 
 export interface UserProfile {
@@ -168,6 +169,7 @@ export interface BlogPost {
 export interface AuthResponse {
   user: User;
   token: string;
+  profile?: UserProfile;
 }
 
 export interface PaginatedResponse<T> {

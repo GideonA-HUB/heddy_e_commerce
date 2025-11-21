@@ -18,7 +18,7 @@ const CartPage: React.FC = () => {
     fetchCart();
   }, [fetchCart]);
 
-  const subtotal = cart?.items.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
+  const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
   const shippingFee = 5000; // Fixed or dynamic based on location
   const tax = subtotal * 0.075; // 7.5% tax
   const total = subtotal + shippingFee + tax;
@@ -92,7 +92,7 @@ const CartPage: React.FC = () => {
                       {item.menu_item.category?.name || 'Uncategorized'}
                     </p>
                     <p className="text-primary font-bold text-lg">
-                      ₦{(item.price_at_add || item.price).toLocaleString()}
+                      ₦{(item.price_at_add || item.menu_item.price).toLocaleString()}
                     </p>
                   </div>
 
@@ -126,7 +126,7 @@ const CartPage: React.FC = () => {
                     {/* Item Total & Delete */}
                     <div className="flex flex-col items-end gap-2">
                       <p className="font-bold text-lg text-gray-900">
-                        ₦{((item.price_at_add || item.price) * item.quantity).toLocaleString()}
+                        ₦{((item.price_at_add || item.menu_item.price) * item.quantity).toLocaleString()}
                       </p>
                       <motion.button
                         onClick={async () => await removeItem(item.id)}

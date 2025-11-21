@@ -40,8 +40,8 @@ const App: React.FC = () => {
         const response = await coreAPI.getSiteAssets();
         if (response.data.results && response.data.results.length > 0) {
           const asset = response.data.results[0];
-          // Use logo_primary_url if available, otherwise fallback to logo_primary
-          const logoUrl = asset.logo_primary_url || asset.logo_primary || '';
+          // Use logo_primary_url if available
+          const logoUrl = asset.logo_primary_url || '';
           setSiteAssetLogo(logoUrl);
           
           // Also set favicon dynamically

@@ -534,7 +534,7 @@ const HomePage: React.FC = () => {
                 { icon: ChefHat, title: "Expert Chefs", desc: "Authentic recipes by experienced African chefs" },
                 { icon: Heart, title: "Customer Care", desc: "Dedicated support team ready to assist you anytime" },
                 { icon: Users, title: "Community Trust", desc: "Loved by thousands of satisfied customers nationwide" },
-              ].map((feature, index) => {
+              ].map((feature) => {
                 const Icon = feature.icon;
                 return (
                   <motion.div

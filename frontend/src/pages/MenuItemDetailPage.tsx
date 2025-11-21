@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Star, ShoppingCart, ArrowLeft, Clock, ChefHat, Heart, MessageSquare, CheckCircle, X } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Clock, MessageSquare, CheckCircle, X } from 'lucide-react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { menuAPI } from '../api';
 import { MenuItem, MenuItemReview } from '../types';
