@@ -67,14 +67,22 @@ jobs:
 
   deploy:
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RAILWAY_TOKEN != ''
     runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to Railway
-        uses: railwayapp/railway-action@v3
+      - name: Set up Node
+        uses: actions/setup-node@v3
         with:
-          apiKey: ${{ secrets.RAILWAY_TOKEN }}
-          service: heddiekitchen-api
+          node-version: '18'
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: |
+          railway up --service heddiekitchen-api --yes
