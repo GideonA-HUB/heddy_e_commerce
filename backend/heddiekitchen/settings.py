@@ -12,6 +12,9 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Frontend build directory (for serving React app)
+FRONTEND_BUILD_DIR = BASE_DIR.parent / 'frontend_dist'
+
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
@@ -80,7 +83,10 @@ ROOT_URLCONF = 'heddiekitchen.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+            FRONTEND_BUILD_DIR,  # React build directory for index.html
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,6 +148,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Frontend static files (React build)
+STATICFILES_DIRS = []
+if FRONTEND_BUILD_DIR.exists():
+    STATICFILES_DIRS.append(FRONTEND_BUILD_DIR)
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
