@@ -20,11 +20,15 @@ const HomePage: React.FC = () => {
   const coveredSectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   
-  // Parallax transforms
+  // Parallax transforms with enhanced 3D effects
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
+  const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 200]);
   const featuresY = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const smoothY = useSpring(heroY, { stiffness: 100, damping: 30 });
+  const smoothBackgroundY = useSpring(backgroundY, { stiffness: 50, damping: 30 });
+  const smoothScale = useSpring(heroScale, { stiffness: 100, damping: 30 });
   
   // Covered section parallax
   const coveredSectionY = useTransform(scrollYProgress, [0.2, 0.6], [0, -100]);
@@ -78,60 +82,108 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section with Parallax */}
+      {/* Hero Section with Parallax and Background Image */}
       <motion.section 
         ref={heroRef}
         style={{ y: smoothY, opacity: heroOpacity }}
-        className="relative bg-gradient-to-br from-primary via-primary-500 to-accent text-white overflow-hidden"
+        className="relative text-white overflow-hidden min-h-[85vh] sm:min-h-[90vh] md:min-h-screen flex items-center bg-gradient-to-br from-primary via-primary-500 to-accent"
       >
-        <div className="absolute inset-0 bg-black/10"></div>
-        {/* Animated background elements */}
+        {/* Background Image with Parallax Effect */}
         <motion.div 
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 w-full h-full"
+          style={{ 
+            y: smoothBackgroundY,
+            scale: smoothScale,
+          }}
+        >
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(https://static.vecteezy.com/system/resources/thumbnails/002/021/026/small_2x/top-view-stop-motion-vegetables-and-a-pan-on-black-background-free-video.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center center',
+              transform: 'scale(1.1)',
+              willChange: 'transform',
+            }}
+          />
+        </motion.div>
+        
+        {/* Dark Overlay for Text Readability - Multiple Layers */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70"></div>
+        <div className="absolute inset-0 bg-primary/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50"></div>
+        
+        {/* Animated overlay for depth */}
+        <motion.div 
+          className="absolute inset-0"
           animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
+            background: [
+              'radial-gradient(circle at 20% 50%, rgba(229,57,53,0.2) 0%, transparent 50%)',
+              'radial-gradient(circle at 80% 80%, rgba(229,57,53,0.3) 0%, transparent 50%)',
+              'radial-gradient(circle at 20% 50%, rgba(229,57,53,0.2) 0%, transparent 50%)',
+            ],
           }}
           transition={{
-            duration: 20,
+            duration: 8,
             repeat: Infinity,
-            repeatType: 'reverse',
-          }}
-          style={{
-            backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-            backgroundSize: '200% 200%',
+            ease: "easeInOut",
           }}
         />
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div 
               className="text-center md:text-left"
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -50, rotateY: -15 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
+              style={{ 
+                transformStyle: 'preserve-3d',
+                perspective: '1000px'
+              }}
             >
               <motion.div 
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full mb-4 sm:mb-6 shadow-2xl border border-white/20"
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
+                whileHover={{ scale: 1.05, y: -2 }}
               >
-                <Sparkles size={18} />
-                <span className="text-sm font-semibold">Authentic African Cuisine</span>
+                <Sparkles size={18} className="text-white drop-shadow-lg" />
+                <span className="text-sm sm:text-base font-bold text-white drop-shadow-lg">Authentic African Cuisine</span>
               </motion.div>
               <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight"
+                initial={{ opacity: 0, y: 30, rotateX: -10 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ delay: 0.3, duration: 0.8, type: "spring", stiffness: 100 }}
+                style={{ 
+                  textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)',
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                Delicious Food,<br />
-                <span className="text-accent">Delivered Fresh</span>
+                <span className="block text-white drop-shadow-2xl">Delicious Food,</span>
+                <motion.span 
+                  className="block text-accent drop-shadow-2xl"
+                  animate={{ 
+                    textShadow: [
+                      '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,193,7,0.3)',
+                      '2px 2px 12px rgba(0,0,0,0.9), 0 0 30px rgba(255,193,7,0.5)',
+                      '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,193,7,0.3)',
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  Delivered Fresh
+                </motion.span>
               </motion.h1>
               <motion.p 
-                className="text-lg sm:text-xl mb-8 text-white/90 leading-relaxed max-w-xl mx-auto md:mx-0"
+                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-white leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
+                style={{ 
+                  textShadow: '1px 1px 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.7)'
+                }}
               >
                 Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
               </motion.p>
@@ -141,26 +193,42 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.8 }}
               >
-                <Link
-                  to="/menu"
-                  className="btn-primary text-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  Order Now
-                  <ArrowRight className="inline ml-2" size={20} />
-                </Link>
-                <Link
-                  to="/about"
-                  className="btn-outline border-white text-white hover:bg-white hover:text-primary text-center"
+                  <Link
+                    to="/menu"
+                    className="btn-primary text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] transform transition-all duration-300 backdrop-blur-sm bg-primary/90 hover:bg-primary border-2 border-white/30"
+                  >
+                    Order Now
+                    <ArrowRight className="inline ml-2" size={20} />
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  Learn More
-                </Link>
+                  <Link
+                    to="/about"
+                    className="btn-outline border-2 border-white/80 text-white hover:bg-white hover:text-primary text-center backdrop-blur-sm bg-white/10 hover:bg-white transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  >
+                    Learn More
+                  </Link>
+                </motion.div>
               </motion.div>
             </motion.div>
             <motion.div 
               className="hidden md:flex items-center justify-center"
-              initial={{ opacity: 0, x: 50, rotate: -10 }}
-              animate={{ opacity: 1, x: 0, rotate: 0 }}
+              initial={{ opacity: 0, x: 50, rotateY: 15, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
               transition={{ delay: 0.4, duration: 1, type: "spring", stiffness: 100 }}
+              style={{ 
+                transformStyle: 'preserve-3d',
+                perspective: '1000px'
+              }}
             >
               <div className="relative w-full max-w-md aspect-square">
                 <motion.div 

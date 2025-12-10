@@ -5,8 +5,14 @@ Django settings for HEDDIEKITCHEN e-commerce platform.
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+
+# Optional Sentry import (only if package is installed)
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    SENTRY_AVAILABLE = True
+except ImportError:
+    SENTRY_AVAILABLE = False
 
 load_dotenv()
 
@@ -269,7 +275,7 @@ if not DEBUG:
     }
 
 # Sentry Configuration (Error tracking)
-if os.getenv('SENTRY_DSN'):
+if SENTRY_AVAILABLE and os.getenv('SENTRY_DSN'):
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN'),
         integrations=[DjangoIntegration()],
