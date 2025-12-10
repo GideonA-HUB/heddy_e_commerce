@@ -37,7 +37,7 @@ if settings.DEBUG:
 
 # Serve React app for all non-API routes (SPA catch-all)
 # This must be last to catch all routes not matched above
-FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent.parent / 'frontend_dist'
+FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / 'frontend_dist'
 if FRONTEND_BUILD_DIR.exists() and (FRONTEND_BUILD_DIR / 'index.html').exists():
     # Serve Vite assets (JS, CSS from assets folder)
     assets_dir = FRONTEND_BUILD_DIR / 'assets'
@@ -49,7 +49,11 @@ if FRONTEND_BUILD_DIR.exists() and (FRONTEND_BUILD_DIR / 'index.html').exists():
             }),
         ]
     # Serve index.html for all other routes (React Router will handle routing)
+    # Explicitly handle root path and all other paths to avoid redirect loops
     # WhiteNoise will also serve static files from STATICFILES_DIRS
     urlpatterns += [
+        # Explicit root path handler
+        path('', TemplateView.as_view(template_name='index.html'), name='home'),
+        # Catch-all for all other non-API routes
         re_path(r'^(?!api|admin|media|static|assets).*$', TemplateView.as_view(template_name='index.html')),
     ]

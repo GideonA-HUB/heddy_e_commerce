@@ -16,10 +16,10 @@ except ImportError:
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Frontend build directory (for serving React app)
-FRONTEND_BUILD_DIR = BASE_DIR.parent / 'frontend_dist'
+FRONTEND_BUILD_DIR = BASE_DIR / 'frontend_dist'
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 
@@ -83,6 +83,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Disable APPEND_SLASH for SPA routes to prevent redirect loops
+# This allows React Router to handle client-side routing properly
+APPEND_SLASH = False
 
 ROOT_URLCONF = 'heddiekitchen.urls'
 
