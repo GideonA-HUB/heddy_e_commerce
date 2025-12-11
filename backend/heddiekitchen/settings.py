@@ -267,6 +267,10 @@ CELERY_TIMEZONE = 'UTC'
 
 # Security Settings (Production)
 if not DEBUG:
+    # Railway terminates TLS at the edge; respect X-Forwarded-Proto to avoid redirect loops
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+
     SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
