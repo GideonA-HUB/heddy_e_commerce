@@ -25,3 +25,5 @@ sentry-sdk==1.39.1
 markdown==3.5.1
 django-extensions==3.2.3
 daphne==4.0.0
+cloudinary==1.36.0
+django-cloudinary-storage==0.3.0

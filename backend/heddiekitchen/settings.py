@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third-party
+    'cloudinary',
+    'cloudinary_storage',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -168,7 +170,25 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Allow overriding MEDIA_ROOT via env (useful to mount a Railway volume)
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
+
+# Optional: Cloudinary for media storage (set USE_CLOUDINARY=True)
+USE_CLOUDINARY = os.getenv('USE_CLOUDINARY', 'False').lower() == 'true'
+if USE_CLOUDINARY:
+    CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
+    if not CLOUDINARY_URL:
+        raise ValueError("CLOUDINARY_URL must be set when USE_CLOUDINARY=True")
+
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    }
+    # django-cloudinary-storage uses DEFAULT_FILE_STORAGE for media
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Optional: custom media prefix (folder) in Cloudinary
+    MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 
 # S3 Storage Configuration (Optional)
 if os.getenv('USE_S3') == 'True':
