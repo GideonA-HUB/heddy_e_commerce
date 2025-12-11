@@ -47,6 +47,8 @@ class SiteAsset(models.Model):
     class Meta:
         verbose_name = 'Site Asset'
         verbose_name_plural = 'Site Assets'
+        # Ensure deterministic ordering to avoid DRF UnorderedObjectListWarning during pagination
+        ordering = ['-updated_at']
 
     def __str__(self):
         return self.name

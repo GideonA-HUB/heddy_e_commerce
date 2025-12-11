@@ -5,13 +5,15 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from pathlib import Path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Handle missing trailing slash for admin when APPEND_SLASH=False
+    path('admin', RedirectView.as_view(url='/admin/', permanent=False)),
     
     # API Schema & Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
