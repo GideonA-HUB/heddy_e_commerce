@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
       <motion.section 
         ref={heroRef}
         style={{ y: smoothY, opacity: heroOpacity }}
-        className="relative text-white overflow-hidden min-h-[85vh] sm:min-h-[90vh] md:min-h-screen flex items-center bg-gradient-to-br from-primary via-primary-500 to-accent"
+        className="relative overflow-hidden min-h-[85vh] sm:min-h-[90vh] md:min-h-screen flex items-center bg-white"
       >
         {/* Background Image with Parallax Effect */}
         <motion.div 
@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://static.vecteezy.com/system/resources/thumbnails/002/021/026/small_2x/top-view-stop-motion-vegetables-and-a-pan-on-black-background-free-video.jpg)',
+              backgroundImage: 'url(https://img.freepik.com/premium-photo/assorted-indian-non-vegetarian-food-recipe-served-group-includes-chicken-curry-mutton-masala-anda-egg-curry-butter-chicken-biryani-tandoori-murg-chicken-tikka-naa-roti-ramadan_466689-40869.jpg?w=1060)',
               backgroundSize: 'cover',
               backgroundPosition: 'center center',
               transform: 'scale(1.1)',
@@ -108,19 +108,16 @@ const HomePage: React.FC = () => {
           />
         </motion.div>
         
-        {/* Dark Overlay for Text Readability - Multiple Layers */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70"></div>
-        <div className="absolute inset-0 bg-primary/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50"></div>
-        
-        {/* Animated overlay for depth */}
+        {/* White Overlay for Text Readability - Multiple Layers with 3D Depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/85"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-white/60"></div>
         <motion.div 
           className="absolute inset-0"
           animate={{
             background: [
-              'radial-gradient(circle at 20% 50%, rgba(229,57,53,0.2) 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 80%, rgba(229,57,53,0.3) 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 50%, rgba(229,57,53,0.2) 0%, transparent 50%)',
+              'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%)',
+              'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.4) 0%, transparent 50%)',
+              'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%)',
             ],
           }}
           transition={{
@@ -142,7 +139,7 @@ const HomePage: React.FC = () => {
               }}
             >
               <motion.div 
-                className="inline-flex items-center gap-2 bg-white/30 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full mb-4 sm:mb-6 shadow-2xl border border-white/20"
+                className="inline-flex items-center gap-2 bg-red-600/90 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full mb-4 sm:mb-6 shadow-2xl border-2 border-red-700/50"
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
@@ -157,18 +154,18 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ delay: 0.3, duration: 0.8, type: "spring", stiffness: 100 }}
                 style={{ 
-                  textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)',
+                  textShadow: '2px 2px 8px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2)',
                   transformStyle: 'preserve-3d'
                 }}
               >
-                <span className="block text-white drop-shadow-2xl">Delicious Food,</span>
+                <span className="block text-black drop-shadow-lg">Delicious Food,</span>
                 <motion.span 
-                  className="block text-accent drop-shadow-2xl"
+                  className="block text-red-600 drop-shadow-lg"
                   animate={{ 
                     textShadow: [
-                      '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,193,7,0.3)',
-                      '2px 2px 12px rgba(0,0,0,0.9), 0 0 30px rgba(255,193,7,0.5)',
-                      '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,193,7,0.3)',
+                      '2px 2px 8px rgba(220,38,38,0.4), 0 0 20px rgba(220,38,38,0.3)',
+                      '2px 2px 12px rgba(220,38,38,0.5), 0 0 30px rgba(220,38,38,0.4)',
+                      '2px 2px 8px rgba(220,38,38,0.4), 0 0 20px rgba(220,38,38,0.3)',
                     ]
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -177,12 +174,12 @@ const HomePage: React.FC = () => {
                 </motion.span>
               </motion.h1>
               <motion.p 
-                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-white leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
+                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-black leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
                 style={{ 
-                  textShadow: '1px 1px 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.7)'
+                  textShadow: '1px 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)'
                 }}
               >
                 Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
@@ -201,7 +198,7 @@ const HomePage: React.FC = () => {
                 >
                   <Link
                     to="/menu"
-                    className="btn-primary text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] transform transition-all duration-300 backdrop-blur-sm bg-primary/90 hover:bg-primary border-2 border-white/30 w-full sm:w-auto inline-flex items-center justify-center px-6 py-3"
+                    className="bg-red-600 hover:bg-red-700 text-white text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(220,38,38,0.4)] transform transition-all duration-300 backdrop-blur-sm border-2 border-red-700/50 w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold"
                   >
                     Order Now
                     <ArrowRight className="inline ml-2" size={20} />
@@ -215,7 +212,7 @@ const HomePage: React.FC = () => {
                 >
                   <Link
                     to="/about"
-                    className="btn-outline border-2 border-white/80 text-white hover:bg-white hover:text-primary text-center backdrop-blur-sm bg-white/10 hover:bg-white transition-all duration-300 shadow-xl hover:shadow-2xl w-full sm:w-auto inline-flex items-center justify-center px-6 py-3"
+                    className="border-2 border-black text-black hover:bg-black hover:text-white text-center backdrop-blur-sm bg-white/80 hover:bg-black transition-all duration-300 shadow-xl hover:shadow-2xl w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold"
                   >
                     Learn More
                   </Link>
@@ -246,7 +243,7 @@ const HomePage: React.FC = () => {
                   }}
                 />
                 <motion.div 
-                  className="relative w-full h-full bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-2xl"
+                  className="relative w-full h-full bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-2xl border-2 border-red-600/30"
                   whileHover={{ scale: 1.05, rotate: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
@@ -261,7 +258,7 @@ const HomePage: React.FC = () => {
                       ease: "easeInOut"
                     }}
                   >
-                    <ChefHat size={140} className="text-white drop-shadow-lg" />
+                    <ChefHat size={140} className="text-red-600 drop-shadow-lg" />
                   </motion.div>
                 </motion.div>
               </div>
