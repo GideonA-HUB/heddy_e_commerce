@@ -39,27 +39,49 @@ class SiteAssetSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def get_favicon_url(self, obj):
-        request = self.context.get('request')
-        if obj.favicon and request:
-            return request.build_absolute_uri(obj.favicon.url)
+        if obj.favicon:
+            url = obj.favicon.url
+            # If URL is already absolute (Cloudinary), return as-is
+            # Otherwise, make it absolute using request
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
         return None
 
     def get_logo_primary_url(self, obj):
-        request = self.context.get('request')
-        if obj.logo_primary and request:
-            return request.build_absolute_uri(obj.logo_primary.url)
+        if obj.logo_primary:
+            url = obj.logo_primary.url
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
         return None
 
     def get_logo_light_url(self, obj):
-        request = self.context.get('request')
-        if obj.logo_light and request:
-            return request.build_absolute_uri(obj.logo_light.url)
+        if obj.logo_light:
+            url = obj.logo_light.url
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
         return None
 
     def get_logo_dark_url(self, obj):
-        request = self.context.get('request')
-        if obj.logo_dark and request:
-            return request.build_absolute_uri(obj.logo_dark.url)
+        if obj.logo_dark:
+            url = obj.logo_dark.url
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
         return None
 
 

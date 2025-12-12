@@ -176,18 +176,37 @@ MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
 # Optional: Cloudinary for media storage (set USE_CLOUDINARY=True)
 USE_CLOUDINARY = os.getenv('USE_CLOUDINARY', 'False').lower() == 'true'
 if USE_CLOUDINARY:
+    import cloudinary
+    import cloudinary.uploader
+    import cloudinary.api
+    
+    # Support both CLOUDINARY_URL or individual variables
     CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
-    if not CLOUDINARY_URL:
-        raise ValueError("CLOUDINARY_URL must be set when USE_CLOUDINARY=True")
-
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-    }
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+    
+    # If CLOUDINARY_URL is provided, use it; otherwise use individual vars
+    if CLOUDINARY_URL:
+        cloudinary.config(
+            cloudinary_url=CLOUDINARY_URL
+        )
+    elif CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+        cloudinary.config(
+            cloud_name=CLOUDINARY_CLOUD_NAME,
+            api_key=CLOUDINARY_API_KEY,
+            api_secret=CLOUDINARY_API_SECRET
+        )
+    else:
+        raise ValueError(
+            "When USE_CLOUDINARY=True, either set CLOUDINARY_URL or set all of: "
+            "CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET"
+        )
+    
     # django-cloudinary-storage uses DEFAULT_FILE_STORAGE for media
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # Optional: custom media prefix (folder) in Cloudinary
+    # Cloudinary serves media from their CDN, not /media/ path
+    # But we keep MEDIA_URL for compatibility
     MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 
 # S3 Storage Configuration (Optional)
