@@ -74,19 +74,25 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-white/70 text-sm md:text-base">
               <li className="flex items-start gap-2">
                 <Mail size={18} className="mt-0.5 flex-shrink-0" />
-                <span>info@heddiekitchen.com</span>
+                <a href="mailto:heddiekitchen@gmail.com" className="hover:text-white transition-colors">
+                  heddiekitchen@gmail.com
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <Phone size={18} className="mt-0.5 flex-shrink-0" />
-                <span>+234 XXX XXXX XXXX</span>
+                <a href="tel:+2349035234365" className="hover:text-white transition-colors">
+                  +234 903 523 4365
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin size={18} className="mt-0.5 flex-shrink-0" />
-                <span>Lagos, Nigeria</span>
+                <span>Abuja, Nigeria</span>
               </li>
               <li>
                 <a
-                  href="https://wa.me/234XXXXXXXXXX"
+                  href="https://wa.me/2349035234365"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-white transition-colors inline-flex items-center gap-2"
                 >
                   <span>WhatsApp</span>

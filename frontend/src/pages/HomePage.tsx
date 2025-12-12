@@ -188,7 +188,7 @@ const HomePage: React.FC = () => {
                 Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
               </motion.p>
               <motion.div 
-                className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start w-full sm:w-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.8 }}
@@ -197,10 +197,11 @@ const HomePage: React.FC = () => {
                   whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="w-full sm:w-auto"
                 >
                   <Link
                     to="/menu"
-                    className="btn-primary text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] transform transition-all duration-300 backdrop-blur-sm bg-primary/90 hover:bg-primary border-2 border-white/30"
+                    className="btn-primary text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] transform transition-all duration-300 backdrop-blur-sm bg-primary/90 hover:bg-primary border-2 border-white/30 w-full sm:w-auto inline-flex items-center justify-center px-6 py-3"
                   >
                     Order Now
                     <ArrowRight className="inline ml-2" size={20} />
@@ -210,10 +211,11 @@ const HomePage: React.FC = () => {
                   whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="w-full sm:w-auto"
                 >
                   <Link
                     to="/about"
-                    className="btn-outline border-2 border-white/80 text-white hover:bg-white hover:text-primary text-center backdrop-blur-sm bg-white/10 hover:bg-white transition-all duration-300 shadow-xl hover:shadow-2xl"
+                    className="btn-outline border-2 border-white/80 text-white hover:bg-white hover:text-primary text-center backdrop-blur-sm bg-white/10 hover:bg-white transition-all duration-300 shadow-xl hover:shadow-2xl w-full sm:w-auto inline-flex items-center justify-center px-6 py-3"
                   >
                     Learn More
                   </Link>
