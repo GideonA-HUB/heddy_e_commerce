@@ -108,24 +108,8 @@ const HomePage: React.FC = () => {
           />
         </motion.div>
         
-        {/* White Overlay for Text Readability - Multiple Layers with 3D Depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/85"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-white/60"></div>
-        <motion.div 
-          className="absolute inset-0"
-          animate={{
-            background: [
-              'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.4) 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-            ],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+        {/* Minimal overlay only for text readability - very subtle */}
+        <div className="absolute inset-0 bg-black/5"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div 
@@ -145,8 +129,8 @@ const HomePage: React.FC = () => {
                 transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
                 whileHover={{ scale: 1.05, y: -2 }}
               >
-                <Sparkles size={18} className="text-white drop-shadow-lg" />
-                <span className="text-sm sm:text-base font-bold text-white drop-shadow-lg">Authentic African Cuisine</span>
+                <Sparkles size={18} className="text-white" />
+                <span className="text-sm sm:text-base font-bold text-white">Authentic African Cuisine</span>
               </motion.div>
               <motion.h1 
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight"
@@ -154,21 +138,12 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ delay: 0.3, duration: 0.8, type: "spring", stiffness: 100 }}
                 style={{ 
-                  textShadow: '2px 2px 8px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2)',
                   transformStyle: 'preserve-3d'
                 }}
               >
-                <span className="block text-black drop-shadow-lg">Delicious Food,</span>
+                <span className="block text-black">Delicious Food,</span>
                 <motion.span 
-                  className="block text-red-600 drop-shadow-lg"
-                  animate={{ 
-                    textShadow: [
-                      '2px 2px 8px rgba(220,38,38,0.4), 0 0 20px rgba(220,38,38,0.3)',
-                      '2px 2px 12px rgba(220,38,38,0.5), 0 0 30px rgba(220,38,38,0.4)',
-                      '2px 2px 8px rgba(220,38,38,0.4), 0 0 20px rgba(220,38,38,0.3)',
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="block text-red-600"
                 >
                   Delivered Fresh
                 </motion.span>
@@ -178,9 +153,6 @@ const HomePage: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                style={{ 
-                  textShadow: '1px 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5)'
-                }}
               >
                 Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
               </motion.p>
@@ -258,7 +230,7 @@ const HomePage: React.FC = () => {
                       ease: "easeInOut"
                     }}
                   >
-                    <ChefHat size={140} className="text-red-600 drop-shadow-lg" />
+                    <ChefHat size={140} className="text-red-600" />
                   </motion.div>
                 </motion.div>
               </div>
