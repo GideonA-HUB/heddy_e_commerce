@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://media-cdn.grubhub.com/image/upload/d_search:browse-images:default.jpg/w_1200,q_auto,fl_lossy,dpr_auto,c_fill,f_auto,h_800,g_auto/cs1mvcfnoqzosq9xy9xy)',
+              backgroundImage: 'url(https://vibrantwestafricancuisine.com/wp-content/uploads/2017/12/IMG_0551-scaled.jpg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center center',
               transform: 'scale(1.1)',
