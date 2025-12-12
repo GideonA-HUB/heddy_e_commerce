@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://img.freepik.com/premium-photo/assorted-indian-non-vegetarian-food-recipe-served-group-includes-chicken-curry-mutton-masala-anda-egg-curry-butter-chicken-biryani-tandoori-murg-chicken-tikka-naa-roti-ramadan_466689-40869.jpg?w=1060)',
+              backgroundImage: 'url(https://media-cdn.grubhub.com/image/upload/d_search:browse-images:default.jpg/w_1200,q_auto,fl_lossy,dpr_auto,c_fill,f_auto,h_800,g_auto/cs1mvcfnoqzosq9xy9xy)',
               backgroundSize: 'cover',
               backgroundPosition: 'center center',
               transform: 'scale(1.1)',
@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
                 </motion.span>
               </motion.h1>
               <motion.p 
-                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-black leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
+                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-red-600 leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
