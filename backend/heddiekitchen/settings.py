@@ -48,8 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third-party
-    'cloudinary',
-    'cloudinary_storage',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -68,6 +66,17 @@ INSTALLED_APPS = [
     'heddiekitchen.payments',
     'heddiekitchen.gallery',
 ]
+
+# Conditionally add Cloudinary apps only if available and enabled
+try:
+    import cloudinary
+    import cloudinary_storage
+    if os.getenv('USE_CLOUDINARY', 'False').lower() == 'true':
+        INSTALLED_APPS.insert(6, 'cloudinary_storage')
+        INSTALLED_APPS.insert(6, 'cloudinary')
+except ImportError:
+    # Cloudinary not installed, skip adding to INSTALLED_APPS
+    pass
 
 # Conditionally enable django_ratelimit only when shared cache is available
 USE_REDIS_CACHE = os.getenv('USE_REDIS_CACHE', os.getenv('USE_REDIS', 'False')).strip().lower() == 'true'
