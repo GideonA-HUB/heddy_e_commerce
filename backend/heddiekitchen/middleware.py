@@ -1,14 +1,18 @@
 """
 Custom middleware for HEDDIEKITCHEN.
 """
-from django.middleware.csrf import CsrfViewMiddleware
+from django.utils.deprecation import MiddlewareMixin
 
 
-class CsrfExemptApiMiddleware(CsrfViewMiddleware):
-    """Exempt API endpoints from CSRF checks."""
-    def process_view(self, request, callback, callback_args, callback_kwargs):
-        # Exempt all /api/ endpoints from CSRF
+class CsrfExemptApiMiddleware(MiddlewareMixin):
+    """
+    Exempt API endpoints from CSRF checks.
+    This middleware must be placed BEFORE django.middleware.csrf.CsrfViewMiddleware
+    in the MIDDLEWARE list.
+    """
+    def process_request(self, request):
+        # Exempt all /api/ endpoints from CSRF by setting the exemption flag
         if request.path.startswith('/api/'):
-            return None
-        return super().process_view(request, callback, callback_args, callback_kwargs)
+            setattr(request, '_dont_enforce_csrf_checks', True)
+        return None
 

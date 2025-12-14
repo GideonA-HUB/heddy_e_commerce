@@ -89,7 +89,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'heddiekitchen.middleware.CsrfExemptApiMiddleware',  # Custom CSRF middleware that exempts /api/ endpoints
+    'heddiekitchen.middleware.CsrfExemptApiMiddleware',  # Custom middleware that exempts /api/ endpoints from CSRF
+    'django.middleware.csrf.CsrfViewMiddleware',  # Standard CSRF middleware (runs after our exemption middleware)
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

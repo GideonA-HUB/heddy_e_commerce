@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.views.decorators.csrf import csrf_exempt
 from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact
 from heddiekitchen.core.serializers import (
     UserSerializer, UserProfileSerializer, SiteAssetSerializer,
@@ -47,7 +46,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return self.request.user.profile
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register_user(request):
@@ -87,7 +85,6 @@ def register_user(request):
         )
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def login_user(request):
