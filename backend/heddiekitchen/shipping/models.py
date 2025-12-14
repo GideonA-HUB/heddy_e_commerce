@@ -14,6 +14,11 @@ class ShippingDestination(models.Model):
     estimated_days = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ['-is_active', 'name']
+        verbose_name = 'Shipping Destination'
+        verbose_name_plural = 'Shipping Destinations'
+
     def __str__(self):
         return self.name
 
