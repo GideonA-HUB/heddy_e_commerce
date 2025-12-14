@@ -47,9 +47,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return self.request.user.profile
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
-@csrf_exempt
 def register_user(request):
     """
     Register a new user.
@@ -87,9 +87,9 @@ def register_user(request):
         )
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
-@csrf_exempt
 def login_user(request):
     """
     Login user.
