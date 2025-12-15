@@ -28,12 +28,12 @@ class Migration(migrations.Migration):
             name='price_min',
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='cateringpackage',
             name='price_per_head',
             field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='cateringpackage',
             name='description',
             field=models.TextField(blank=True),
