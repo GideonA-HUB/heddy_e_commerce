@@ -2,9 +2,12 @@ from rest_framework import viewsets, filters, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import CateringCategory, CateringPackage, CateringEnquiry
+from .models import CateringCategory, CateringPackage, CateringEnquiry, BuffetService
 from .serializers import (
-    CateringCategorySerializer, CateringPackageSerializer, CateringEnquirySerializer
+    CateringCategorySerializer,
+    CateringPackageSerializer,
+    CateringEnquirySerializer,
+    BuffetServiceSerializer,
 )
 
 
@@ -25,8 +28,8 @@ class CateringPackageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CateringPackageSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'tier']
-    search_fields = ['name', 'description', 'inclusions']
-    ordering_fields = ['price_per_head', 'min_guests']
+    search_fields = ['title', 'description']
+    ordering_fields = ['price_per_head', 'price_min', 'price_max', 'min_guests']
     ordering = ['tier', 'price_per_head']
 
 
@@ -80,3 +83,13 @@ class CateringEnquiryViewSet(viewsets.ModelViewSet):
         enquiry.status = 'cancelled'
         enquiry.save()
         return Response({'status': 'Enquiry cancelled'})
+
+
+class BuffetServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    """Read-only viewset for buffet services."""
+    queryset = BuffetService.objects.all()
+    serializer_class = BuffetServiceSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['buffet_type']
+    ordering_fields = ['price_per_head', 'created_at']
+    ordering = ['buffet_type', 'price_per_head']

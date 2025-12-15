@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import CateringCategory, CateringPackage, CateringEnquiry
+from .models import (
+    CateringCategory,
+    CateringPackage,
+    CateringEnquiry,
+    CateringPackageImage,
+    BuffetService,
+    BuffetImage,
+)
 
 
 @admin.register(CateringCategory)
@@ -9,21 +16,32 @@ class CateringCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at']
 
 
+class CateringPackageImageInline(admin.TabularInline):
+    model = CateringPackageImage
+    extra = 1
+    fields = ('image', 'caption', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)
+
+
 @admin.register(CateringPackage)
 class CateringPackageAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'tier', 'min_guests', 'max_guests', 'price_per_head', 'created_at']
+    list_display = [
+        'title', 'category', 'tier', 'min_guests', 'max_guests',
+        'price_min', 'price_max', 'price_per_head', 'created_at'
+    ]
     list_filter = ['category', 'tier', 'created_at']
     search_fields = ['title', 'description']
     readonly_fields = ['created_at']
+    inlines = [CateringPackageImageInline]
     fieldsets = (
         ('Basic Info', {
             'fields': ('category', 'title', 'tier', 'description')
         }),
         ('Pricing & Capacity', {
-            'fields': ('min_guests', 'max_guests', 'price_per_head')
+            'fields': ('min_guests', 'max_guests', 'price_min', 'price_max', 'price_per_head')
         }),
         ('Details', {
-            'fields': ('menu_options', 'images')
+            'fields': ('menu_options',)
         }),
         ('Timestamps', {
             'fields': ('created_at',)
@@ -43,7 +61,7 @@ class CateringEnquiryAdmin(admin.ModelAdmin):
             'fields': ('user', 'name', 'email', 'phone')
         }),
         ('Event Info', {
-            'fields': ('package', 'event_date', 'number_of_guests', 'message')
+            'fields': ('package', 'event_date', 'number_of_guests', 'message', 'tasting_session_requested', 'tasting_date')
         }),
         ('Status', {
             'fields': ('status', 'created_at')
@@ -65,3 +83,27 @@ class CateringEnquiryAdmin(admin.ModelAdmin):
     mark_responded.short_description = 'Mark as responded'
     mark_booked.short_description = 'Mark as booked'
     mark_cancelled.short_description = 'Mark as cancelled'
+
+
+class BuffetImageInline(admin.TabularInline):
+    model = BuffetImage
+    extra = 1
+    fields = ('image', 'caption', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)
+
+
+@admin.register(BuffetService)
+class BuffetServiceAdmin(admin.ModelAdmin):
+    list_display = ['title', 'buffet_type', 'price_per_head', 'created_at']
+    list_filter = ['buffet_type', 'created_at']
+    search_fields = ['title', 'description']
+    readonly_fields = ['created_at']
+    inlines = [BuffetImageInline]
+    fieldsets = (
+        ('Details', {
+            'fields': ('buffet_type', 'title', 'description', 'price_per_head', 'add_ons', 'setup_notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at',)
+        }),
+    )
