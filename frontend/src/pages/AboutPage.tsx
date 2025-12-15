@@ -14,6 +14,54 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Chef's Profile */}
+      <section className="section-padding bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center">
+                  <ChefHat className="text-primary" size={28} />
+                </div>
+                <div>
+                  <p className="text-sm uppercase tracking-wide text-primary font-semibold">Chef's Profile</p>
+                  <h2 className="heading-2 mb-0">Heddad Uduapi Onoshoagbe</h2>
+                </div>
+              </div>
+
+              <div className="prose prose-lg max-w-none text-gray-800 space-y-4">
+                <p>
+                  Heddad Uduapi Onoshoagbe is the creative force behind Heddiekitchen, a proudly African culinary brand
+                  known for its rich flavors, authenticity, and exceptional service. A trained statistician turned
+                  professional chef, Heddad combines precision, creativity, and deep cultural passion in every dish she
+                  crafts.
+                </p>
+                <p>
+                  Her culinary journey was formally shaped at MariaMartha Catering School, Catholic Diocese of Auchi,
+                  where she completed an intensive six-month catering program and graduated with Merit. This training
+                  refined her skills in food preparation, menu development, event catering, and modern presentation.
+                </p>
+                <p>
+                  Since the birth of Heddiekitchen in 2018/2019, Heddad has consistently elevated her craft through
+                  advanced learning, hands-on experience, and a commitment to excellence. She has successfully
+                  championed numerous events; ranging from intimate gatherings to full-service corporate and cultural
+                  occasions, earning a reputation for reliability, elegance, and unforgettable flavors.
+                </p>
+                <p>
+                  Chef Heddad specializes in authentic African delicacies, blending traditional techniques with
+                  contemporary flair to create meals that are both nostalgic and refined. Her passion is rooted in
+                  preserving the richness of African cuisine while presenting it with a modern, premium touch.
+                </p>
+                <p>
+                  Today, Heddad continues to grow Heddiekitchen into a versatile food brand known for quality,
+                  innovation, and heart-centered service.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Story Section */}
       <section className="section-padding bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
