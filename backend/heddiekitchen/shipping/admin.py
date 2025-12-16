@@ -4,7 +4,7 @@ from .models import ShippingDestination, ShippingOrder
 
 @admin.register(ShippingDestination)
 class ShippingDestinationAdmin(admin.ModelAdmin):
-    list_display = ['name', 'destination_type', 'shipping_fee', 'estimated_days', 'is_active']
+    list_display = ['name', 'destination_type', 'shipping_fee', 'base_fee', 'per_kg_fee', 'estimated_days', 'is_active']
     list_filter = ['is_active', 'destination_type']
     search_fields = ['name']
     fieldsets = (
@@ -12,7 +12,13 @@ class ShippingDestinationAdmin(admin.ModelAdmin):
             'fields': ('name', 'destination_type')
         }),
         ('Shipping Details', {
-            'fields': ('shipping_fee', 'estimated_days')
+            'fields': ('shipping_fee', 'base_fee', 'per_kg_fee', 'estimated_days', 'delivery_time_description')
+        }),
+        ('Catalogue Info', {
+            'fields': ('allowed_items', 'packaging_standards', 'customs_notice')
+        }),
+        ('Pickup Options (Nigeria-wide)', {
+            'fields': ('is_pickup_available', 'pickup_location', 'pickup_schedule')
         }),
         ('Status', {
             'fields': ('is_active',)

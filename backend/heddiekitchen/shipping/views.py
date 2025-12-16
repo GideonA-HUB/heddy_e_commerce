@@ -7,14 +7,11 @@ from .serializers import ShippingDestinationSerializer, ShippingOrderSerializer
 
 
 class ShippingDestinationViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Read-only viewset for shipping destinations (countries/regions).
-    - GET /api/shipping/destinations/ - List all active destinations
-    """
+    """Read-only viewset for shipping destinations (Nigeria-wide + international)."""
     queryset = ShippingDestination.objects.filter(is_active=True)
     serializer_class = ShippingDestinationSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['country', 'state_or_region']
+    search_fields = ['name', 'destination_type']
 
 
 class ShippingOrderViewSet(viewsets.ModelViewSet):
@@ -36,8 +33,8 @@ class ShippingOrderViewSet(viewsets.ModelViewSet):
         """Users see only their orders; admin sees all."""
         user = self.request.user
         if user.is_staff:
-            return ShippingOrder.objects.all().select_related('order', 'destination')
-        return ShippingOrder.objects.filter(order__user=user).select_related('destination')
+            return ShippingOrder.objects.all().select_related('destination', 'user')
+        return ShippingOrder.objects.filter(user=user).select_related('destination')
     
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def calculate_quote(self, request):
@@ -68,18 +65,26 @@ class ShippingOrderViewSet(viewsets.ModelViewSet):
         except ValueError:
             return Response({'error': 'weight_kg must be a number'}, status=status.HTTP_400_BAD_REQUEST)
         
-        base_fee = destination.base_fee
+        # Pricing:
+        # - For international: typically base_fee + per_kg_fee * weight
+        # - For domestic: you can rely on shipping_fee (flat) and/or per_kg_fee
+        base_fee = destination.base_fee or destination.shipping_fee
         weight_fee = weight_kg * destination.per_kg_fee
         total_fee = base_fee + weight_fee
         
         return Response({
             'destination': destination_id,
-            'destination_name': f"{destination.country} - {destination.state_or_region or ''}",
+            'destination_name': destination.name,
+            'zone': 'International' if destination.destination_type == 'international' else 'Nigeria-wide',
             'weight_kg': weight_kg,
             'base_fee': base_fee,
             'weight_fee': weight_fee,
             'total_fee': total_fee,
-            'delivery_time_days': destination.delivery_time_days,
+            'amount': total_fee,
+            'delivery_time_days': destination.estimated_days,
+            'allowed_items': destination.allowed_items,
+            'packaging_standards': destination.packaging_standards,
+            'customs_notice': destination.customs_notice,
         })
     
     @action(detail=True, methods=['get'])
