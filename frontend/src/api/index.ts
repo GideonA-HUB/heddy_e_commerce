@@ -85,9 +85,9 @@ export const cateringAPI = {
 export const shippingAPI = {
   getDestinations: () => apiClient.get('/shipping/destinations/'),
   calculateQuote: (data: { destination_id: number; weight_kg?: number; dimensions?: any }) =>
-    apiClient.post('/shipping/calculate_quote/', data),
+    apiClient.post('/shipping/orders/calculate_quote/', data),
   createShippingOrder: (data: any) => apiClient.post('/shipping/orders/', data),
-  track: (id: number) => apiClient.get(`/shipping/orders/${id}/track/`),
+  track: (id: number) => apiClient.get(`/shipping/orders/${id}/tracking/`),
 };
 
 // Newsletter API
