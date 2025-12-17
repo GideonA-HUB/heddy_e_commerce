@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import viewsets, filters, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -61,26 +62,27 @@ class ShippingOrderViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Destination not found'}, status=status.HTTP_404_NOT_FOUND)
         
         try:
-            weight_kg = float(weight_kg)
-        except ValueError:
+            weight_kg = Decimal(str(weight_kg))
+        except (ValueError, TypeError):
             return Response({'error': 'weight_kg must be a number'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Pricing:
         # - For international: typically base_fee + per_kg_fee * weight
         # - For domestic: you can rely on shipping_fee (flat) and/or per_kg_fee
-        base_fee = destination.base_fee or destination.shipping_fee
-        weight_fee = weight_kg * destination.per_kg_fee
+        base_fee = destination.base_fee or destination.shipping_fee or Decimal('0')
+        per_kg_fee = destination.per_kg_fee or Decimal('0')
+        weight_fee = weight_kg * per_kg_fee
         total_fee = base_fee + weight_fee
         
         return Response({
             'destination': destination_id,
             'destination_name': destination.name,
             'zone': 'International' if destination.destination_type == 'international' else 'Nigeria-wide',
-            'weight_kg': weight_kg,
-            'base_fee': base_fee,
-            'weight_fee': weight_fee,
-            'total_fee': total_fee,
-            'amount': total_fee,
+            'weight_kg': float(weight_kg),
+            'base_fee': float(base_fee),
+            'weight_fee': float(weight_fee),
+            'total_fee': float(total_fee),
+            'amount': float(total_fee),
             'delivery_time_days': destination.estimated_days,
             'allowed_items': destination.allowed_items,
             'packaging_standards': destination.packaging_standards,
