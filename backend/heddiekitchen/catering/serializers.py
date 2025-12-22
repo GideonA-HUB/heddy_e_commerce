@@ -16,10 +16,26 @@ class CateringCategorySerializer(serializers.ModelSerializer):
 
 
 class CateringPackageImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = CateringPackageImage
-        fields = ['id', 'image', 'caption', 'uploaded_at']
+        fields = ['id', 'image', 'image_url', 'caption', 'uploaded_at']
         read_only_fields = ['id', 'uploaded_at']
+    
+    def get_image_url(self, obj):
+        """Get absolute URL for the image (handles Cloudinary URLs)."""
+        if obj.image:
+            url = obj.image.url
+            # If URL is already absolute (Cloudinary), return as-is
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            # Otherwise, make it absolute using request
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
+        return None
 
 
 class CateringPackageSerializer(serializers.ModelSerializer):

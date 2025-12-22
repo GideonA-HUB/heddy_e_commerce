@@ -77,7 +77,7 @@ export const cateringAPI = {
   getPackages: (params?: Record<string, any>) =>
     apiClient.get<PaginatedResponse<any>>('/catering/packages/', { params }),
   getPackageDetail: (id: number) => apiClient.get(`/catering/packages/${id}/`),
-  enquire: (data: { package_id: number; name: string; email: string; phone?: string; message?: string }) =>
+  enquire: (data: { package: number; name: string; email: string; phone: string; event_date: string; number_of_guests: number; message?: string; tasting_session_requested?: boolean; tasting_date?: string }) =>
     apiClient.post('/catering/enquiries/', data),
 };
 

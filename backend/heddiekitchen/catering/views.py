@@ -24,7 +24,7 @@ class CateringPackageViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /api/catering/packages/ - List all packages
     - GET /api/catering/packages/{id}/ - Package detail
     """
-    queryset = CateringPackage.objects.all().select_related('category')
+    queryset = CateringPackage.objects.all().select_related('category').prefetch_related('gallery')
     serializer_class = CateringPackageSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'tier']
@@ -36,17 +36,22 @@ class CateringPackageViewSet(viewsets.ReadOnlyModelViewSet):
 class CateringEnquiryViewSet(viewsets.ModelViewSet):
     """
     ViewSet for catering enquiries (event booking requests).
-    - GET /api/catering/enquiries/ - User's enquiries
-    - POST /api/catering/enquiries/ - Create enquiry
+    - GET /api/catering/enquiries/ - User's enquiries (authenticated only)
+    - POST /api/catering/enquiries/ - Create enquiry (public, user optional)
     - GET /api/catering/enquiries/{id}/ - Enquiry detail
     - PATCH /api/catering/enquiries/{id}/ - Update enquiry
     """
     serializer_class = CateringEnquirySerializer
-    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['status', 'package']
     ordering_fields = ['created_at', 'event_date']
     ordering = ['-created_at']
+    
+    def get_permissions(self):
+        """Allow unauthenticated POST for enquiries, require auth for GET/PATCH."""
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
         """Users see only their own enquiries, admin sees all."""
