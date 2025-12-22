@@ -25,7 +25,9 @@ const CateringPage: React.FC = () => {
   const [packages, setPackages] = useState<CateringPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState<CateringPackage | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEnquireModal, setShowEnquireModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [enquireForm, setEnquireForm] = useState({
     name: '',
     email: '',
@@ -53,9 +55,19 @@ const CateringPage: React.FC = () => {
     fetchPackages();
   }, []);
 
-  const handleEnquireClick = (pkg: CateringPackage) => {
+  const handleCardClick = (pkg: CateringPackage) => {
+    setSelectedPackage(pkg);
+    setShowDetailModal(true);
+    setCurrentImageIndex(0);
+  };
+
+  const handleEnquireClick = (pkg: CateringPackage, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation(); // Prevent card click when clicking enquire button
+    }
     setSelectedPackage(pkg);
     setShowEnquireModal(true);
+    setShowDetailModal(false); // Close detail modal if open
     setEnquireForm({
       name: '',
       email: '',
@@ -66,6 +78,18 @@ const CateringPage: React.FC = () => {
       tasting_session_requested: false,
     });
     setSubmitMessage(null);
+  };
+
+  const nextImage = () => {
+    if (selectedPackage && selectedPackage.gallery) {
+      setCurrentImageIndex((prev) => (prev + 1) % selectedPackage.gallery.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (selectedPackage && selectedPackage.gallery) {
+      setCurrentImageIndex((prev) => (prev - 1 + selectedPackage.gallery.length) % selectedPackage.gallery.length);
+    }
   };
 
   const handleSubmitEnquiry = async (e: React.FormEvent) => {
@@ -141,7 +165,11 @@ const CateringPage: React.FC = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {packages.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <div 
+                key={pkg.id} 
+                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                onClick={() => handleCardClick(pkg)}
+              >
                 {/* Image Gallery */}
                 {pkg.gallery && pkg.gallery.length > 0 && (
                   <div className="relative h-48 bg-gray-200 overflow-hidden">
@@ -206,7 +234,7 @@ const CateringPage: React.FC = () => {
 
                   {/* Enquire Button */}
                   <button
-                    onClick={() => handleEnquireClick(pkg)}
+                    onClick={(e) => handleEnquireClick(pkg, e)}
                     className="w-full btn-primary py-2"
                   >
                     Enquire
@@ -217,6 +245,227 @@ const CateringPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Package Detail Modal */}
+      {showDetailModal && selectedPackage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowDetailModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-bold">{selectedPackage.title}</h2>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              {/* Image Gallery */}
+              {selectedPackage.gallery && selectedPackage.gallery.length > 0 && (
+                <div className="mb-6">
+                  <div className="relative h-96 bg-gray-200 rounded-lg overflow-hidden">
+                    <img
+                      src={selectedPackage.gallery[currentImageIndex].image_url}
+                      alt={selectedPackage.gallery[currentImageIndex].caption || selectedPackage.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Navigation Arrows */}
+                    {selectedPackage.gallery.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            prevImage();
+                          }}
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+                        >
+                          ‹
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            nextImage();
+                          }}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+                        >
+                          ›
+                        </button>
+                      </>
+                    )}
+
+                    {/* Image Counter */}
+                    {selectedPackage.gallery.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-sm px-3 py-1 rounded">
+                        {currentImageIndex + 1} / {selectedPackage.gallery.length}
+                      </div>
+                    )}
+
+                    {/* Caption */}
+                    {selectedPackage.gallery[currentImageIndex].caption && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+                        {selectedPackage.gallery[currentImageIndex].caption}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Thumbnail Gallery */}
+                  {selectedPackage.gallery.length > 1 && (
+                    <div className="flex gap-2 mt-4 overflow-x-auto">
+                      {selectedPackage.gallery.map((img, idx) => (
+                        <button
+                          key={img.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCurrentImageIndex(idx);
+                          }}
+                          className={`flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 ${
+                            currentImageIndex === idx ? 'border-primary' : 'border-transparent'
+                          }`}
+                        >
+                          <img
+                            src={img.image_url}
+                            alt={img.caption || `${selectedPackage.title} - Image ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Package Info */}
+              <div className="space-y-4">
+                {/* Title, Tier, Category */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900">{selectedPackage.title}</h3>
+                    <span className="text-sm text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
+                      {selectedPackage.tier}
+                    </span>
+                  </div>
+                  {selectedPackage.category_name && (
+                    <p className="text-sm text-gray-600 capitalize">Category: {selectedPackage.category_name}</p>
+                  )}
+                </div>
+
+                {/* Full Description */}
+                {selectedPackage.description && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Description</h4>
+                    <p className="text-gray-700 whitespace-pre-line">{selectedPackage.description}</p>
+                  </div>
+                )}
+
+                {/* Capacity */}
+                {(selectedPackage.min_guests || selectedPackage.max_guests) && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Capacity</h4>
+                    <p className="text-gray-700">
+                      {selectedPackage.min_guests && `${selectedPackage.min_guests}`}
+                      {selectedPackage.min_guests && selectedPackage.max_guests && ' - '}
+                      {selectedPackage.max_guests && `${selectedPackage.max_guests}`} guests
+                    </p>
+                  </div>
+                )}
+
+                {/* Pricing Details */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Pricing</h4>
+                  <div className="space-y-1">
+                    {selectedPackage.price_per_head && (
+                      <p className="text-lg font-bold text-primary">
+                        ₦{Number(selectedPackage.price_per_head).toLocaleString()} per head
+                      </p>
+                    )}
+                    {selectedPackage.price_min && selectedPackage.price_max && (
+                      <p className="text-gray-700">
+                        Price Range: ₦{Number(selectedPackage.price_min).toLocaleString()} - ₦{Number(selectedPackage.price_max).toLocaleString()}
+                      </p>
+                    )}
+                    {selectedPackage.price_min && !selectedPackage.price_max && (
+                      <p className="text-gray-700">
+                        Starting from: ₦{Number(selectedPackage.price_min).toLocaleString()}
+                      </p>
+                    )}
+                    {!selectedPackage.price_per_head && !selectedPackage.price_min && (
+                      <p className="text-gray-700">Contact us for pricing</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Full Menu Options */}
+                {selectedPackage.menu_options && selectedPackage.menu_options.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Menu Options</h4>
+                    {(() => {
+                      const formattedOptions = formatMenuOptions(selectedPackage.menu_options);
+                      if (formattedOptions && formattedOptions.length > 0) {
+                        return (
+                          <ul className="list-disc list-inside space-y-1 text-gray-700">
+                            {formattedOptions.map((item: string, idx: number) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      // If it's a structured object, display it nicely
+                      if (Array.isArray(selectedPackage.menu_options)) {
+                        return (
+                          <div className="space-y-3">
+                            {selectedPackage.menu_options.map((group: any, groupIdx: number) => (
+                              <div key={groupIdx}>
+                                {group.title && (
+                                  <h5 className="font-semibold text-gray-800 mb-1">{group.title}</h5>
+                                )}
+                                {group.items && Array.isArray(group.items) && (
+                                  <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
+                                    {group.items.map((item: string, itemIdx: number) => (
+                                      <li key={itemIdx}>{item}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4 border-t">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEnquireClick(selectedPackage, e);
+                    }}
+                    className="btn-primary px-6 py-2"
+                  >
+                    Enquire Now
+                  </button>
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Enquire Modal */}
       {showEnquireModal && selectedPackage && (
