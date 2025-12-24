@@ -23,8 +23,8 @@ class GalleryImageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category']
-    search_fields = ['title', 'description', 'alt_text']
-    ordering_fields = ['upload_date', 'display_order']
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'display_order']
     
     def perform_create(self, serializer):
         """Only staff can upload images."""

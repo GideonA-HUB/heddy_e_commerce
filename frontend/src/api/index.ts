@@ -10,6 +10,8 @@ import {
   PaginatedResponse,
   BlogPost,
   MealPlan,
+  GalleryCategory,
+  GalleryImage,
 } from '../types';
 
 // Auth APIs
@@ -108,6 +110,16 @@ export const coreAPI = {
     apiClient.get<PaginatedResponse<{ id: number; name: string; favicon_url?: string; logo_primary_url?: string; logo_light_url?: string; logo_dark_url?: string }>>('/auth/assets/'),
 };
 
+// Gallery APIs
+export const galleryAPI = {
+  getCategories: () =>
+    apiClient.get<PaginatedResponse<GalleryCategory>>('/gallery/categories/'),
+  getImages: (params?: Record<string, any>) =>
+    apiClient.get<PaginatedResponse<GalleryImage>>('/gallery/images/', { params }),
+  getImageDetail: (id: number) =>
+    apiClient.get<GalleryImage>(`/gallery/images/${id}/`),
+};
+
 export default {
   authAPI,
   menuAPI,
@@ -118,4 +130,5 @@ export default {
   newsletterAPI,
   contactAPI,
   coreAPI,
+  galleryAPI,
 };

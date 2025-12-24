@@ -178,3 +178,22 @@ export interface PaginatedResponse<T> {
   previous?: string;
   results: T[];
 }
+
+export interface GalleryCategory {
+  id: number;
+  name: string;
+  slug: string;
+  image_count: number;
+}
+
+export interface GalleryImage {
+  id: number;
+  category: number;
+  category_name: string;
+  image: string;
+  image_url: string;
+  title: string;
+  description: string;
+  display_order: number;
+  created_at: string;
+}

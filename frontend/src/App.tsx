@@ -25,6 +25,7 @@ import ContactPage from './pages/ContactPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import GalleryPage from './pages/GalleryPage';
 
 const App: React.FC = () => {
   const setSiteAssetLogo = useUIStore((state) => state.setSiteAssetLogo);
@@ -102,6 +103,7 @@ const App: React.FC = () => {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/meal-plans" element={<MealPlansPage />} />
             <Route path="/catering" element={<CateringPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/shipping" element={<ShippingPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />

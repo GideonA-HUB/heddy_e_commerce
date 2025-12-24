@@ -7,7 +7,7 @@ class GalleryCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = GalleryCategory
-        fields = ['id', 'name', 'slug', 'description', 'image_count']
+        fields = ['id', 'name', 'slug', 'image_count']
     
     def get_image_count(self, obj):
         return obj.images.count()
@@ -15,9 +15,20 @@ class GalleryCategorySerializer(serializers.ModelSerializer):
 
 class GalleryImageSerializer(serializers.ModelSerializer):
     category_name = serializers.StringRelatedField(source='category.name', read_only=True)
+    image_url = serializers.SerializerMethodField()
     
     class Meta:
         model = GalleryImage
-        fields = ['id', 'category', 'category_name', 'image', 'title', 'description', 
-                  'alt_text', 'upload_date', 'display_order']
-        read_only_fields = ['upload_date']
+        fields = ['id', 'category', 'category_name', 'image', 'image_url', 'title', 'description', 
+                  'display_order', 'created_at']
+        read_only_fields = ['created_at']
+    
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            url = obj.image.url
+            # If URL is already absolute (Cloudinary), return as-is
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            return request.build_absolute_uri(url)
+        return None

@@ -25,6 +25,7 @@ export const Navbar: React.FC = () => {
     { to: '/menu', label: 'Menu' },
     { to: '/meal-plans', label: 'Meal Plans' },
     { to: '/catering', label: 'Catering' },
+    { to: '/gallery', label: 'Gallery' },
     { to: '/shipping', label: 'Shipping' },
     { to: '/blog', label: 'Blog' },
     { to: '/contact', label: 'Contact' },
