@@ -59,14 +59,19 @@ class BlogPostViewSet(viewsets.ModelViewSet):
         if not content:
             return Response({'error': 'Comment cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # BlogComment.author is a CharField, not ForeignKey
+        author_name = request.user.get_full_name() or request.user.username
+        email = request.user.email or ''
+        
         comment = BlogComment.objects.create(
             post=post,
-            author=request.user,
+            author=author_name,
+            email=email,
             content=content,
             is_approved=False  # Requires moderation
         )
         
-        serializer = BlogCommentSerializer(comment)
+        serializer = BlogCommentSerializer(comment, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     def retrieve(self, request, *args, **kwargs):

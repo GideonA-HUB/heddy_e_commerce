@@ -29,7 +29,6 @@ class BlogPostAdmin(admin.ModelAdmin):
     list_filter = ['is_published', 'category', 'created_at']
     search_fields = ['title', 'excerpt', 'body', 'meta_keywords']
     readonly_fields = ['view_count', 'created_at', 'updated_at']
-    prepopulated_fields = {'slug': ('title',)}
     inlines = [BlogCommentInline]
     fieldsets = (
         ('Content', {
@@ -49,6 +48,12 @@ class BlogPostAdmin(admin.ModelAdmin):
         if obj:  # Editing an existing object
             readonly.append('slug')
         return readonly
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        """Only prepopulate slug when creating new posts, not when editing."""
+        if obj is None:  # Creating a new object
+            return {'slug': ('title',)}
+        return {}  # No prepopulation when editing
     
     def save_model(self, request, obj, form, change):
         if not change:
