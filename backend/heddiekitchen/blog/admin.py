@@ -58,6 +58,10 @@ class BlogPostAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user
+        # Set publish_date when post is published for the first time
+        if obj.is_published and not obj.publish_date:
+            from django.utils import timezone
+            obj.publish_date = timezone.now()
         super().save_model(request, obj, form, change)
 
 

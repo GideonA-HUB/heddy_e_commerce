@@ -43,7 +43,7 @@ class BlogPost(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-publish_date']
+        ordering = ['-publish_date', '-created_at']  # Use created_at as fallback if publish_date is None
 
     def __str__(self):
         return self.title

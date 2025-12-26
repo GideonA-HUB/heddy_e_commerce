@@ -63,9 +63,9 @@ export const orderAPI = {
 // Blog APIs
 export const blogAPI = {
   getPosts: (params?: Record<string, any>) =>
-    apiClient.get<PaginatedResponse<BlogPost>>('/blog/', { params }),
+    apiClient.get<PaginatedResponse<BlogPost>>('/blog/posts/', { params }),
   getPostDetail: (slug: string) =>
-    apiClient.get<BlogPost>(`/blog/${slug}/`),
+    apiClient.get<BlogPost>(`/blog/posts/${slug}/`),
 };
 
 // Meal Plans APIs
