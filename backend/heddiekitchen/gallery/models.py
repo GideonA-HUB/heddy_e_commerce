@@ -9,6 +9,10 @@ class GalleryCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Gallery Categories'
+
     def __str__(self):
         return self.name
 

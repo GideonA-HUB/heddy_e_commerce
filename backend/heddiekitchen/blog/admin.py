@@ -28,7 +28,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     list_display = ['title', 'category', 'author', 'is_published', 'view_count', 'created_at']
     list_filter = ['is_published', 'category', 'created_at']
     search_fields = ['title', 'excerpt', 'body', 'meta_keywords']
-    readonly_fields = ['slug', 'view_count', 'created_at', 'updated_at']
+    readonly_fields = ['view_count', 'created_at', 'updated_at']
     prepopulated_fields = {'slug': ('title',)}
     inlines = [BlogCommentInline]
     fieldsets = (
@@ -42,6 +42,13 @@ class BlogPostAdmin(admin.ModelAdmin):
             'fields': ('is_published', 'author', 'view_count', 'created_at', 'updated_at')
         }),
     )
+    
+    def get_readonly_fields(self, request, obj=None):
+        """Make slug readonly when editing existing post to prevent URL changes."""
+        readonly = list(self.readonly_fields)
+        if obj:  # Editing an existing object
+            readonly.append('slug')
+        return readonly
     
     def save_model(self, request, obj, form, change):
         if not change:
