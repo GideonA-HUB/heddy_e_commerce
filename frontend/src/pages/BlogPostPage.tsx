@@ -64,11 +64,11 @@ const BlogPostPage: React.FC = () => {
 
         <article className="bg-white rounded-lg shadow-lg overflow-hidden">
           {post.featured_image_url && (
-            <div className="w-full h-64 sm:h-80 overflow-hidden">
+            <div className="w-full bg-gray-100 flex items-center justify-center overflow-hidden">
               <img
                 src={post.featured_image_url}
                 alt={post.title}
-                className="w-full h-full object-cover"
+                className="w-full h-auto max-h-[600px] object-contain"
               />
             </div>
           )}

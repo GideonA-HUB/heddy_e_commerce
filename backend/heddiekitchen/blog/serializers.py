@@ -5,7 +5,7 @@ from .models import BlogCategory, BlogTag, BlogPost, BlogComment
 class BlogCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogCategory
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug']
 
 
 class BlogTagSerializer(serializers.ModelSerializer):

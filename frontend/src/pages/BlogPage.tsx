@@ -38,11 +38,12 @@ const BlogPage: React.FC = () => {
               <article key={p.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow overflow-hidden">
                 <Link to={`/blog/${p.slug}`} className="block">
                   {p.featured_image_url && (
-                    <div className="w-full h-48 sm:h-64 overflow-hidden">
+                    <div className="w-full aspect-video sm:aspect-[16/9] overflow-hidden bg-gray-100 relative">
                       <img
                         src={p.featured_image_url}
                         alt={p.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        style={{ objectPosition: 'center top' }}
                       />
                     </div>
                   )}
