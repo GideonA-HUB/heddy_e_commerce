@@ -66,6 +66,16 @@ export const blogAPI = {
     apiClient.get<PaginatedResponse<BlogPost>>('/blog/posts/', { params }),
   getPostDetail: (slug: string) =>
     apiClient.get<BlogPost>(`/blog/posts/${slug}/`),
+  likePost: (slug: string) =>
+    apiClient.post(`/blog/posts/${slug}/like/`),
+  unlikePost: (slug: string) =>
+    apiClient.delete(`/blog/posts/${slug}/like/`),
+  addComment: (slug: string, data: { content: string; author?: string; email?: string; parent_id?: number }) =>
+    apiClient.post(`/blog/posts/${slug}/add_comment/`, data),
+  likeComment: (commentId: number) =>
+    apiClient.post(`/blog/comments/${commentId}/like/`),
+  unlikeComment: (commentId: number) =>
+    apiClient.delete(`/blog/comments/${commentId}/like/`),
 };
 
 // Meal Plans APIs

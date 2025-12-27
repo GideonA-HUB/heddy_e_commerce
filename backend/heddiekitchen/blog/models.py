@@ -60,8 +60,62 @@ class BlogComment(models.Model):
     author = models.CharField(max_length=200)
     email = models.EmailField()
     content = models.TextField()
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return f"Comment by {self.author} on {self.post.title}"
+
+
+class BlogPostLike(models.Model):
+    """Track who liked a blog post."""
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post_likes', null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['post', 'user'], ['post', 'ip_address']]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} liked {self.post.title}"
+        return f"Anonymous (IP: {self.ip_address}) liked {self.post.title}"
+
+
+class BlogCommentLike(models.Model):
+    """Track who liked a comment."""
+    comment = models.ForeignKey(BlogComment, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_comment_likes', null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['comment', 'user'], ['comment', 'ip_address']]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} liked comment on {self.comment.post.title}"
+        return f"Anonymous (IP: {self.ip_address}) liked comment"
+
+
+class BlogPostView(models.Model):
+    """Track who viewed a blog post."""
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='views_tracked')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post_views', null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-viewed_at']
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} viewed {self.post.title}"
+        return f"Anonymous (IP: {self.ip_address}) viewed {self.post.title}"

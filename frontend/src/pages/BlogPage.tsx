@@ -38,12 +38,11 @@ const BlogPage: React.FC = () => {
               <article key={p.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow overflow-hidden">
                 <Link to={`/blog/${p.slug}`} className="block">
                   {p.featured_image_url && (
-                    <div className="w-full aspect-video sm:aspect-[16/9] overflow-hidden bg-gray-100 relative">
+                    <div className="w-full bg-gray-100 flex items-center justify-center overflow-hidden" style={{ minHeight: '300px', maxHeight: '500px' }}>
                       <img
                         src={p.featured_image_url}
                         alt={p.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        style={{ objectPosition: 'center top' }}
+                        className="w-full h-auto max-h-[500px] object-contain hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}
@@ -70,6 +69,9 @@ const BlogPage: React.FC = () => {
                       )}
                       {p.view_count !== undefined && (
                         <span>• {p.view_count} views</span>
+                      )}
+                      {p.like_count !== undefined && (
+                        <span>• {p.like_count} likes</span>
                       )}
                     </div>
                   </div>

@@ -139,21 +139,39 @@ const CateringPage: React.FC = () => {
     return 'Contact for pricing';
   };
 
-  const formatMenuOptions = (menuOptions: any[]) => {
-    if (!menuOptions || menuOptions.length === 0) return null;
+  const formatMenuOptions = (menuOptions: any) => {
+    if (!menuOptions) return null;
     
-    // If it's an array of strings
-    if (typeof menuOptions[0] === 'string') {
+    // If it's already an array of strings
+    if (Array.isArray(menuOptions) && menuOptions.length > 0 && typeof menuOptions[0] === 'string') {
       return menuOptions;
     }
     
-    // If it's an array of objects with groups
-    return menuOptions.flatMap((group: any) => {
-      if (group.items && Array.isArray(group.items)) {
-        return group.items;
+    // If it's a JSON object with category keys (e.g., {"soups": [...], "proteins": [...]})
+    if (typeof menuOptions === 'object' && !Array.isArray(menuOptions)) {
+      const formatted: Array<{ category: string; items: string[] }> = [];
+      for (const [key, value] of Object.entries(menuOptions)) {
+        if (Array.isArray(value) && value.length > 0) {
+          formatted.push({
+            category: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            items: value as string[]
+          });
+        }
       }
-      return [];
-    });
+      return formatted;
+    }
+    
+    // If it's an array of objects with groups
+    if (Array.isArray(menuOptions)) {
+      return menuOptions.flatMap((group: any) => {
+        if (group.items && Array.isArray(group.items)) {
+          return group.items;
+        }
+        return [];
+      });
+    }
+    
+    return null;
   };
 
   return (
@@ -403,32 +421,53 @@ const CateringPage: React.FC = () => {
                 </div>
 
                 {/* Full Menu Options */}
-                {selectedPackage.menu_options && selectedPackage.menu_options.length > 0 && (
+                {selectedPackage.menu_options && (
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Menu Options</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">Menu Options</h4>
                     {(() => {
                       const formattedOptions = formatMenuOptions(selectedPackage.menu_options);
-                      if (formattedOptions && formattedOptions.length > 0) {
+                      
+                      // If formatted as category groups (from JSON object)
+                      if (formattedOptions && Array.isArray(formattedOptions) && formattedOptions.length > 0 && formattedOptions[0]?.category) {
+                        return (
+                          <div className="space-y-4">
+                            {(formattedOptions as Array<{ category: string; items: string[] }>).map((group, groupIdx) => (
+                              <div key={groupIdx} className="border-l-4 border-primary pl-4">
+                                <h5 className="font-semibold text-gray-800 mb-2 text-lg">{group.category}</h5>
+                                <ul className="list-disc list-inside space-y-1 text-gray-700 ml-2">
+                                  {group.items.map((item: string, itemIdx: number) => (
+                                    <li key={itemIdx}>{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      
+                      // If it's a simple array of strings
+                      if (formattedOptions && Array.isArray(formattedOptions) && formattedOptions.length > 0 && typeof formattedOptions[0] === 'string') {
                         return (
                           <ul className="list-disc list-inside space-y-1 text-gray-700">
-                            {formattedOptions.map((item: string, idx: number) => (
+                            {(formattedOptions as string[]).map((item: string, idx: number) => (
                               <li key={idx}>{item}</li>
                             ))}
                           </ul>
                         );
                       }
-                      // If it's a structured object, display it nicely
-                      if (Array.isArray(selectedPackage.menu_options)) {
+                      
+                      // Fallback: try to display raw menu_options
+                      if (typeof selectedPackage.menu_options === 'object') {
                         return (
                           <div className="space-y-3">
-                            {selectedPackage.menu_options.map((group: any, groupIdx: number) => (
-                              <div key={groupIdx}>
-                                {group.title && (
-                                  <h5 className="font-semibold text-gray-800 mb-1">{group.title}</h5>
-                                )}
-                                {group.items && Array.isArray(group.items) && (
+                            {Object.entries(selectedPackage.menu_options).map(([key, value]: [string, any]) => (
+                              <div key={key}>
+                                <h5 className="font-semibold text-gray-800 mb-1 capitalize">
+                                  {key.replace(/_/g, ' ')}
+                                </h5>
+                                {Array.isArray(value) && (
                                   <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                                    {group.items.map((item: string, itemIdx: number) => (
+                                    {value.map((item: string, itemIdx: number) => (
                                       <li key={itemIdx}>{item}</li>
                                     ))}
                                   </ul>
@@ -438,7 +477,8 @@ const CateringPage: React.FC = () => {
                           </div>
                         );
                       }
-                      return null;
+                      
+                      return <p className="text-gray-500">No menu options available</p>;
                     })()}
                   </div>
                 )}
