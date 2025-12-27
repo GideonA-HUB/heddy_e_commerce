@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { blogAPI } from '../api';
 import SkeletonLoader from '../components/SkeletonLoader';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, Heart, MessageCircle, Share2, Facebook, Twitter, Instagram, Send, Reply } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share2, Facebook, Twitter, Send, Reply } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 
 const BlogPostPage: React.FC = () => {
@@ -109,12 +109,10 @@ const BlogPostPage: React.FC = () => {
     if (!post?.share_url) return;
     const url = encodeURIComponent(post.share_url);
     const title = encodeURIComponent(post.title);
-    const text = encodeURIComponent(post.excerpt || '');
 
     const shareUrls: { [key: string]: string } = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
-      instagram: `https://www.instagram.com/`, // Instagram doesn't support direct sharing
       threads: `https://threads.net/intent/post?text=${title}%20${url}`,
     };
 
