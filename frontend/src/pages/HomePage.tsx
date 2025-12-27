@@ -99,17 +99,18 @@ const HomePage: React.FC = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://vibrantwestafricancuisine.com/wp-content/uploads/2017/12/IMG_0551-scaled.jpg)',
+              backgroundImage: 'url(https://danangfantasticity.com/wp-content/uploads/2022/11/A-Momentous-New-Year-Day-thang-muoi-hai-ruc-ro-tai-shilla-monogram-quangnam-danang.jpg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center center',
               transform: 'scale(1.1)',
               willChange: 'transform',
+              filter: 'blur(2px)',
             }}
           />
         </motion.div>
         
-        {/* Minimal overlay only for text readability - very subtle */}
-        <div className="absolute inset-0 bg-black/5"></div>
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px]"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div 
@@ -141,15 +142,15 @@ const HomePage: React.FC = () => {
                   transformStyle: 'preserve-3d'
                 }}
               >
-                <span className="block text-black">Delicious Food,</span>
+                <span className="block text-black drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]">Delicious Food,</span>
                 <motion.span 
-                  className="block text-red-600"
+                  className="block text-red-600 drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]"
                 >
                   Delivered Fresh
                 </motion.span>
               </motion.h1>
               <motion.p 
-                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-red-600 leading-relaxed max-w-xl mx-auto md:mx-0 font-medium"
+                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-black leading-relaxed max-w-xl mx-auto md:mx-0 font-medium drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
