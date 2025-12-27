@@ -15,6 +15,7 @@ const BlogPostPage: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [commentForm, setCommentForm] = useState({ content: '', author: '', email: '' });
   const [replyForm, setReplyForm] = useState<{ [key: number]: { content: string; author: string; email: string } }>({});
+  const [commentSuccess, setCommentSuccess] = useState(false);
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
@@ -81,6 +82,8 @@ const BlogPostPage: React.FC = () => {
         setReplyingTo(null);
       } else {
         setCommentForm({ content: '', author: '', email: '' });
+        setCommentSuccess(true);
+        setTimeout(() => setCommentSuccess(false), 3000);
       }
     } catch (err) {
       console.error('Failed to add comment', err);
@@ -268,6 +271,11 @@ const BlogPostPage: React.FC = () => {
           </h2>
 
           {/* Comment Form */}
+          {commentSuccess && (
+            <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+              Comment posted successfully!
+            </div>
+          )}
           <form onSubmit={handleCommentSubmit} className="mb-8 pb-8 border-b">
             <div className="space-y-4">
               {!user && (

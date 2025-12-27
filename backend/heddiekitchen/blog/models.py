@@ -61,7 +61,7 @@ class BlogComment(models.Model):
     email = models.EmailField()
     content = models.TextField()
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True, help_text="Comments are approved by default but can be moderated")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

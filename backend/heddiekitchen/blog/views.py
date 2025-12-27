@@ -136,7 +136,7 @@ class BlogPostViewSet(viewsets.ModelViewSet):
             email=email,
             content=content,
             parent=parent,
-            is_approved=False  # Requires moderation
+            is_approved=True  # Comments are approved by default, but admins can still moderate
         )
         
         serializer = BlogCommentSerializer(comment, context={'request': request})
