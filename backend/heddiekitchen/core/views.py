@@ -171,6 +171,14 @@ class NewsletterViewSet(viewsets.ModelViewSet):
             newsletter.is_active = True
             newsletter.save()
 
+        # Send welcome email
+        try:
+            from heddiekitchen.core.email_utils import send_newsletter_welcome_email
+            send_newsletter_welcome_email(email)
+        except Exception as e:
+            # Log error but don't fail the subscription
+            print(f"Error sending newsletter welcome email: {e}")
+
         return Response(
             NewsletterSerializer(newsletter).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK

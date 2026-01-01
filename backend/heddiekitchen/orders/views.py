@@ -173,6 +173,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Clear cart
         cart.items.all().delete()
 
+        # Send order confirmation email
+        try:
+            from heddiekitchen.core.email_utils import send_order_confirmation_email
+            send_order_confirmation_email(order)
+        except Exception as e:
+            # Log error but don't fail the order creation
+            print(f"Error sending order confirmation email: {e}")
+
         response_serializer = OrderDetailSerializer(order, context={'request': request})
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 

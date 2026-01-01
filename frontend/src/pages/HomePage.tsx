@@ -58,11 +58,8 @@ const HomePage: React.FC = () => {
   }, [fetchCart]);
 
   const handleAddToCart = async (item: MenuItem) => {
-    try {
-      await addItem(item.id, 1);
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
+    // This is just for UI feedback - the actual add to cart is handled in MenuItemCard
+    // No need to call addItem again here
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {

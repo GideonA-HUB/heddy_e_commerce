@@ -26,6 +26,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart })
     e.stopPropagation();
     try {
       await addItem(item.id, 1);
+      // onAddToCart is optional and should only be used for UI feedback, not for adding to cart
+      // The addItem function already handles adding to cart
       if (onAddToCart) {
         onAddToCart(item);
       }
