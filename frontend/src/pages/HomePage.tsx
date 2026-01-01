@@ -104,13 +104,12 @@ const HomePage: React.FC = () => {
               backgroundPosition: 'center center',
               transform: 'scale(1.1)',
               willChange: 'transform',
-              filter: 'blur(2px)',
             }}
           />
         </motion.div>
         
-        {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px]"></div>
+        {/* Minimal overlay for text readability - reduced opacity */}
+        <div className="absolute inset-0 bg-white/15"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div 
