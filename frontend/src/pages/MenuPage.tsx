@@ -20,7 +20,6 @@ const MenuPage: React.FC = () => {
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'name');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const addItem = useCartStore((state) => state.addItem);
   const fetchCart = useCartStore((state) => state.fetchCart);
 
   useEffect(() => {
@@ -59,7 +58,7 @@ const MenuPage: React.FC = () => {
     });
   };
 
-  const handleAddToCart = async (item: MenuItem) => {
+  const handleAddToCart = async () => {
     // This is just for UI feedback - the actual add to cart is handled in MenuItemCard
     // No need to call addItem again here
   };
