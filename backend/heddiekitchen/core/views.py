@@ -171,13 +171,24 @@ class NewsletterViewSet(viewsets.ModelViewSet):
             newsletter.is_active = True
             newsletter.save()
 
-        # Send welcome email
+        # Send welcome email asynchronously (don't block the response)
         try:
+            import threading
             from heddiekitchen.core.email_utils import send_newsletter_welcome_email
-            send_newsletter_welcome_email(email)
+            
+            def send_email_async():
+                try:
+                    send_newsletter_welcome_email(email)
+                except Exception as e:
+                    print(f"Error sending newsletter welcome email: {e}")
+            
+            # Send email in background thread
+            thread = threading.Thread(target=send_email_async)
+            thread.daemon = True
+            thread.start()
         except Exception as e:
             # Log error but don't fail the subscription
-            print(f"Error sending newsletter welcome email: {e}")
+            print(f"Error setting up newsletter email thread: {e}")
 
         return Response(
             NewsletterSerializer(newsletter).data,

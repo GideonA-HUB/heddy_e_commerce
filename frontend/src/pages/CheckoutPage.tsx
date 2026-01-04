@@ -46,11 +46,18 @@ const CheckoutPage: React.FC = () => {
     setError('');
 
     try {
-      // Create order from cart
+      // Create order from cart - send data in the format expected by backend
       const orderData = {
-        shipping_address: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state}`,
-        contact_phone: shippingInfo.phone,
-        notes: '',
+        shipping_name: shippingInfo.full_name,
+        shipping_email: shippingInfo.email,
+        shipping_phone: shippingInfo.phone,
+        shipping_address: shippingInfo.address,
+        shipping_city: shippingInfo.city || '',
+        shipping_state: shippingInfo.state || '',
+        shipping_country: 'Nigeria',
+        shipping_zip: shippingInfo.postal_code || '',
+        special_instructions: '',
+        payment_method: 'paystack',
       };
 
       const orderResponse = await orderAPI.createOrder(orderData);

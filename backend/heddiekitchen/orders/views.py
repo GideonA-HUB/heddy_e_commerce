@@ -173,13 +173,24 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Clear cart
         cart.items.all().delete()
 
-        # Send order confirmation email
+        # Send order confirmation email asynchronously (don't block the response)
         try:
+            import threading
             from heddiekitchen.core.email_utils import send_order_confirmation_email
-            send_order_confirmation_email(order)
+            
+            def send_email_async():
+                try:
+                    send_order_confirmation_email(order)
+                except Exception as e:
+                    print(f"Error sending order confirmation email: {e}")
+            
+            # Send email in background thread
+            thread = threading.Thread(target=send_email_async)
+            thread.daemon = True
+            thread.start()
         except Exception as e:
             # Log error but don't fail the order creation
-            print(f"Error sending order confirmation email: {e}")
+            print(f"Error setting up order email thread: {e}")
 
         response_serializer = OrderDetailSerializer(order, context={'request': request})
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)

@@ -52,7 +52,8 @@ FRONTEND_URL=https://heddyecommerce-production.up.railway.app
 
 1. **Enable 2-Factor Authentication** on your Gmail account
 2. **Generate App Password:**
-   - Go to: https://myaccount.google.com/apppasswords
+   - Go to: 
+   
    - Select "Mail" and "Other (Custom name)"
    - Enter "HEDDIEKITCHEN" as the name
    - Copy the 16-character password
