@@ -113,11 +113,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             return OrderListSerializer
         return OrderDetailSerializer
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def create_order(self, request):
         """Create order from cart."""
         serializer = CreateOrderSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            # Return detailed validation errors
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Get or create cart
         if request.user.is_authenticated:
@@ -132,7 +137,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # Calculate totals
         subtotal = sum(item.get_subtotal() for item in cart_items)
-        shipping_fee = Decimal('0.00')  # Will be calculated based on address
+        # Default shipping fee (can be customized based on location)
+        shipping_fee = Decimal('5000.00')  # Default shipping fee
         tax = subtotal * Decimal('0.075')  # 7.5% tax
         total = subtotal + shipping_fee + tax
 

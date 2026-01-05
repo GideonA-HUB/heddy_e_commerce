@@ -9,6 +9,11 @@ from django.utils.html import strip_tags
 
 def send_newsletter_welcome_email(email: str):
     """Send welcome email to newsletter subscribers."""
+    # Check if email is configured
+    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+        print("Email not configured - skipping newsletter welcome email")
+        return False
+    
     subject = 'Welcome to HEDDIEKITCHEN Newsletter!'
     
     html_message = f"""
@@ -64,18 +69,28 @@ def send_newsletter_welcome_email(email: str):
             from_email=settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER,
             recipient_list=[email],
             html_message=html_message,
-            fail_silently=False,
+            fail_silently=True,  # Don't raise exception, just log
         )
+        print(f"Newsletter welcome email sent successfully to {email}")
         return True
     except Exception as e:
-        print(f"Error sending newsletter email: {e}")
+        print(f"Error sending newsletter email to {email}: {e}")
+        # Log more details for debugging
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return False
 
 
 def send_order_confirmation_email(order):
     """Send order confirmation email with receipt."""
+    # Check if email is configured
+    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+        print("Email not configured - skipping order confirmation email")
+        return False
+    
     customer_email = order.user.email if order.user else order.guest_email
     if not customer_email:
+        print(f"No email address found for order {order.order_number}")
         return False
     
     subject = f'Order Confirmation - Order #{order.order_number}'
@@ -226,9 +241,13 @@ def send_order_confirmation_email(order):
             to=[customer_email],
         )
         msg.attach_alternative(html_message, "text/html")
-        msg.send(fail_silently=False)
+        msg.send(fail_silently=True)  # Don't raise exception, just log
+        print(f"Order confirmation email sent successfully to {customer_email} for order {order.order_number}")
         return True
     except Exception as e:
-        print(f"Error sending order confirmation email: {e}")
+        print(f"Error sending order confirmation email to {customer_email} for order {order.order_number}: {e}")
+        # Log more details for debugging
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return False
 

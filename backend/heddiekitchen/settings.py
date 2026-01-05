@@ -273,7 +273,7 @@ SPECTACULAR_SETTINGS = {
 # Email Configuration
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend'
+    'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
 )
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -283,6 +283,9 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@heddiekitchen.com')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://heddyecommerce-production.up.railway.app')
+
+# Email timeout settings (prevent hanging)
+EMAIL_TIMEOUT = 10  # 10 seconds timeout for email operations
 
 # Paystack Configuration
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY', '')
