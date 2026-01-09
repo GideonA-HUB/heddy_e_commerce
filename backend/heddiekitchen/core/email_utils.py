@@ -25,8 +25,22 @@ def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, t
             print("RESEND_API_KEY not configured - cannot send email")
             return False
     
-    # Get from email
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'heddiekitchen@gmail.com')
+    # Get from email - use Resend's default domain if custom domain not verified
+    default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'heddiekitchen@gmail.com')
+    
+    # Resend requires verified domains. If using @gmail.com or unverified domain,
+    # use Resend's default sending domain or a verified domain
+    # Check if email is from a verified domain (not @gmail.com, @yahoo.com, etc.)
+    if '@gmail.com' in default_from_email.lower() or '@yahoo.com' in default_from_email.lower() or '@hotmail.com' in default_from_email.lower():
+        # Use Resend's default domain or a format Resend allows
+        # Extract the name part before @
+        email_name = default_from_email.split('@')[0]
+        # Use Resend's default domain (onboarding@resend.dev is their default)
+        # Or use a format like: noreply@resend.dev
+        from_email = f"{email_name}@resend.dev"
+        print(f"Using Resend default domain for sending: {from_email} (original: {default_from_email})")
+    else:
+        from_email = default_from_email
     
     # Resend API endpoint
     url = "https://api.resend.com/emails"

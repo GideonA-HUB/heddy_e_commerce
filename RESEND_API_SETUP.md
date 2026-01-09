@@ -102,9 +102,11 @@ After adding `RESEND_API_KEY` to Railway:
 **Required:**
 ```bash
 RESEND_API_KEY=re_your_api_key_here
-DEFAULT_FROM_EMAIL=heddiekitchen@gmail.com
+DEFAULT_FROM_EMAIL=heddiekitchen@resend.dev  # Use @resend.dev (Resend's default domain)
 FRONTEND_URL=https://heddyecommerce-production.up.railway.app
 ```
+
+**⚠️ Important:** Resend requires verified domains to send from `@gmail.com`, `@yahoo.com`, etc. Since Railway domains can't be verified, use `@resend.dev` domain instead. The code will automatically convert `@gmail.com` emails to `@resend.dev` if needed.
 
 **Optional (for backward compatibility):**
 ```bash
