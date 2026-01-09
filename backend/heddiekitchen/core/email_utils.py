@@ -1,26 +1,89 @@
 """
 Email utility functions for sending transactional emails.
+Uses Resend API instead of SMTP to avoid Railway network restrictions.
 """
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import render_to_string
+import requests
+import threading
+import traceback
 from django.conf import settings
 from django.utils.html import strip_tags
 
 
-def send_newsletter_welcome_email(email: str):
-    """Send welcome email to newsletter subscribers."""
-    # Check if email is configured
-    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-        print("Email not configured - skipping newsletter welcome email")
-        print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-        print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, text_content: str = None):
+    """
+    Send email using Resend REST API (more reliable than SMTP on Railway).
+    Returns True if successful, False otherwise.
+    """
+    # Check if Resend API key is configured
+    resend_api_key = getattr(settings, 'RESEND_API_KEY', None)
+    if not resend_api_key:
+        # Fallback: try to get from EMAIL_HOST_PASSWORD if it's a Resend key
+        email_password = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+        if email_password and email_password.startswith('re_'):
+            resend_api_key = email_password
+        else:
+            print("RESEND_API_KEY not configured - cannot send email")
+            return False
+    
+    # Get from email
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'heddiekitchen@gmail.com')
+    
+    # Resend API endpoint
+    url = "https://api.resend.com/emails"
+    
+    headers = {
+        "Authorization": f"Bearer {resend_api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "html": html_content,
+    }
+    
+    # Add text content if provided
+    if text_content:
+        payload["text"] = text_content
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            print(f"Email sent successfully via Resend API to {to_email}. ID: {response_data.get('id', 'N/A')}")
+            return True
+        else:
+            error_msg = response.text
+            print(f"Resend API error ({response.status_code}): {error_msg}")
+            return False
+            
+    except requests.exceptions.Timeout:
+        print(f"Resend API request timed out for {to_email}")
         return False
-    
-    # Check if using console backend (for testing)
-    if 'console' in settings.EMAIL_BACKEND.lower():
-        print(f"WARNING: Using console email backend - email will only be printed to logs, not actually sent to {email}")
-        print("To actually send emails, configure SMTP settings in Railway environment variables")
-    
+    except requests.exceptions.RequestException as e:
+        print(f"Resend API request failed for {to_email}: {e}")
+        traceback.print_exc()
+        return False
+    except Exception as e:
+        print(f"Unexpected error sending email via Resend API to {to_email}: {e}")
+        traceback.print_exc()
+        return False
+
+
+def _send_email_async(to_email: str, subject: str, html_content: str, text_content: str = None):
+    """Helper to send email in a separate thread (non-blocking)."""
+    thread = threading.Thread(
+        target=_send_email_via_resend_api,
+        args=(to_email, subject, html_content, text_content)
+    )
+    thread.daemon = True
+    thread.start()
+
+
+def send_newsletter_welcome_email(email: str):
+    """Send welcome email to newsletter subscribers using Resend API."""
     subject = 'Welcome to HEDDIEKITCHEN Newsletter!'
     
     html_message = f"""
@@ -69,43 +132,13 @@ def send_newsletter_welcome_email(email: str):
     
     plain_message = strip_tags(html_message)
     
-    try:
-        result = send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            html_message=html_message,
-            fail_silently=False,  # Raise exception to catch real errors
-        )
-        if result:
-            print(f"Newsletter welcome email sent successfully to {email}")
-            return True
-        else:
-            print(f"Newsletter email sending returned False for {email} - check email configuration")
-            return False
-    except Exception as e:
-        print(f"Error sending newsletter email to {email}: {e}")
-        # Log more details for debugging
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        return False
+    # Send email asynchronously (non-blocking)
+    _send_email_async(email, subject, html_message, plain_message)
+    return True  # Return True immediately, email is sent in background
 
 
 def send_order_confirmation_email(order):
-    """Send order confirmation email with receipt."""
-    # Check if email is configured
-    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-        print("Email not configured - skipping order confirmation email")
-        print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-        print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-        return False
-    
-    # Check if using console backend (for testing)
-    if 'console' in settings.EMAIL_BACKEND.lower():
-        print(f"WARNING: Using console email backend - email will only be printed to logs, not actually sent")
-        print("To actually send emails, configure SMTP settings in Railway environment variables")
-    
+    """Send order confirmation email with receipt using Resend API."""
     customer_email = order.user.email if order.user else order.guest_email
     if not customer_email:
         customer_email = order.shipping_email  # Fallback to shipping email
@@ -254,25 +287,7 @@ def send_order_confirmation_email(order):
     
     plain_message = strip_tags(html_message)
     
-    try:
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER,
-            to=[customer_email],
-        )
-        msg.attach_alternative(html_message, "text/html")
-        result = msg.send(fail_silently=False)  # Raise exception to catch real errors
-        if result:
-            print(f"Order confirmation email sent successfully to {customer_email} for order {order.order_number}")
-            return True
-        else:
-            print(f"Order confirmation email sending returned False for {customer_email} - check email configuration")
-            return False
-    except Exception as e:
-        print(f"Error sending order confirmation email to {customer_email} for order {order.order_number}: {e}")
-        # Log more details for debugging
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        return False
+    # Send email asynchronously (non-blocking)
+    _send_email_async(customer_email, subject, html_message, plain_message)
+    return True  # Return True immediately, email is sent in background
 

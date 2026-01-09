@@ -271,6 +271,10 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Email Configuration
+# Using Resend API instead of SMTP to avoid Railway network restrictions
+RESEND_API_KEY = os.getenv('RESEND_API_KEY', os.getenv('EMAIL_HOST_PASSWORD', ''))  # Fallback to EMAIL_HOST_PASSWORD if RESEND_API_KEY not set
+
+# Legacy SMTP settings (kept for backward compatibility, but not used)
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
     'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
@@ -281,7 +285,7 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@heddiekitchen.com')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'heddiekitchen@gmail.com')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://heddyecommerce-production.up.railway.app')
 
 # Email timeout settings (prevent hanging)
