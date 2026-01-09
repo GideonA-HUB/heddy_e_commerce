@@ -1,6 +1,7 @@
 """
 Email utility functions for sending transactional emails.
 Uses Resend API instead of SMTP to avoid Railway network restrictions.
+With a verified custom domain (heddiekitchen.com), Resend works perfectly.
 """
 import requests
 import threading
@@ -11,7 +12,7 @@ from django.utils.html import strip_tags
 
 def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, text_content: str = None):
     """
-    Send email using Resend REST API (more reliable than SMTP on Railway).
+    Send email using Resend REST API with verified custom domain (heddiekitchen.com).
     Returns True if successful, False otherwise.
     """
     # Check if Resend API key is configured
@@ -25,22 +26,8 @@ def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, t
             print("RESEND_API_KEY not configured - cannot send email")
             return False
     
-    # Get from email - use Resend's default domain if custom domain not verified
-    default_from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'heddiekitchen@gmail.com')
-    
-    # Resend requires verified domains. If using @gmail.com or unverified domain,
-    # use Resend's default sending domain or a verified domain
-    # Check if email is from a verified domain (not @gmail.com, @yahoo.com, etc.)
-    if '@gmail.com' in default_from_email.lower() or '@yahoo.com' in default_from_email.lower() or '@hotmail.com' in default_from_email.lower():
-        # Use Resend's default domain or a format Resend allows
-        # Extract the name part before @
-        email_name = default_from_email.split('@')[0]
-        # Use Resend's default domain (onboarding@resend.dev is their default)
-        # Or use a format like: noreply@resend.dev
-        from_email = f"{email_name}@resend.dev"
-        print(f"Using Resend default domain for sending: {from_email} (original: {default_from_email})")
-    else:
-        from_email = default_from_email
+    # Get from email - should be from verified domain (heddiekitchen.com)
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@heddiekitchen.com')
     
     # Resend API endpoint
     url = "https://api.resend.com/emails"
@@ -97,7 +84,7 @@ def _send_email_async(to_email: str, subject: str, html_content: str, text_conte
 
 
 def send_newsletter_welcome_email(email: str):
-    """Send welcome email to newsletter subscribers using Resend API."""
+    """Send welcome email to newsletter subscribers using Resend API with verified domain."""
     subject = 'Welcome to HEDDIEKITCHEN Newsletter!'
     
     html_message = f"""

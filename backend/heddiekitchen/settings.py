@@ -25,7 +25,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-producti
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allow custom domain (heddiekitchen.com) and Railway domains
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,heddiekitchen.com,www.heddiekitchen.com,heddyecommerce-production.up.railway.app,*.railway.app'
+).split(',')
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = os.getenv(
@@ -272,6 +276,7 @@ SPECTACULAR_SETTINGS = {
 
 # Email Configuration
 # Using Resend API instead of SMTP to avoid Railway network restrictions
+# With verified custom domain (heddiekitchen.com), Resend works perfectly
 RESEND_API_KEY = os.getenv('RESEND_API_KEY', os.getenv('EMAIL_HOST_PASSWORD', ''))  # Fallback to EMAIL_HOST_PASSWORD if RESEND_API_KEY not set
 
 # Legacy SMTP settings (kept for backward compatibility, but not used)
