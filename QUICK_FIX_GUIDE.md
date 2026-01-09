@@ -50,7 +50,13 @@
    - Name: "HEDDIEKITCHEN Production"
    - Copy the key (starts with `re_...`)
 
-3. **Add to Railway:**
+3. **⚠️ IMPORTANT - Domain Verification:**
+   - **Railway domains (heddyecommerce-production.up.railway.app) don't support custom DNS records**
+   - **You can skip domain verification!** Resend will still work without it
+   - Emails will be sent from Resend's verified domain (works perfectly fine)
+   - See `RESEND_SETUP_RAILWAY_DOMAIN.md` for details
+
+4. **Add to Railway:**
    ```bash
    EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
    EMAIL_HOST=smtp.resend.com
@@ -63,7 +69,7 @@
    FRONTEND_URL=https://heddyecommerce-production.up.railway.app
    ```
 
-4. **Test:**
+5. **Test:**
    - Subscribe to newsletter
    - Check email inbox (and spam folder)
    - Create an order
