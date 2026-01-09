@@ -8,7 +8,8 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from paystack.resource import TransactionResource
+import requests
+# Removed TransactionResource import - using requests directly for better reliability
 from .models import Payment, PaystackWebhook
 from .serializers import PaymentSerializer, PaymentInitializeSerializer
 from heddiekitchen.orders.models import Order
@@ -74,28 +75,53 @@ class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
             )
         
         try:
-            # Initialize Paystack transaction
-            transaction = TransactionResource(secret_key=settings.PAYSTACK_SECRET_KEY)
-            response = transaction.initialize(
-                reference=payment.reference,
-                amount=int(payment.amount * 100),  # Paystack uses kobo
-                email=email,
-                callback_url=f"{request.scheme}://{request.get_host()}/order-confirmation/{order.id}/"
-            )
+            # Check if Paystack secret key is configured
+            if not settings.PAYSTACK_SECRET_KEY:
+                return Response(
+                    {'error': 'Paystack secret key not configured. Please add PAYSTACK_SECRET_KEY to Railway environment variables.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
-            if response.get('status'):
-                payment.gateway_response = response
+            # Initialize Paystack transaction using requests directly (more reliable)
+            import requests
+            
+            paystack_url = "https://api.paystack.co/transaction/initialize"
+            headers = {
+                "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "reference": payment.reference,
+                "amount": int(payment.amount * 100),  # Paystack uses kobo
+                "email": email,
+                "callback_url": f"{request.scheme}://{request.get_host()}/order-confirmation/{order.id}/"
+            }
+            
+            response = requests.post(paystack_url, json=payload, headers=headers, timeout=30)
+            
+            # Check if request was successful
+            if response.status_code != 200:
+                return Response(
+                    {'error': f'Paystack API error: {response.status_code} - {response.text}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            response_data = response.json()
+            
+            if response_data.get('status'):
+                payment.gateway_response = response_data
                 payment.save()
                 
                 return Response({
                     'status': 'success',
-                    'authorization_url': response.get('data', {}).get('authorization_url'),
-                    'access_code': response.get('data', {}).get('access_code'),
-                    'reference': response.get('data', {}).get('reference'),
+                    'authorization_url': response_data.get('data', {}).get('authorization_url'),
+                    'access_code': response_data.get('data', {}).get('access_code'),
+                    'reference': response_data.get('data', {}).get('reference'),
                 })
             else:
                 return Response(
-                    {'error': response.get('message', 'Payment initialization failed')},
+                    {'error': response_data.get('message', 'Payment initialization failed')},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         except Exception as e:
