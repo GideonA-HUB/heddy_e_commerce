@@ -30,7 +30,7 @@ class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
             return Payment.objects.all().select_related('order')
         return Payment.objects.filter(order__user=user).select_related('order')
     
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def initialize(self, request):
         """
         Initialize a Paystack payment.
@@ -47,10 +47,18 @@ class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
         email = serializer.validated_data['email']
         
         try:
-            order = Order.objects.get(id=order_id, user=request.user)
+            # Allow both authenticated and guest users
+            if request.user.is_authenticated:
+                order = Order.objects.get(id=order_id, user=request.user)
+            else:
+                # For guest checkout, match by guest_email or shipping_email
+                order = Order.objects.get(
+                    id=order_id,
+                    shipping_email=email
+                )
         except Order.DoesNotExist:
             return Response(
-                {'error': 'Order not found or does not belong to user'},
+                {'error': 'Order not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
         
@@ -59,8 +67,8 @@ class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
         if not payment:
             payment = Payment.objects.create(
                 order=order,
-                user=request.user,
-                amount=order.total_amount,
+                user=request.user if request.user.is_authenticated else None,
+                amount=order.total,  # Use 'total' not 'total_amount'
                 currency='NGN',
                 gateway='paystack'
             )

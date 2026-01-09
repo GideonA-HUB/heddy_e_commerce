@@ -12,7 +12,14 @@ def send_newsletter_welcome_email(email: str):
     # Check if email is configured
     if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
         print("Email not configured - skipping newsletter welcome email")
+        print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+        print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
         return False
+    
+    # Check if using console backend (for testing)
+    if 'console' in settings.EMAIL_BACKEND.lower():
+        print(f"WARNING: Using console email backend - email will only be printed to logs, not actually sent to {email}")
+        print("To actually send emails, configure SMTP settings in Railway environment variables")
     
     subject = 'Welcome to HEDDIEKITCHEN Newsletter!'
     
@@ -63,16 +70,20 @@ def send_newsletter_welcome_email(email: str):
     plain_message = strip_tags(html_message)
     
     try:
-        send_mail(
+        result = send_mail(
             subject=subject,
             message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER,
             recipient_list=[email],
             html_message=html_message,
-            fail_silently=True,  # Don't raise exception, just log
+            fail_silently=False,  # Raise exception to catch real errors
         )
-        print(f"Newsletter welcome email sent successfully to {email}")
-        return True
+        if result:
+            print(f"Newsletter welcome email sent successfully to {email}")
+            return True
+        else:
+            print(f"Newsletter email sending returned False for {email} - check email configuration")
+            return False
     except Exception as e:
         print(f"Error sending newsletter email to {email}: {e}")
         # Log more details for debugging
@@ -86,9 +97,19 @@ def send_order_confirmation_email(order):
     # Check if email is configured
     if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
         print("Email not configured - skipping order confirmation email")
+        print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+        print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
         return False
     
+    # Check if using console backend (for testing)
+    if 'console' in settings.EMAIL_BACKEND.lower():
+        print(f"WARNING: Using console email backend - email will only be printed to logs, not actually sent")
+        print("To actually send emails, configure SMTP settings in Railway environment variables")
+    
     customer_email = order.user.email if order.user else order.guest_email
+    if not customer_email:
+        customer_email = order.shipping_email  # Fallback to shipping email
+    
     if not customer_email:
         print(f"No email address found for order {order.order_number}")
         return False
@@ -149,7 +170,7 @@ def send_order_confirmation_email(order):
                     <p><strong>Order Number:</strong> {order.order_number}</p>
                     <p><strong>Order Date:</strong> {order.created_at.strftime('%B %d, %Y at %I:%M %p')}</p>
                     <p><strong>Order Status:</strong> {order.get_status_display()}</p>
-                    <p><strong>Payment Method:</strong> {order.get_payment_method_display()}</p>
+                    <p><strong>Payment Method:</strong> {order.payment_method.title() if order.payment_method else 'Paystack'}</p>
                 </div>
                 
                 <div class="order-details">
@@ -241,9 +262,13 @@ def send_order_confirmation_email(order):
             to=[customer_email],
         )
         msg.attach_alternative(html_message, "text/html")
-        msg.send(fail_silently=True)  # Don't raise exception, just log
-        print(f"Order confirmation email sent successfully to {customer_email} for order {order.order_number}")
-        return True
+        result = msg.send(fail_silently=False)  # Raise exception to catch real errors
+        if result:
+            print(f"Order confirmation email sent successfully to {customer_email} for order {order.order_number}")
+            return True
+        else:
+            print(f"Order confirmation email sending returned False for {customer_email} - check email configuration")
+            return False
     except Exception as e:
         print(f"Error sending order confirmation email to {customer_email} for order {order.order_number}: {e}")
         # Log more details for debugging
