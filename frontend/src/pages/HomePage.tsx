@@ -145,13 +145,13 @@ const HomePage: React.FC = () => {
                 </motion.span>
               </motion.h1>
               <motion.p 
-                className="inline-block bg-red-600/95 backdrop-blur-md px-4 py-3 sm:px-5 sm:py-3.5 md:px-6 md:py-4 rounded-lg sm:rounded-xl mb-6 sm:mb-8 max-w-xl mx-auto md:mx-0 shadow-2xl border-2 border-red-700/50"
+                className="inline-block bg-red-600/95 backdrop-blur-md px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 rounded-md sm:rounded-lg mb-4 sm:mb-6 max-w-lg mx-auto md:mx-0 shadow-xl border-2 border-red-700/50"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
                 whileHover={{ scale: 1.02, y: -2 }}
               >
-                <span className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-serif italic font-medium">
+                <span className="text-sm sm:text-base md:text-lg text-white leading-snug sm:leading-relaxed font-serif italic font-medium">
                   Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
                 </span>
               </motion.p>
