@@ -55,15 +55,85 @@ const App: React.FC = () => {
           // Also set favicon dynamically (fallback to logo if favicon missing)
           const faviconUrl = asset.favicon_url || logoUrl;
           if (faviconUrl) {
-            const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-            if (link) {
-              link.href = faviconUrl;
-            } else {
-              const newLink = document.createElement('link');
-              newLink.rel = 'icon';
-              newLink.href = faviconUrl;
-              document.head.appendChild(newLink);
-            }
+            // Create animated rotating favicon on page load
+            const animateFavicon = (imageUrl: string) => {
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 32;
+                canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                const updateFavicon = (angle: number) => {
+                  ctx.clearRect(0, 0, 32, 32);
+                  ctx.save();
+                  ctx.translate(16, 16);
+                  ctx.rotate((Math.PI * 2) / 180 * angle);
+                  ctx.drawImage(img, -16, -16, 32, 32);
+                  ctx.restore();
+                  
+                  const dataUrl = canvas.toDataURL('image/png');
+                  let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+                  if (!link) {
+                    link = document.createElement('link');
+                    link.rel = 'icon';
+                    document.head.appendChild(link);
+                  }
+                  link.href = dataUrl;
+                };
+
+                // Animate rotation: 360 degrees over 0.8 seconds
+                const startTime = Date.now();
+                const duration = 800; // 0.8 seconds
+                const startAngle = 360;
+                
+                const animate = () => {
+                  const elapsed = Date.now() - startTime;
+                  if (elapsed < duration) {
+                    const progress = elapsed / duration;
+                    // Ease in-out for smooth animation (matching navbar logo easing)
+                    const easedProgress = progress < 0.5 
+                      ? 2 * progress * progress 
+                      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    const currentAngle = startAngle - (startAngle * easedProgress); // Rotate from 360 to 0
+                    updateFavicon(currentAngle);
+                    requestAnimationFrame(animate);
+                  } else {
+                    // Animation complete - set to final position (0 degrees)
+                    updateFavicon(0);
+                    // After animation completes, switch to original favicon URL to ensure consistency
+                    setTimeout(() => {
+                      const finalLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+                      if (finalLink) {
+                        finalLink.href = imageUrl + '?v=' + Date.now(); // Add version to force refresh
+                      }
+                    }, 100);
+                  }
+                };
+                
+                requestAnimationFrame(animate);
+              };
+              
+              img.onerror = () => {
+                // Fallback: if image fails to load or CORS issue, just set the URL directly
+                let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+                if (link) {
+                  link.href = imageUrl + '?v=' + Date.now();
+                } else {
+                  link = document.createElement('link');
+                  link.rel = 'icon';
+                  link.href = imageUrl + '?v=' + Date.now();
+                  document.head.appendChild(link);
+                }
+              };
+              
+              img.src = imageUrl;
+            };
+
+            // Start favicon animation
+            animateFavicon(faviconUrl);
           }
         } else {
           console.warn('No site assets returned from API');

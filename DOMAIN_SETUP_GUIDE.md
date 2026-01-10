@@ -78,7 +78,39 @@ You've purchased `heddiekitchen.com` from Namecheap. This guide will help you:
 
 ---
 
-## 📋 Part 3: Resend Email Setup with Your Domain
+## 📋 Part 3: Google Search Console Setup (For Google Search)
+
+1. **Add Domain to Google Search Console:**
+   - Go to: https://search.google.com/search-console
+   - Click "Add Property" → Choose "Domain"
+   - Enter: `heddiekitchen.com`
+   - Click "Continue"
+
+2. **Get Verification TXT Record:**
+   - Google will show you a TXT record to add
+   - Copy the entire verification string (e.g., `google-site-verification=AbCdEf1234567890...`)
+
+3. **Add to Namecheap DNS:**
+   - In Namecheap Advanced DNS, click "ADD NEW RECORD"
+   - Type: `TXT Record`
+   - Host: `@`
+   - Value: Paste the Google verification string
+   - TTL: `Automatic`
+   - Save
+
+4. **Verify in Google:**
+   - Go back to Google Search Console
+   - Click "Verify"
+   - Wait a few minutes to 48 hours for DNS propagation
+
+**Note:** This doesn't make your site appear in Google instantly - it just verifies ownership. To appear in search results:
+- Google will automatically crawl your site (can take days/weeks)
+- Submit your sitemap in Search Console after verification
+- Follow SEO best practices
+
+---
+
+## 📋 Part 4: Resend Email Setup with Your Domain
 
 ### Step 1: Add Domain to Resend
 
@@ -184,13 +216,23 @@ After setup, you should have these records in Namecheap:
 ```
 Type    Host                    Value                                    TTL
 ----    ----                    -----                                    ---
-A       @                       [Railway IP or CNAME target]             Auto
-CNAME   www                     heddiekitchen.com                        Auto
-TXT     resend._domainkey       [DKIM string from Resend]                Auto
-TXT     @                       [SPF string from Resend]                 Auto
-MX      send                    [MX value from Resend] (Priority: 10)    Auto
-TXT     _dmarc                  v=DMARC1; p=none;                        Auto
+CNAME   @                       xl7n81sr.up.railway.app.                Automatic
+CNAME   www                     heddiekitchen.com.                      Automatic
+TXT     resend._domainkey       [DKIM string from Resend]                Automatic
+TXT     send                    v=spf1 include:amazonses.com ~all        Automatic
+TXT     _dmarc                  v=DMARC1; p=none;                        Automatic
+TXT     @                       google-site-verification=AbCdEf...       Automatic
+
+❌ REMOVED:
+URL Redirect  @                 [Any URL redirect - MUST BE DELETED]
+MX            send              [NOT NEEDED - Skip if "Enable Receiving" is off]
 ```
+
+**Important Notes:**
+- The CNAME for `@` replaces the need for an A record
+- URL Redirect Record must be removed (conflicts with CNAME)
+- MX record is NOT needed unless you want to receive emails
+- SPF is a TXT record, not MX record
 
 ---
 

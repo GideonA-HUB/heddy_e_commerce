@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -8,12 +8,24 @@ import { useUIStore } from '../stores/uiStore';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldRotate, setShouldRotate] = useState(true);
   const navigate = useNavigate();
   const { cart } = useCartStore();
   const { user, logout } = useAuthStore();
   const { siteAssetLogo } = useUIStore();
 
   const itemCount = cart?.item_count || 0;
+
+  // Rotate logo on page load/reload (works on both web and mobile)
+  useEffect(() => {
+    // Trigger rotation animation on mount (page load/reload/refresh)
+    setShouldRotate(true);
+    // Reset animation state after animation completes
+    const timer = setTimeout(() => {
+      setShouldRotate(false);
+    }, 900); // Animation duration (0.8s) + small buffer (0.1s)
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array - runs on component mount (every page load/reload)
 
   const handleLogout = () => {
     logout();
@@ -38,10 +50,24 @@ export const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
             {siteAssetLogo && (
-              <img
+              <motion.img
                 src={siteAssetLogo}
                 alt="HEDDIEKITCHEN logo"
-                className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 object-contain rounded-full bg-white/5 p-1.5 md:p-2 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12"
+                className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 object-contain rounded-full bg-white/5 p-1.5 md:p-2"
+                initial={{ rotate: 0, scale: 1 }}
+                animate={shouldRotate ? { rotate: 360, scale: 1 } : { rotate: 0, scale: 1 }}
+                transition={{
+                  rotate: {
+                    duration: 0.8,
+                    ease: "easeInOut",
+                    repeat: 0
+                  },
+                  scale: {
+                    duration: 0.3
+                  }
+                }}
+                whileHover={{ scale: 1.1, rotate: 12 }}
+                whileTap={{ scale: 0.95 }}
               />
             )}
             <span className="font-black text-lg md:text-xl lg:text-2xl tracking-tight uppercase">
