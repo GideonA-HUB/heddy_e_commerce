@@ -145,12 +145,15 @@ const HomePage: React.FC = () => {
                 </motion.span>
               </motion.h1>
               <motion.p 
-                className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-black leading-relaxed max-w-xl mx-auto md:mx-0 font-medium drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)]"
+                className="inline-block bg-red-600/95 backdrop-blur-md px-4 py-3 sm:px-5 sm:py-3.5 md:px-6 md:py-4 rounded-lg sm:rounded-xl mb-6 sm:mb-8 max-w-xl mx-auto md:mx-0 shadow-2xl border-2 border-red-700/50"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
+                whileHover={{ scale: 1.02, y: -2 }}
               >
-                Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
+                <span className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-serif italic font-medium">
+                  Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
+                </span>
               </motion.p>
               <motion.div 
                 className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start w-full sm:w-auto"
