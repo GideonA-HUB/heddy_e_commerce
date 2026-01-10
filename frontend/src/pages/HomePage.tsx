@@ -688,30 +688,24 @@ const HomePage: React.FC = () => {
 
       {/* CTA Section with Parallax */}
       <motion.section 
-        className="bg-gradient-to-r from-primary via-primary-500 to-accent text-white section-padding relative overflow-hidden"
+        className="text-white section-padding relative overflow-hidden bg-cover bg-center bg-no-repeat"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8 }}
+        style={{
+          backgroundImage: 'url(https://tse4.mm.bing.net/th/id/OIP.gj1rsvPivsIBsPB-v0aYYgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3)',
+        }}
       >
-        <motion.div
-          className="absolute inset-0 opacity-10"
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            repeatType: 'reverse',
-          }}
-          style={{
-            backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-            backgroundSize: '200% 200%',
-          }}
-        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
+        
+        {/* Additional gradient overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70"></div>
+        
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.h2 
-            className="heading-2 text-white mb-4"
+            className="heading-2 text-white mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -720,7 +714,7 @@ const HomePage: React.FC = () => {
             Subscribe to Our Meal Plans
           </motion.h2>
           <motion.p 
-            className="text-lg sm:text-xl mb-8 text-white/90 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl mb-8 text-white max-w-2xl mx-auto font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -738,7 +732,7 @@ const HomePage: React.FC = () => {
           >
             <Link
               to="/meal-plans"
-              className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+              className="inline-block bg-white text-primary px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
               Explore Meal Plans
             </Link>
