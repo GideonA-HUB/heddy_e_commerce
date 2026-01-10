@@ -37,6 +37,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const loadSiteAssets = async () => {
       try {
+        // Check localStorage for cached logo (available immediately on reload)
+        const cachedLogo = localStorage.getItem('heddiekitchen_logo');
+        const cachedFavicon = localStorage.getItem('heddiekitchen_favicon');
+        
+        // Set cached logo immediately so Loader can use it right away
+        if (cachedLogo) {
+          setSiteAssetLogo(cachedLogo);
+        } else if (cachedFavicon) {
+          setSiteAssetLogo(cachedFavicon);
+        }
+        
         setShowSpinner(true);
         const response = await coreAPI.getSiteAssets();
         if (response.data.results && response.data.results.length > 0) {
@@ -50,11 +61,15 @@ const App: React.FC = () => {
             '';
           if (logoUrl) {
             setSiteAssetLogo(logoUrl);
+            // Cache logo for next page load (available immediately)
+            localStorage.setItem('heddiekitchen_logo', logoUrl);
           }
 
           // Also set favicon dynamically (fallback to logo if favicon missing)
           const faviconUrl = asset.favicon_url || logoUrl;
           if (faviconUrl) {
+            // Cache favicon for next page load (available immediately on reload)
+            localStorage.setItem('heddiekitchen_favicon', faviconUrl);
             // Create animated rotating favicon on page load
             const animateFavicon = (imageUrl: string) => {
               const img = new Image();
