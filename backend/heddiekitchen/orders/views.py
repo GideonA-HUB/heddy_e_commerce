@@ -176,8 +176,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                 special_instructions=cart_item.special_instructions,
             )
 
-        # Clear cart
-        cart.items.all().delete()
+        # DON'T clear cart here - only clear after payment is successful
+        # Cart will be cleared when payment webhook confirms payment
+        # This allows users to retry if they cancel Paystack checkout
 
         # Send order confirmation email asynchronously (don't block the response)
         try:

@@ -201,6 +201,19 @@ class PaystackWebhookView(APIView):
             order.payment_status = 'paid'
             order.status = 'processing'
             order.save()
+            
+            # Clear cart only after payment is successful
+            if order.user:
+                from heddiekitchen.orders.models import Cart
+                try:
+                    cart = Cart.objects.get(user=order.user)
+                    cart.items.all().delete()
+                except Cart.DoesNotExist:
+                    pass
+            else:
+                # For guest users, clear by session (if we track it)
+                # This is handled by the frontend clearing the session cart
+                pass
         except Payment.DoesNotExist:
             pass
     

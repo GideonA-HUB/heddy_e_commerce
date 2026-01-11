@@ -26,8 +26,19 @@ def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, t
             print("RESEND_API_KEY not configured - cannot send email")
             return False
     
-    # Get from email - should be from verified domain (heddiekitchen.com)
+    # Get from email - use verified domain or fallback to Resend default domain
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@heddiekitchen.com')
+    
+    # If domain is not verified, fallback to Resend's default domain
+    # This allows emails to work while domain verification is pending
+    if '@heddiekitchen.com' in from_email:
+        # Check if we should use fallback (domain not verified)
+        # Try to use Resend's default domain as fallback
+        # Format: onboarding@resend.dev (works without domain verification)
+        use_fallback = getattr(settings, 'RESEND_USE_FALLBACK_DOMAIN', 'False').lower() == 'true'
+        if use_fallback:
+            from_email = 'onboarding@resend.dev'
+        # Otherwise, try the custom domain first, and if it fails, we'll catch the error
     
     # Resend API endpoint
     url = "https://api.resend.com/emails"
@@ -55,6 +66,27 @@ def _send_email_via_resend_api(to_email: str, subject: str, html_content: str, t
             response_data = response.json()
             print(f"Email sent successfully via Resend API to {to_email}. ID: {response_data.get('id', 'N/A')}")
             return True
+        elif response.status_code == 403:
+            # Domain not verified - try fallback domain
+            error_data = response.json()
+            if 'domain is not verified' in error_data.get('message', '').lower():
+                print(f"Domain not verified. Attempting fallback domain...")
+                # Retry with Resend's default domain
+                payload['from'] = 'onboarding@resend.dev'
+                try:
+                    retry_response = requests.post(url, json=payload, headers=headers, timeout=30)
+                    if retry_response.status_code == 200:
+                        retry_data = retry_response.json()
+                        print(f"Email sent successfully via Resend API (fallback domain) to {to_email}. ID: {retry_data.get('id', 'N/A')}")
+                        return True
+                    else:
+                        print(f"Resend API fallback also failed ({retry_response.status_code}): {retry_response.text}")
+                except Exception as e:
+                    print(f"Resend API fallback request failed: {e}")
+            
+            error_msg = response.text
+            print(f"Resend API error ({response.status_code}): {error_msg}")
+            return False
         else:
             error_msg = response.text
             print(f"Resend API error ({response.status_code}): {error_msg}")
