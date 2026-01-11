@@ -117,46 +117,76 @@ def _send_email_async(to_email: str, subject: str, html_content: str, text_conte
 
 def send_newsletter_welcome_email(email: str):
     """Send welcome email to newsletter subscribers using Resend API with verified domain."""
-    subject = 'Welcome to HEDDIEKITCHEN Newsletter!'
+    subject = '🎉 Welcome to HEDDIEKITCHEN - Your Taste Buds Just Joined the VIP Club!'
+    
+    frontend_url = settings.FRONTEND_URL or 'https://heddiekitchen.com'
     
     html_message = f"""
     <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-            .header {{ background-color: #dc2626; color: white; padding: 20px; text-align: center; }}
-            .content {{ padding: 20px; background-color: #f9f9f9; }}
-            .footer {{ text-align: center; padding: 20px; color: #666; font-size: 12px; }}
-            .button {{ display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.7; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }}
+            .container {{ max-width: 600px; margin: 0 auto; background-color: #ffffff; }}
+            .header {{ background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 40px 20px; text-align: center; }}
+            .header h1 {{ margin: 0; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }}
+            .content {{ padding: 35px 30px; background-color: #ffffff; }}
+            .content p {{ margin: 0 0 18px 0; font-size: 16px; color: #333; }}
+            .content p.greeting {{ font-size: 20px; font-weight: 600; color: #dc2626; margin-bottom: 20px; }}
+            .content p.highlight {{ font-size: 18px; color: #dc2626; font-weight: 600; margin: 25px 0 15px 0; }}
+            .benefits {{ background-color: #fef2f2; padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #dc2626; }}
+            .benefits ul {{ margin: 0; padding-left: 25px; }}
+            .benefits li {{ margin: 12px 0; font-size: 16px; color: #4b5563; line-height: 1.8; }}
+            .footer {{ text-align: center; padding: 30px 20px; background-color: #f9fafb; color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; }}
+            .button {{ display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; text-decoration: none; border-radius: 8px; margin: 30px 0; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3); transition: transform 0.2s; }}
+            .button:hover {{ transform: translateY(-2px); box-shadow: 0 6px 12px rgba(220, 38, 38, 0.4); }}
+            .signature {{ margin-top: 30px; padding-top: 25px; border-top: 2px solid #fee2e2; text-align: center; }}
+            .signature p {{ margin: 8px 0; color: #dc2626; font-weight: 600; }}
+            .emoji {{ font-size: 1.2em; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>Welcome to HEDDIEKITCHEN!</h1>
+                <h1>🎉 Welcome to HEDDIEKITCHEN! 🎉</h1>
             </div>
             <div class="content">
-                <p>Dear Valued Customer,</p>
-                <p>Thank you for subscribing to our newsletter! We're excited to have you join our community.</p>
-                <p>You'll now receive:</p>
-                <ul>
-                    <li>Exclusive offers and discounts</li>
-                    <li>New menu items and seasonal specials</li>
-                    <li>Cooking tips and recipes</li>
-                    <li>Updates on delivery services</li>
-                </ul>
-                <p>We're committed to bringing you the best of authentic African cuisine, delivered fresh to your doorstep.</p>
-                <p style="text-align: center;">
-                    <a href="{settings.FRONTEND_URL or 'https://heddiekitchen.com'}" class="button">Visit Our Website</a>
+                <p class="greeting">Hey lover of good food! 👋</p>
+                
+                <p>We're so happy you're here, and your taste buds officially joined the VIP club! 🎊</p>
+                
+                <p>Thank you for subscribing to <strong>HEDDIEKITCHEN</strong>. From now on, expect mouth-watering updates and delicious surprises straight to your inbox! 🍽️✨</p>
+                
+                <p class="highlight">Here's what you'll be getting:</p>
+                
+                <div class="benefits">
+                    <ul>
+                        <li>🎁 <strong>Exclusive discounts and foodie deals</strong> - Save more, eat more!</li>
+                        <li>🍛 <strong>New menu drops and seasonal specials</strong> - Be the first to know!</li>
+                        <li>👨‍🍳 <strong>Cooking tips and yummy recipe inspiration</strong> - Become a kitchen pro!</li>
+                        <li>🚚 <strong>Delivery updates so you don't miss your cravings</strong> - Stay in the loop!</li>
+                    </ul>
+                </div>
+                
+                <p>We're committed to bringing you the best of authentic African cuisine, delivered fresh to your doorstep. We can't wait to feed you, literally! 😄</p>
+                
+                <p style="text-align: center; margin: 35px 0;">
+                    <a href="{frontend_url}" class="button">🌐 Visit Our Website</a>
                 </p>
-                <p>If you have any questions, feel free to reach out to us at <a href="mailto:contact@heddiekitchen.com">contact@heddiekitchen.com</a> or call us at +234 903 523 4365.</p>
-                <p>Best regards,<br>The HEDDIEKITCHEN Team</p>
+                
+                <p style="margin-top: 30px;">If you have any questions, feel free to reach out to us at <a href="mailto:contact@heddiekitchen.com" style="color: #dc2626; text-decoration: none; font-weight: 600;">contact@heddiekitchen.com</a> or call us at <strong>+234 903 523 4365</strong>. 📞</p>
+                
+                <div class="signature">
+                    <p style="font-size: 18px; margin-bottom: 10px;">Welcome to the HEDDIEKITCHEN family! 👨‍👩‍👧‍👦</p>
+                    <p style="font-size: 16px; margin-top: 15px;">Made with ❤️</p>
+                    <p style="font-size: 16px; margin-top: 5px;">The HEDDIEKITCHEN Team 🍳</p>
+                </div>
             </div>
             <div class="footer">
-                <p>© 2025 HEDDIEKITCHEN. All rights reserved.</p>
-                <p>Abuja, Nigeria</p>
+                <p style="margin: 5px 0;"><strong>© 2025 HEDDIEKITCHEN. All rights reserved.</strong></p>
+                <p style="margin: 5px 0;">📍 Abuja, Nigeria</p>
             </div>
         </div>
     </body>
