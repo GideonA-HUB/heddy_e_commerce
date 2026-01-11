@@ -149,9 +149,9 @@ def send_newsletter_welcome_email(email: str):
                 </ul>
                 <p>We're committed to bringing you the best of authentic African cuisine, delivered fresh to your doorstep.</p>
                 <p style="text-align: center;">
-                    <a href="{settings.FRONTEND_URL or 'https://heddyecommerce-production.up.railway.app'}" class="button">Visit Our Website</a>
+                    <a href="{settings.FRONTEND_URL or 'https://heddiekitchen.com'}" class="button">Visit Our Website</a>
                 </p>
-                <p>If you have any questions, feel free to reach out to us at <a href="mailto:heddiekitchen@gmail.com">heddiekitchen@gmail.com</a> or call us at +234 903 523 4365.</p>
+                <p>If you have any questions, feel free to reach out to us at <a href="mailto:contact@heddiekitchen.com">contact@heddiekitchen.com</a> or call us at +234 903 523 4365.</p>
                 <p>Best regards,<br>The HEDDIEKITCHEN Team</p>
             </div>
             <div class="footer">
@@ -297,12 +297,12 @@ def send_order_confirmation_email(order):
                 </div>
                 
                 <p style="text-align: center;">
-                    <a href="{settings.FRONTEND_URL or 'https://heddyecommerce-production.up.railway.app'}/orders/{order.id}" class="button">Track Your Order</a>
+                    <a href="{settings.FRONTEND_URL or 'https://heddiekitchen.com'}/orders/{order.id}" class="button">Track Your Order</a>
                 </p>
                 
                 <p>If you have any questions about your order, please contact us at:</p>
                 <ul>
-                    <li>Email: <a href="mailto:heddiekitchen@gmail.com">heddiekitchen@gmail.com</a></li>
+                    <li>Email: <a href="mailto:contact@heddiekitchen.com">contact@heddiekitchen.com</a></li>
                     <li>Phone: +234 903 523 4365</li>
                 </ul>
                 

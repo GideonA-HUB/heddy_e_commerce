@@ -290,8 +290,8 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'heddiekitchen@gmail.com')
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://heddyecommerce-production.up.railway.app')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@heddiekitchen.com')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://heddiekitchen.com')
 
 # Email timeout settings (prevent hanging)
 EMAIL_TIMEOUT = 10  # 10 seconds timeout for email operations
