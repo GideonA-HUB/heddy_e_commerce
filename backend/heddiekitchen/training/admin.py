@@ -3,7 +3,7 @@ Admin configuration for training app.
 """
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import TrainingPackage
+from .models import TrainingPackage, TrainingEnquiry
 
 
 @admin.register(TrainingPackage)
@@ -63,4 +63,36 @@ class TrainingPackageAdmin(admin.ModelAdmin):
             )
         return "No image"
     image_preview.short_description = "Image Preview"
+
+
+@admin.register(TrainingEnquiry)
+class TrainingEnquiryAdmin(admin.ModelAdmin):
+    """Admin interface for TrainingEnquiry."""
+    list_display = [
+        'name', 'email', 'phone', 'package', 'wants_to_learn',
+        'is_contacted', 'created_at'
+    ]
+    list_filter = [
+        'wants_to_learn', 'is_contacted', 'package', 'created_at'
+    ]
+    search_fields = ['name', 'email', 'phone', 'message']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Enquiry Information', {
+            'fields': ('package', 'name', 'email', 'phone', 'message', 'wants_to_learn')
+        }),
+        ('Status & Notes', {
+            'fields': ('is_contacted', 'notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def get_queryset(self, request):
+        """Optimize queryset with select_related."""
+        qs = super().get_queryset(request)
+        return qs.select_related('package')
 

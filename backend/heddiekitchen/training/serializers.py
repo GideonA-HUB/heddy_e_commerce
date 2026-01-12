@@ -2,7 +2,7 @@
 Serializers for training app.
 """
 from rest_framework import serializers
-from .models import TrainingPackage
+from .models import TrainingPackage, TrainingEnquiry
 
 
 class TrainingPackageSerializer(serializers.ModelSerializer):
@@ -33,4 +33,21 @@ class TrainingPackageSerializer(serializers.ModelSerializer):
                 return url
             return request.build_absolute_uri(url)
         return None
+
+
+class TrainingEnquirySerializer(serializers.ModelSerializer):
+    """Serializer for training enquiries."""
+    package_title = serializers.CharField(source='package.title', read_only=True)
+    
+    class Meta:
+        model = TrainingEnquiry
+        fields = [
+            'id', 'package', 'package_title', 'name', 'email', 'phone',
+            'message', 'wants_to_learn', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def create(self, validated_data):
+        """Create a new training enquiry."""
+        return TrainingEnquiry.objects.create(**validated_data)
 

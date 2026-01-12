@@ -233,3 +233,15 @@ export interface TrainingPackage {
   created_at: string;
   updated_at: string;
 }
+
+export interface TrainingEnquiry {
+  id?: number;
+  package?: number;
+  package_title?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  wants_to_learn: boolean;
+  created_at?: string;
+}

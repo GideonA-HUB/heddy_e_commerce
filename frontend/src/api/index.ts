@@ -151,6 +151,8 @@ export const trainingAPI = {
     apiClient.get<PaginatedResponse<TrainingPackage>>('/training/packages/'),
   getPackageDetail: (slug: string) =>
     apiClient.get<TrainingPackage>(`/training/packages/${slug}/`),
+  submitEnquiry: (data: { package?: number; name: string; email: string; phone?: string; message?: string; wants_to_learn: boolean }) =>
+    apiClient.post('/training/enquiries/', data),
 };
 
 export default {

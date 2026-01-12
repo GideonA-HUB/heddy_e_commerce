@@ -4,11 +4,14 @@ import { GraduationCap, Award, BookOpen, ChefHat, Users, TrendingUp } from 'luci
 import { trainingAPI } from '../api';
 import { TrainingPackage } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
+import TrainingEnquiryModal from '../components/TrainingEnquiryModal';
 
 const TrainingPage: React.FC = () => {
   const [packages, setPackages] = useState<TrainingPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<TrainingPackage | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -99,22 +102,27 @@ const TrainingPage: React.FC = () => {
     );
   }
 
+  const handleEnquireClick = (pkg: TrainingPackage) => {
+    setSelectedPackage(pkg);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary via-red-600 to-primary text-white py-12 md:py-16">
+      {/* Hero Section - Reduced Size */}
+      <section className="bg-gradient-to-r from-primary via-red-600 to-primary text-white py-6 md:py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
+            className="text-center max-w-2xl mx-auto"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6">
-              <GraduationCap size={32} />
+            <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full mb-3 md:mb-4">
+              <GraduationCap size={24} className="md:w-7 md:h-7" />
             </div>
-            <h1 className="heading-1 mb-4">Professional Culinary Training</h1>
-            <p className="text-lg md:text-xl opacity-90">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 md:mb-3">Professional Culinary Training</h1>
+            <p className="text-sm md:text-base lg:text-lg opacity-90">
               Master the art of cooking with our comprehensive training programs. 
               From beginners to advanced chefs, we have the perfect package for you.
             </p>
@@ -122,15 +130,15 @@ const TrainingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Training Packages */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Training Packages - Reduced Size */}
+      <section className="py-6 md:py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           {packages.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">No training packages available at the moment.</p>
+            <div className="text-center py-8">
+              <p className="text-gray-600">No training packages available at the moment.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {packages.map((pkg, index) => {
                 const Icon = getPackageIcon(pkg);
                 const features = formatFeatures(pkg);
@@ -143,72 +151,75 @@ const TrainingPage: React.FC = () => {
                     transition={{ delay: index * 0.1, duration: 0.5 }}
                     className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
                   >
-                    {/* Package Header */}
-                    <div className={`bg-gradient-to-r ${getPackageColor(pkg)} text-white p-6`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Icon size={28} />
-                            <h2 className="text-2xl font-bold">{pkg.package_type_display}</h2>
+                    {/* Package Header - Reduced Size */}
+                    <div className={`bg-gradient-to-r ${getPackageColor(pkg)} text-white p-4 md:p-5`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <Icon size={20} className="flex-shrink-0" />
+                            <h2 className="text-lg md:text-xl font-bold truncate">{pkg.package_type_display}</h2>
                           </div>
-                          <h3 className="text-xl font-semibold mb-2">{pkg.title}</h3>
+                          <h3 className="text-base md:text-lg font-semibold mb-1.5 line-clamp-2">{pkg.title}</h3>
                           {pkg.price && (
-                            <p className="text-2xl font-bold">₦{pkg.price.toLocaleString()}</p>
+                            <p className="text-xl md:text-2xl font-bold">₦{pkg.price.toLocaleString()}</p>
                           )}
                         </div>
                         {pkg.image_url && (
                           <img
                             src={pkg.image_url}
                             alt={pkg.title}
-                            className="w-20 h-20 rounded-lg object-cover ml-4"
+                            className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover flex-shrink-0"
                           />
                         )}
                       </div>
                     </div>
 
-                    {/* Package Content */}
-                    <div className="p-6">
-                      <p className="text-gray-700 mb-6 leading-relaxed">{pkg.description}</p>
+                    {/* Package Content - Reduced Size */}
+                    <div className="p-4 md:p-5">
+                      <p className="text-gray-700 mb-4 text-sm md:text-base leading-relaxed line-clamp-4">{pkg.description}</p>
 
-                      {/* Features List */}
-                      <div className="space-y-3 mb-6">
-                        <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                          <BookOpen size={18} className="text-primary" />
+                      {/* Features List - Reduced Size */}
+                      <div className="space-y-2 mb-4">
+                        <h4 className="font-semibold text-gray-900 flex items-center gap-2 text-sm md:text-base">
+                          <BookOpen size={16} className="text-primary flex-shrink-0" />
                           What's Included:
                         </h4>
-                        <ul className="space-y-2">
-                          {features.map((feature, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-gray-700">
-                              <span className="text-primary mt-1">•</span>
-                              <span>{feature}</span>
+                        <ul className="space-y-1.5 max-h-32 overflow-y-auto">
+                          {features.slice(0, 6).map((feature, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-gray-700 text-xs md:text-sm">
+                              <span className="text-primary mt-1 flex-shrink-0">•</span>
+                              <span className="line-clamp-1">{feature}</span>
                             </li>
                           ))}
+                          {features.length > 6 && (
+                            <li className="text-xs text-gray-500 italic">+{features.length - 6} more</li>
+                          )}
                         </ul>
                       </div>
 
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2 mb-6">
+                      {/* Badges - Reduced Size */}
+                      <div className="flex flex-wrap gap-1.5 mb-4">
                         {pkg.includes_certification && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                            <Award size={14} />
-                            Certification Included
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                            <Award size={12} />
+                            Certification
                           </span>
                         )}
                         {pkg.includes_theory && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                            <BookOpen size={14} />
-                            Theory Classes
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                            <BookOpen size={12} />
+                            Theory
                           </span>
                         )}
                       </div>
 
-                      {/* Contact Button */}
-                      <a
-                        href="/contact"
-                        className="block w-full btn-primary text-center"
+                      {/* Enquire Button */}
+                      <button
+                        onClick={() => handleEnquireClick(pkg)}
+                        className="block w-full btn-primary text-center text-sm md:text-base py-2.5"
                       >
                         Enquire Now
-                      </a>
+                      </button>
                     </div>
                   </motion.div>
                 );
@@ -217,6 +228,16 @@ const TrainingPage: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Training Enquiry Modal */}
+      <TrainingEnquiryModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedPackage(null);
+        }}
+        packageData={selectedPackage}
+      />
     </div>
   );
 };

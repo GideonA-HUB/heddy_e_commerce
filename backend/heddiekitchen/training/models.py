@@ -81,3 +81,43 @@ class TrainingPackage(models.Model):
     def __str__(self):
         return f"{self.get_package_type_display()} - {self.title}"
 
+
+class TrainingEnquiry(models.Model):
+    """
+    Training enquiry model for user inquiries about training packages.
+    """
+    package = models.ForeignKey(
+        TrainingPackage,
+        on_delete=models.CASCADE,
+        related_name='enquiries',
+        null=True,
+        blank=True,
+        help_text="The training package this enquiry is about (optional)"
+    )
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    message = models.TextField(blank=True)
+    wants_to_learn = models.BooleanField(
+        default=False,
+        help_text="User wants to learn/register for training"
+    )
+    is_contacted = models.BooleanField(
+        default=False,
+        help_text="Has this enquiry been contacted?"
+    )
+    notes = models.TextField(
+        blank=True,
+        help_text="Internal notes about this enquiry"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Training Enquiry'
+        verbose_name_plural = 'Training Enquiries'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Enquiry from {self.name} - {self.email} ({self.created_at.strftime('%Y-%m-%d')})"
+
