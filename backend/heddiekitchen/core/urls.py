@@ -17,28 +17,33 @@ router.register(r'profile', UserProfileViewSet, basename='profile')
 router.register(r'newsletter', NewsletterViewSet, basename='newsletter')
 router.register(r'contact', ContactViewSet, basename='contact')
 
-@api_view(['PATCH', 'PUT'])
+@api_view(['GET', 'PATCH', 'PUT'])
 @permission_classes([permissions.IsAuthenticated])
-def update_profile(request):
-    """Handle PATCH /api/auth/profile/ (without ID)."""
+def profile_endpoint(request):
+    """Handle GET and PATCH /api/auth/profile/ (without ID)."""
     from heddiekitchen.core.models import UserProfile
     from heddiekitchen.core.serializers import UserProfileSerializer
     
     # Get or create user profile
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
-    # Update profile
-    serializer = UserProfileSerializer(profile, data=request.data, partial=True, context={'request': request})
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data)
+    if request.method == 'GET':
+        # Return profile data
+        serializer = UserProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data)
+    elif request.method in ['PATCH', 'PUT']:
+        # Update profile
+        serializer = UserProfileSerializer(profile, data=request.data, partial=True, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 urlpatterns = [
     path('register/', register_user, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('me/', current_user, name='current_user'),
-    # Custom route for PATCH /api/auth/profile/ (before router)
-    path('profile/', update_profile, name='update_profile'),
+    # Custom route for GET and PATCH /api/auth/profile/ (before router)
+    path('profile/', profile_endpoint, name='profile_endpoint'),
     path('', include(router.urls)),
 ]
