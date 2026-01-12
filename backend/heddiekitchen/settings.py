@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'heddiekitchen.catering',
     'heddiekitchen.shipping',
     'heddiekitchen.blog',
+    'heddiekitchen.training',
     'heddiekitchen.payments',
     'heddiekitchen.gallery',
 ]

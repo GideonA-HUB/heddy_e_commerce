@@ -1,0 +1,4 @@
+"""
+Training app for HEDDIEKITCHEN.
+"""
+

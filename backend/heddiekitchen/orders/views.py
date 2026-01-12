@@ -35,7 +35,7 @@ class CartViewSet(viewsets.ViewSet):
     def list_cart(self, request):
         """Get current cart."""
         cart = self._get_or_create_cart(request)
-        serializer = CartSerializer(cart)
+        serializer = CartSerializer(cart, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'])

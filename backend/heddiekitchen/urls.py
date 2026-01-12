@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/blog/', include('heddiekitchen.blog.urls')),
     path('api/payments/', include('heddiekitchen.payments.urls')),
     path('api/gallery/', include('heddiekitchen.gallery.urls')),
+    path('api/training/', include('heddiekitchen.training.urls')),
 ]
 
 # Serve media files in development

@@ -4,6 +4,7 @@ import { ArrowRight, Truck, Clock, Award, ChefHat, Sparkles, ShoppingBag, Headph
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import MenuItemCard from '../components/MenuItemCard';
 import SkeletonLoader from '../components/SkeletonLoader';
+import TrainingBanner from '../components/TrainingBanner';
 import { menuAPI, newsletterAPI } from '../api';
 import { MenuItem } from '../types';
 import { useCartStore } from '../stores/cartStore';
@@ -237,6 +238,9 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </motion.section>
+
+      {/* Training Banner */}
+      <TrainingBanner />
 
       {/* "HeddieKitchen has you covered" Section */}
       <motion.section 

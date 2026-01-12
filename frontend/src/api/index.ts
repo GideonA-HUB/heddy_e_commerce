@@ -13,6 +13,7 @@ import {
   MealPlan,
   GalleryCategory,
   GalleryImage,
+  TrainingPackage,
 } from '../types';
 
 // Auth APIs
@@ -156,4 +157,5 @@ export default {
   contactAPI,
   coreAPI,
   galleryAPI,
+  trainingAPI,
 };

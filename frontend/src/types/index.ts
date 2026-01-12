@@ -199,3 +199,37 @@ export interface GalleryImage {
   display_order: number;
   created_at: string;
 }
+
+export interface TrainingPackage {
+  id: number;
+  package_type: '6months' | '3months' | '1month' | '2weeks';
+  package_type_display: string;
+  title: string;
+  slug: string;
+  description: string;
+  price?: number;
+  is_for_beginners: boolean;
+  is_advanced: boolean;
+  is_upgrade: boolean;
+  is_housewife: boolean;
+  features: string[];
+  includes_theory: boolean;
+  theory_topics: string[];
+  includes_pastries: boolean;
+  includes_baking: boolean;
+  includes_local_dishes: boolean;
+  includes_intercontinental: boolean;
+  includes_advanced_cooking: boolean;
+  includes_upscale_dining: boolean;
+  includes_event_catering: boolean;
+  includes_management: boolean;
+  includes_general_kitchen_mgmt: boolean;
+  includes_popular_african_menu: boolean;
+  includes_certification: boolean;
+  is_active: boolean;
+  display_order: number;
+  image?: string;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
