@@ -6,6 +6,7 @@ import {
   Cart,
   Order,
   User,
+  UserProfile,
   AuthResponse,
   PaginatedResponse,
   BlogPost,
@@ -22,6 +23,19 @@ export const authAPI = {
     apiClient.post<AuthResponse>('/auth/login/', data),
   logout: () => apiClient.post('/auth/logout/'),
   getCurrentUser: () => apiClient.get<{ user: User; profile: any }>('/auth/me/'),
+};
+
+// Profile APIs
+export const profileAPI = {
+  getProfile: () => apiClient.get<UserProfile>('/auth/profile/'),
+  updateProfile: (data: Partial<UserProfile>) => apiClient.patch<UserProfile>('/auth/profile/', data),
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return apiClient.patch<UserProfile>('/auth/profile/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Menu APIs
@@ -132,6 +146,7 @@ export const galleryAPI = {
 
 export default {
   authAPI,
+  profileAPI,
   menuAPI,
   cartAPI,
   orderAPI,

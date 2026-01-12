@@ -72,11 +72,19 @@ const CartPage: React.FC = () => {
                 >
                   {/* Item Image */}
                   <div className="w-full sm:w-24 h-48 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {item.menu_item.images?.[0]?.image ? (
+                    {item.menu_item.image_url || (item.menu_item.images?.[0]?.image_url || item.menu_item.images?.[0]?.image) ? (
                       <img
-                        src={item.menu_item.images[0].image}
+                        src={item.menu_item.image_url || item.menu_item.images?.[0]?.image_url || item.menu_item.images?.[0]?.image}
                         alt={item.menu_item.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          if (target.parentElement) {
+                            target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300"><span class="text-gray-500 text-sm">No image</span></div>';
+                          }
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">

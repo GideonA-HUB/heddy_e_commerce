@@ -32,16 +32,32 @@ class SiteAssetAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """Admin interface for UserProfile."""
-    list_display = ['user', 'phone', 'city', 'country', 'role', 'newsletter_subscribed']
+    list_display = ['user', 'phone', 'city', 'country', 'role', 'newsletter_subscribed', 'avatar_preview']
     list_filter = ['role', 'country', 'newsletter_subscribed']
     search_fields = ['user__username', 'user__email', 'phone']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'avatar_preview']
     fieldsets = (
         ('User Info', {'fields': ('user',)}),
         ('Contact Info', {'fields': ('phone', 'address', 'city', 'state', 'country', 'zip_code')}),
-        ('Profile', {'fields': ('role', 'avatar', 'newsletter_subscribed')}),
+        ('Profile', {'fields': ('role', 'avatar', 'avatar_preview', 'newsletter_subscribed')}),
         ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
     )
+    
+    def avatar_preview(self, obj):
+        """Display avatar preview and download link in admin."""
+        if obj.avatar:
+            from django.utils.html import format_html
+            from django.urls import reverse
+            return format_html(
+                '<div style="margin: 10px 0;">'
+                '<img src="{}" style="max-width: 150px; max-height: 150px; border-radius: 50%; border: 2px solid #ddd; padding: 5px;" /><br/>'
+                '<a href="{}" download style="margin-top: 10px; display: inline-block; padding: 8px 16px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Download Avatar</a>'
+                '</div>',
+                obj.avatar.url,
+                obj.avatar.url
+            )
+        return "No avatar uploaded"
+    avatar_preview.short_description = "Avatar Preview"
 
 
 @admin.register(Newsletter)

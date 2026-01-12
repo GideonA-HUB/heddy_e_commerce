@@ -42,8 +42,21 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return UserProfile.objects.filter(user=self.request.user)
 
     def get_object(self):
-        """Get current user's profile."""
-        return self.request.user.profile
+        """Get current user's profile, create if doesn't exist."""
+        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile
+    
+    def list(self, request, *args, **kwargs):
+        """Return current user's profile (only one profile per user)."""
+        profile = self.get_object()
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data)
+    
+    def get_serializer_context(self):
+        """Add request to serializer context for absolute URLs."""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 @api_view(['POST'])

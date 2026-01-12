@@ -17,12 +17,27 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for UserProfile model."""
     user = UserSerializer(read_only=True)
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
         fields = ['id', 'user', 'phone', 'address', 'city', 'state', 'country', 
-                  'zip_code', 'role', 'avatar', 'newsletter_subscribed', 'created_at']
-        read_only_fields = ['id', 'user', 'created_at']
+                  'zip_code', 'role', 'avatar', 'avatar_url', 'newsletter_subscribed', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at', 'avatar_url']
+
+    def get_avatar_url(self, obj):
+        """Get absolute URL for avatar image."""
+        if obj.avatar:
+            url = obj.avatar.url
+            # If URL is already absolute (Cloudinary), return as-is
+            if url.startswith('http://') or url.startswith('https://'):
+                return url
+            # Otherwise, make it absolute using request
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(url)
+            return url
+        return None
 
 
 class SiteAssetSerializer(serializers.ModelSerializer):

@@ -29,7 +29,9 @@ export interface UserProfile {
   zip_code: string;
   role: 'customer' | 'staff' | 'chef' | 'admin';
   avatar?: string;
+  avatar_url?: string;
   newsletter_subscribed: boolean;
+  created_at?: string;
 }
 
 export interface MenuCategory {
