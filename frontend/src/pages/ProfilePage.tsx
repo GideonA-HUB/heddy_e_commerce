@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { profileAPI, orderAPI } from '../api';
 import { UserProfile, Order } from '../types';
-import { Camera, Upload, Loader2, Calendar, Package, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Camera, Loader2, Calendar, Package, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const ProfilePage: React.FC = () => {
@@ -256,8 +256,8 @@ const ProfilePage: React.FC = () => {
                             day: 'numeric'
                           })}
                         </span>
-                        {order.items_count !== undefined && (
-                          <span>{order.items_count} item{order.items_count !== 1 ? 's' : ''}</span>
+                        {order.items && order.items.length > 0 && (
+                          <span>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
                         )}
                         {order.shipping_city && (
                           <span>{order.shipping_city}</span>
