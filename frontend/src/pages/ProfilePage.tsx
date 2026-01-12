@@ -270,7 +270,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                     
                     <Link
-                      to={`/orders/${order.id}`}
+                      to={`/order-confirmation/${order.id}`}
                       className="btn-primary inline-flex items-center justify-center gap-2 whitespace-nowrap"
                     >
                       View Details

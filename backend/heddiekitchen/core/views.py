@@ -2,7 +2,7 @@
 Views for core app: auth, site assets, newsletter, contact.
 """
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
@@ -51,6 +51,22 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         profile = self.get_object()
         serializer = self.get_serializer(profile)
         return Response(serializer.data)
+    
+    def partial_update(self, request, *args, **kwargs):
+        """Handle PATCH /api/auth/profile/ (without ID) or /api/auth/profile/{id}/."""
+        # If no pk in kwargs, use get_object() to get current user's profile
+        if 'pk' not in kwargs or kwargs['pk'] is None:
+            profile = self.get_object()
+        else:
+            profile = self.get_object()
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        """Handle PUT /api/auth/profile/ (without ID) or /api/auth/profile/{id}/."""
+        return self.partial_update(request, *args, **kwargs)
     
     def get_serializer_context(self):
         """Add request to serializer context for absolute URLs."""

@@ -3,6 +3,9 @@ URL routing for core app.
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions, status
+from rest_framework.response import Response
 from heddiekitchen.core.views import (
     SiteAssetViewSet, UserProfileViewSet, NewsletterViewSet, ContactViewSet,
     register_user, login_user, logout_user, current_user
@@ -14,10 +17,28 @@ router.register(r'profile', UserProfileViewSet, basename='profile')
 router.register(r'newsletter', NewsletterViewSet, basename='newsletter')
 router.register(r'contact', ContactViewSet, basename='contact')
 
+@api_view(['PATCH', 'PUT'])
+@permission_classes([permissions.IsAuthenticated])
+def update_profile(request):
+    """Handle PATCH /api/auth/profile/ (without ID)."""
+    from heddiekitchen.core.models import UserProfile
+    from heddiekitchen.core.serializers import UserProfileSerializer
+    
+    # Get or create user profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    # Update profile
+    serializer = UserProfileSerializer(profile, data=request.data, partial=True, context={'request': request})
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data)
+
 urlpatterns = [
     path('register/', register_user, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('me/', current_user, name='current_user'),
+    # Custom route for PATCH /api/auth/profile/ (before router)
+    path('profile/', update_profile, name='update_profile'),
     path('', include(router.urls)),
 ]
