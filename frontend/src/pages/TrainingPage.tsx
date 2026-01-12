@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap, Clock, Award, BookOpen, ChefHat, Cake, UtensilsCrossed, Users, TrendingUp, Calendar } from 'lucide-react';
+import { GraduationCap, Award, BookOpen, ChefHat, Users, TrendingUp } from 'lucide-react';
 import { trainingAPI } from '../api';
 import { TrainingPackage } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';

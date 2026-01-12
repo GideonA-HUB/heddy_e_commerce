@@ -145,6 +145,14 @@ export const galleryAPI = {
     apiClient.get<GalleryImage>(`/gallery/images/${id}/`),
 };
 
+// Training APIs
+export const trainingAPI = {
+  getPackages: () =>
+    apiClient.get<PaginatedResponse<TrainingPackage>>('/training/packages/'),
+  getPackageDetail: (slug: string) =>
+    apiClient.get<TrainingPackage>(`/training/packages/${slug}/`),
+};
+
 export default {
   authAPI,
   profileAPI,
