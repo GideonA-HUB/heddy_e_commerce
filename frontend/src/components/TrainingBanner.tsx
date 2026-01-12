@@ -28,19 +28,19 @@ const TrainingBanner: React.FC = () => {
             <motion.div
               className="flex items-center gap-8 whitespace-nowrap"
               animate={{
-                x: [0, -50],
+                x: [0, -1000],
               }}
               transition={{
                 x: {
                   repeat: Infinity,
                   repeatType: "loop",
-                  duration: 20,
+                  duration: 12,
                   ease: "linear",
                 },
               }}
             >
               {/* Duplicate text for seamless loop */}
-              {[...Array(3)].map((_, i) => (
+              {[...Array(5)].map((_, i) => (
                 <span key={i} className="text-sm md:text-base font-medium">
                   {text}
                 </span>
