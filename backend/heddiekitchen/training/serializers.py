@@ -9,6 +9,8 @@ class TrainingPackageSerializer(serializers.ModelSerializer):
     """Serializer for training packages."""
     image_url = serializers.SerializerMethodField()
     package_type_display = serializers.CharField(source='get_package_type_display', read_only=True)
+    features = serializers.SerializerMethodField()
+    theory_topics = serializers.SerializerMethodField()
     
     class Meta:
         model = TrainingPackage
@@ -22,7 +24,49 @@ class TrainingPackageSerializer(serializers.ModelSerializer):
             'includes_certification', 'is_active', 'display_order', 'image', 'image_url',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'image_url']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'image_url', 'features', 'theory_topics']
+    
+    def get_features(self, obj):
+        """Normalize features to always return an array."""
+        if not obj.features:
+            return []
+        
+        # If it's already an array, return it
+        if isinstance(obj.features, list):
+            return obj.features
+        
+        # If it's an object, try to extract the array
+        if isinstance(obj.features, dict):
+            # Check for {"features": [...]} format
+            if 'features' in obj.features and isinstance(obj.features['features'], list):
+                return obj.features['features']
+            # Check for any array value in the object
+            for value in obj.features.values():
+                if isinstance(value, list):
+                    return value
+        
+        return []
+    
+    def get_theory_topics(self, obj):
+        """Normalize theory_topics to always return an array."""
+        if not obj.theory_topics:
+            return []
+        
+        # If it's already an array, return it
+        if isinstance(obj.theory_topics, list):
+            return obj.theory_topics
+        
+        # If it's an object, try to extract the array
+        if isinstance(obj.theory_topics, dict):
+            # Check for {"theory_topics": [...]} format
+            if 'theory_topics' in obj.theory_topics and isinstance(obj.theory_topics['theory_topics'], list):
+                return obj.theory_topics['theory_topics']
+            # Check for any array value in the object
+            for value in obj.theory_topics.values():
+                if isinstance(value, list):
+                    return value
+        
+        return []
     
     def get_image_url(self, obj):
         """Get absolute URL for package image."""

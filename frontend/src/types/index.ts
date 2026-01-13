@@ -212,9 +212,9 @@ export interface TrainingPackage {
   is_advanced: boolean;
   is_upgrade: boolean;
   is_housewife: boolean;
-  features: string[];
+  features: string[] | { features?: string[]; [key: string]: any };
   includes_theory: boolean;
-  theory_topics: string[];
+  theory_topics: string[] | { theory_topics?: string[]; [key: string]: any };
   includes_pastries: boolean;
   includes_baking: boolean;
   includes_local_dishes: boolean;

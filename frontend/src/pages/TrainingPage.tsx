@@ -47,15 +47,65 @@ const TrainingPage: React.FC = () => {
   const formatFeatures = (pkg: TrainingPackage): string[] => {
     const features: string[] = [];
     
+    // Extract features from JSON field (handle both array and object formats)
+    let customFeatures: string[] = [];
+    if (pkg.features) {
+      if (Array.isArray(pkg.features)) {
+        // Direct array format: ["feature1", "feature2"]
+        customFeatures = pkg.features;
+      } else if (typeof pkg.features === 'object' && pkg.features !== null) {
+        // Object format: {"features": ["feature1", "feature2"]}
+        if ('features' in pkg.features && Array.isArray((pkg.features as any).features)) {
+          customFeatures = (pkg.features as any).features;
+        } else {
+          // Try to extract any array values from the object
+          const values = Object.values(pkg.features);
+          if (values.length > 0 && Array.isArray(values[0])) {
+            customFeatures = values[0] as string[];
+          }
+        }
+      }
+    }
+    
+    // Add custom features first (from admin JSON field)
+    if (customFeatures.length > 0) {
+      features.push(...customFeatures);
+    }
+    
+    // Add package type flags
     if (pkg.is_for_beginners) features.push('For beginners');
     if (pkg.is_advanced) features.push('Advanced classes');
     if (pkg.is_upgrade) features.push('Upgrade package');
     if (pkg.is_housewife) features.push('House-Wife package');
     
-    if (pkg.includes_theory && pkg.theory_topics.length > 0) {
-      features.push(`Theory classes on ${pkg.theory_topics.join(', ')}`);
+    // Add theory topics separately (from admin JSON field)
+    let theoryTopics: string[] = [];
+    if (pkg.theory_topics) {
+      if (Array.isArray(pkg.theory_topics)) {
+        theoryTopics = pkg.theory_topics;
+      } else if (typeof pkg.theory_topics === 'object' && pkg.theory_topics !== null) {
+        // Object format: {"theory_topics": ["topic1", "topic2"]}
+        if ('theory_topics' in pkg.theory_topics && Array.isArray((pkg.theory_topics as any).theory_topics)) {
+          theoryTopics = (pkg.theory_topics as any).theory_topics;
+        } else {
+          // Try to extract any array values from the object
+          const values = Object.values(pkg.theory_topics);
+          if (values.length > 0 && Array.isArray(values[0])) {
+            theoryTopics = values[0] as string[];
+          }
+        }
+      }
     }
     
+    // Add theory topics if they exist
+    if (theoryTopics.length > 0) {
+      features.push(...theoryTopics);
+    } else if (pkg.includes_theory) {
+      // Fallback if theory_topics is empty but includes_theory is true
+      features.push('Theory classes');
+    }
+    
+    // Add practical courses
     const practicalCourses: string[] = [];
     if (pkg.includes_pastries) practicalCourses.push('Pastries');
     if (pkg.includes_baking) practicalCourses.push('Baking');
@@ -73,11 +123,6 @@ const TrainingPage: React.FC = () => {
     }
     
     if (pkg.includes_certification) features.push('Certification');
-    
-    // Add custom features from JSON field
-    if (pkg.features && Array.isArray(pkg.features)) {
-      features.push(...pkg.features);
-    }
     
     return features;
   };
