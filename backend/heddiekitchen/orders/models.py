@@ -107,6 +107,7 @@ class Order(models.Model):
 
     # Tracking
     tracking_number = models.CharField(max_length=100, blank=True)
+    current_location = models.CharField(max_length=200, blank=True, help_text='Current delivery location (e.g., "In transit - Wuse 2, Abuja")')
     notes = models.TextField(blank=True, help_text='Internal notes for staff')
 
     # Timestamps

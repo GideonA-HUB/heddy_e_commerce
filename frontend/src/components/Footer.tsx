@@ -27,16 +27,33 @@ export const Footer: React.FC = () => {
               African mobile kitchen delivering authentic food, catering & meal plans across Nigeria and beyond.
             </p>
             <div className="flex gap-4 mt-4">
-              {[Facebook, Twitter, Instagram].map((Icon, idx) => (
-                <a
-                  key={`social-${idx}`}
-                  href="#"
-                  className="w-10 h-10 bg-white/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
-                  aria-label="Social media"
-                >
-                  <Icon size={20} />
-                </a>
-              ))}
+              <a
+                href="https://facebook.com/Heddiekitchen"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={20} />
+              </a>
+              <a
+                href="https://x.com/heddiekitchen?s=11"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                aria-label="X (Twitter)"
+              >
+                <Twitter size={20} />
+              </a>
+              <a
+                href="https://instagram.com/abuja.food.vendor"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 hover:bg-primary rounded-full flex items-center justify-center transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram size={20} />
+              </a>
             </div>
           </div>
 

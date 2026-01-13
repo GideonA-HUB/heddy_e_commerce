@@ -123,6 +123,7 @@ export interface Order {
   delivery_date?: string;
   payment_reference?: string;
   tracking_number?: string;
+  current_location?: string;
   items?: OrderItem[];
   created_at: string;
 }

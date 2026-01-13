@@ -212,13 +212,19 @@ def send_order_confirmation_email(order):
     
     subject = f'Order Confirmation - Order #{order.order_number}'
     
-    # Calculate estimated delivery time (e.g., 2-3 hours for local, 1-2 days for shipping)
-    if order.shipping_city and order.shipping_city.lower() in ['abuja', 'lagos']:
-        delivery_time = "2-3 hours"
-        delivery_note = "Your order will be delivered within 2-3 hours to your location in " + order.shipping_city
+    # Calculate estimated delivery time based on location
+    shipping_city_lower = order.shipping_city.lower() if order.shipping_city else ''
+    shipping_country_lower = order.shipping_country.lower() if order.shipping_country else ''
+    
+    if shipping_city_lower == 'abuja':
+        delivery_time = "45mins"
+        delivery_note = "Your order will be delivered within 45 minutes to your location in Abuja"
+    elif shipping_country_lower and shipping_country_lower != 'nigeria':
+        delivery_time = "5-7 business days"
+        delivery_note = "Your order will be shipped and delivered within 5-7 business days for international deliveries"
     else:
         delivery_time = "1-2 business days"
-        delivery_note = "Your order will be shipped and delivered within 1-2 business days"
+        delivery_note = "Your order will be shipped and delivered within 1-2 business days outside Abuja"
     
     # Build order items list
     items_html = ""
@@ -291,7 +297,7 @@ def send_order_confirmation_email(order):
                             <td style="padding: 10px; text-align: right;">₦{order.subtotal:,.2f}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; text-align: right;"><strong>Shipping:</strong></td>
+                            <td style="padding: 10px; text-align: right;"><strong>Delivery Fee:</strong></td>
                             <td style="padding: 10px; text-align: right;">₦{order.shipping_fee:,.2f}</td>
                         </tr>
                         <tr>
@@ -327,7 +333,7 @@ def send_order_confirmation_email(order):
                 </div>
                 
                 <p style="text-align: center;">
-                    <a href="{settings.FRONTEND_URL or 'https://heddiekitchen.com'}/orders/{order.id}" class="button">Track Your Order</a>
+                    <a href="{settings.FRONTEND_URL or 'https://heddiekitchen.com'}/orders/{order.id}" class="button" style="display: inline-block; padding: 12px 24px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Track Your Order</a>
                 </p>
                 
                 <p>If you have any questions about your order, please contact us at:</p>

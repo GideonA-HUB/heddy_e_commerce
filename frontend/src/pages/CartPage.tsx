@@ -19,9 +19,9 @@ const CartPage: React.FC = () => {
   }, [fetchCart]);
 
   const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
-  const shippingFee = 5000; // Fixed or dynamic based on location
+  const deliveryFee = 4000; // Fixed or dynamic based on location
   const tax = subtotal * 0.075; // 7.5% tax
-  const total = subtotal + shippingFee + tax;
+  const total = subtotal + deliveryFee + tax;
 
   if (!cart || cart.items.length === 0) {
     return (
@@ -177,9 +177,9 @@ const CartPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-700">
-                  <span>Shipping</span>
+                  <span>Delivery Fee</span>
                   <span className="font-semibold">
-                    ₦{shippingFee.toLocaleString()}
+                    ₦{deliveryFee.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-700">

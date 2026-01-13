@@ -42,7 +42,7 @@ class OrderAdmin(admin.ModelAdmin):
         ('Totals', {'fields': ('subtotal', 'shipping_fee', 'tax', 'discount', 'total')}),
         ('Shipping', {'fields': ('shipping_name', 'shipping_email', 'shipping_phone', 'shipping_address', 'shipping_city', 'shipping_state', 'shipping_country', 'shipping_zip', 'delivery_date')}),
         ('Payment', {'fields': ('payment_method', 'payment_status', 'payment_reference', 'paid_at')}),
-        ('Tracking', {'fields': ('tracking_number', 'special_instructions', 'notes')}),
+        ('Tracking', {'fields': ('tracking_number', 'current_location', 'special_instructions', 'notes')}),
         ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
     )
 

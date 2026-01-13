@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
+import ScrollButtons from './components/ScrollButtons';
 import { useUIStore } from './stores/uiStore';
 import { useCartStore } from './stores/cartStore';
 import { useAuthStore } from './stores/authStore';
@@ -197,11 +198,13 @@ const App: React.FC = () => {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+            <Route path="/orders/:id" element={<OrderConfirmationPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 
         <Footer />
+        <ScrollButtons />
       </div>
     </Router>
   );
