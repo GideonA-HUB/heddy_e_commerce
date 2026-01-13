@@ -153,7 +153,7 @@ const TrainingPage: React.FC = () => {
                     style={{ maxHeight: '650px' }}
                   >
                     {/* Package Header - Reduced Size */}
-                    <div className={`bg-gradient-to-r ${getPackageColor(pkg)} text-white p-4 md:p-5`}>
+                    <div className={`bg-gradient-to-r ${getPackageColor(pkg)} text-white p-4 md:p-5 flex-shrink-0`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5">
@@ -176,9 +176,9 @@ const TrainingPage: React.FC = () => {
                     </div>
 
                     {/* Package Content - Reduced Size */}
-                    <div className="p-4 md:p-5 flex flex-col" style={{ maxHeight: '600px' }}>
+                    <div className="p-4 md:p-5 flex flex-col flex-1 min-h-0">
                       {/* Scrollable Content Area */}
-                      <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4">
+                      <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                         {/* Description with scroll */}
                         <div>
                           <p className="text-gray-700 text-sm md:text-base leading-relaxed">{pkg.description}</p>
@@ -201,45 +201,32 @@ const TrainingPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Badges - Reduced Size */}
-                      <div className="flex flex-wrap gap-1.5 mb-4 flex-shrink-0">
-                        {pkg.includes_certification && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                            <Award size={12} />
-                            Certification
-                          </span>
-                        )}
-                        {pkg.includes_theory && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                            <BookOpen size={12} />
-                            Theory
-                          </span>
-                        )}
-                      </div>
+                      {/* Bottom Section - Fixed */}
+                      <div className="flex-shrink-0 pt-4 border-t border-gray-200 mt-4 space-y-4">
+                        {/* Badges - Reduced Size */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {pkg.includes_certification && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                              <Award size={12} />
+                              Certification
+                            </span>
+                          )}
+                          {pkg.includes_theory && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                              <BookOpen size={12} />
+                              Theory
+                            </span>
+                          )}
+                        </div>
 
-                      {/* Badges - Reduced Size */}
-                      <div className="flex flex-wrap gap-1.5 mb-4 flex-shrink-0">
-                        {pkg.includes_certification && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                            <Award size={12} />
-                            Certification
-                          </span>
-                        )}
-                        {pkg.includes_theory && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                            <BookOpen size={12} />
-                            Theory
-                          </span>
-                        )}
+                        {/* Enquire Button - Fixed at bottom */}
+                        <button
+                          onClick={() => handleEnquireClick(pkg)}
+                          className="block w-full btn-primary text-center text-sm md:text-base py-2.5"
+                        >
+                          Enquire Now
+                        </button>
                       </div>
-
-                      {/* Enquire Button - Fixed at bottom */}
-                      <button
-                        onClick={() => handleEnquireClick(pkg)}
-                        className="block w-full btn-primary text-center text-sm md:text-base py-2.5 flex-shrink-0"
-                      >
-                        Enquire Now
-                      </button>
                     </div>
                   </motion.div>
                 );
