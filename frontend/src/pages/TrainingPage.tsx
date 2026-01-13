@@ -154,20 +154,36 @@ const TrainingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Reduced Size */}
-      <section className="bg-gradient-to-r from-primary via-red-600 to-primary text-white py-6 md:py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section with Background Image */}
+      <section className="relative overflow-hidden min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] flex items-center justify-center text-white">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(https://tse2.mm.bing.net/th/id/OIP.-BDewjaLMj883STUR1RRzgHaD6?rs=1&pid=ImgDetMain&o=7&rm=3)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+          }}
+        />
+        
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/50 md:bg-black/40"></div>
+        
+        {/* Content */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center max-w-2xl mx-auto"
+            className="text-center max-w-3xl mx-auto py-8 md:py-12"
           >
-            <div className="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full mb-3 md:mb-4">
-              <GraduationCap size={24} className="md:w-7 md:h-7" />
+            <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4 md:mb-6">
+              <GraduationCap size={28} className="md:w-7 md:h-7" />
             </div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 md:mb-3">Professional Culinary Training</h1>
-            <p className="text-sm md:text-base lg:text-lg opacity-90">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 drop-shadow-lg">
+              Professional Culinary Training
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl opacity-95 drop-shadow-md px-4">
               Master the art of cooking with our comprehensive training programs. 
               From beginners to advanced chefs, we have the perfect package for you.
             </p>
