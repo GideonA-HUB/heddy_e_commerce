@@ -137,8 +137,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # Calculate totals
         subtotal = sum(item.get_subtotal() for item in cart_items)
-        # Default shipping fee (can be customized based on location)
-        shipping_fee = Decimal('5000.00')  # Default shipping fee
+        # Default delivery fee (can be customized based on location)
+        shipping_fee = Decimal('4000.00')  # Default delivery fee
         tax = subtotal * Decimal('0.075')  # 7.5% tax
         total = subtotal + shipping_fee + tax
 

@@ -212,19 +212,17 @@ def send_order_confirmation_email(order):
     
     subject = f'Order Confirmation - Order #{order.order_number}'
     
-    # Calculate estimated delivery time based on location
+    # Determine which delivery time applies to this order
     shipping_city_lower = order.shipping_city.lower() if order.shipping_city else ''
     shipping_country_lower = order.shipping_country.lower() if order.shipping_country else ''
     
+    # Determine applicable delivery time for this specific order
     if shipping_city_lower == 'abuja':
-        delivery_time = "45mins"
-        delivery_note = "Your order will be delivered within 45 minutes to your location in Abuja"
+        applicable_delivery = "Abuja: 45 minutes"
     elif shipping_country_lower and shipping_country_lower != 'nigeria':
-        delivery_time = "5-7 business days"
-        delivery_note = "Your order will be shipped and delivered within 5-7 business days for international deliveries"
+        applicable_delivery = "International: 5-7 business days"
     else:
-        delivery_time = "1-2 business days"
-        delivery_note = "Your order will be shipped and delivered within 1-2 business days outside Abuja"
+        applicable_delivery = "Outside Abuja (Nigeria): 1-2 business days"
     
     # Build order items list
     items_html = ""
@@ -327,8 +325,13 @@ def send_order_confirmation_email(order):
                 
                 <div class="info-box">
                     <h3 style="margin-top: 0;">📦 Delivery Information</h3>
-                    <p><strong>Estimated Delivery Time:</strong> {delivery_time}</p>
-                    <p>{delivery_note}.</p>
+                    <p><strong>Estimated Delivery Times:</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Abuja:</strong> 45 minutes</li>
+                        <li><strong>Outside Abuja (Nigeria):</strong> 1-2 business days</li>
+                        <li><strong>International:</strong> 5-7 business days</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Your Order:</strong> {applicable_delivery}</p>
                     <p>You'll receive a notification once your order is out for delivery.</p>
                 </div>
                 
