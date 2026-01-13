@@ -24,9 +24,9 @@ const CheckoutPage: React.FC = () => {
   });
 
   const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
-  const shippingFee = 5000;
+  const deliveryFee = 4000;
   const tax = subtotal * 0.075;
-  const total = subtotal + shippingFee + tax;
+  const total = subtotal + deliveryFee + tax;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -249,8 +249,8 @@ const CheckoutPage: React.FC = () => {
                   <span>₦{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span>₦{shippingFee.toLocaleString()}</span>
+                  <span className="text-gray-600">Delivery Fee</span>
+                  <span>₦{deliveryFee.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (7.5%)</span>

@@ -331,7 +331,6 @@ def send_order_confirmation_email(order):
                         <li><strong>Outside Abuja (Nigeria):</strong> 1-2 business days</li>
                         <li><strong>International:</strong> 5-7 business days</li>
                     </ul>
-                    <p style="margin-top: 10px;"><strong>Your Order:</strong> {applicable_delivery}</p>
                     <p>You'll receive a notification once your order is out for delivery.</p>
                 </div>
                 
