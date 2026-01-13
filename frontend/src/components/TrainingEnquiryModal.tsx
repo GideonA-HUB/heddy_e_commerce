@@ -121,10 +121,10 @@ const TrainingEnquiryModal: React.FC<TrainingEnquiryModalProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col"
             >
-              {/* Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-primary to-red-600 text-white p-4 sm:p-6 flex items-center justify-between rounded-t-xl">
+              {/* Header - Fixed */}
+              <div className="flex-shrink-0 bg-gradient-to-r from-primary to-red-600 text-white p-4 sm:p-6 flex items-center justify-between rounded-t-xl z-10">
                 <h2 className="text-xl font-bold">Training Enquiry</h2>
                 <button
                   onClick={handleClose}
@@ -136,8 +136,8 @@ const TrainingEnquiryModal: React.FC<TrainingEnquiryModalProps> = ({
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="p-4 sm:p-6">
+              {/* Content - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {packageData && (
                   <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-600 mb-1">Enquiring about:</p>

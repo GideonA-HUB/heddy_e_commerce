@@ -149,7 +149,8 @@ const TrainingPage: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1, duration: 0.5 }}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 flex flex-col"
+                    style={{ maxHeight: '650px' }}
                   >
                     {/* Package Header - Reduced Size */}
                     <div className={`bg-gradient-to-r ${getPackageColor(pkg)} text-white p-4 md:p-5`}>
@@ -175,30 +176,33 @@ const TrainingPage: React.FC = () => {
                     </div>
 
                     {/* Package Content - Reduced Size */}
-                    <div className="p-4 md:p-5">
-                      <p className="text-gray-700 mb-4 text-sm md:text-base leading-relaxed line-clamp-4">{pkg.description}</p>
+                    <div className="p-4 md:p-5 flex flex-col" style={{ maxHeight: '600px' }}>
+                      {/* Scrollable Content Area */}
+                      <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4">
+                        {/* Description with scroll */}
+                        <div>
+                          <p className="text-gray-700 text-sm md:text-base leading-relaxed">{pkg.description}</p>
+                        </div>
 
-                      {/* Features List - Reduced Size */}
-                      <div className="space-y-2 mb-4">
-                        <h4 className="font-semibold text-gray-900 flex items-center gap-2 text-sm md:text-base">
-                          <BookOpen size={16} className="text-primary flex-shrink-0" />
-                          What's Included:
-                        </h4>
-                        <ul className="space-y-1.5 max-h-32 overflow-y-auto">
-                          {features.slice(0, 6).map((feature, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-gray-700 text-xs md:text-sm">
-                              <span className="text-primary mt-1 flex-shrink-0">•</span>
-                              <span className="line-clamp-1">{feature}</span>
-                            </li>
-                          ))}
-                          {features.length > 6 && (
-                            <li className="text-xs text-gray-500 italic">+{features.length - 6} more</li>
-                          )}
-                        </ul>
+                        {/* Features List - Show All */}
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-gray-900 flex items-center gap-2 text-sm md:text-base">
+                            <BookOpen size={16} className="text-primary flex-shrink-0" />
+                            What's Included:
+                          </h4>
+                          <ul className="space-y-1.5">
+                            {features.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-gray-700 text-xs md:text-sm">
+                                <span className="text-primary mt-1 flex-shrink-0">•</span>
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
 
                       {/* Badges - Reduced Size */}
-                      <div className="flex flex-wrap gap-1.5 mb-4">
+                      <div className="flex flex-wrap gap-1.5 mb-4 flex-shrink-0">
                         {pkg.includes_certification && (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
                             <Award size={12} />
@@ -213,10 +217,26 @@ const TrainingPage: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Enquire Button */}
+                      {/* Badges - Reduced Size */}
+                      <div className="flex flex-wrap gap-1.5 mb-4 flex-shrink-0">
+                        {pkg.includes_certification && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                            <Award size={12} />
+                            Certification
+                          </span>
+                        )}
+                        {pkg.includes_theory && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                            <BookOpen size={12} />
+                            Theory
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Enquire Button - Fixed at bottom */}
                       <button
                         onClick={() => handleEnquireClick(pkg)}
-                        className="block w-full btn-primary text-center text-sm md:text-base py-2.5"
+                        className="block w-full btn-primary text-center text-sm md:text-base py-2.5 flex-shrink-0"
                       >
                         Enquire Now
                       </button>
