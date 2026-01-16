@@ -96,7 +96,7 @@ export const blogAPI = {
 // Meal Plans APIs
 export const mealplansAPI = {
   getPlans: () =>
-    apiClient.get<PaginatedResponse<MealPlan>>('/mealplans/'),
+    apiClient.get<PaginatedResponse<MealPlan>>('/mealplans/plans/'),
 };
 
 // Catering APIs

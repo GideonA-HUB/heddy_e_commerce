@@ -11,10 +11,16 @@ class MealPlanViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /api/mealplans/plans/ - List all meal plans
     - GET /api/mealplans/plans/{id}/ - Plan detail
     """
-    queryset = MealPlan.objects.filter(is_active=True)
+    queryset = MealPlan.objects.filter(is_active=True).order_by('display_order', 'created_at')
     serializer_class = MealPlanSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'description', 'plan_type']
+    search_fields = ['title', 'description', 'plan_type']
+    
+    def get_serializer_context(self):
+        """Add request to serializer context for building absolute URLs."""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class MealPlanSubscriptionViewSet(viewsets.ModelViewSet):

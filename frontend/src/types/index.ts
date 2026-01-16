@@ -133,11 +133,17 @@ export interface MealPlan {
   title: string;
   slug: string;
   plan_type: string;
+  plan_type_display: string;
   period: 'weekly' | 'monthly';
+  period_display: string;
   price: number;
   description: string;
-  features: string[];
+  features: string[] | { meals?: string[]; benefits?: string[]; customization?: string[]; [key: string]: any };
+  sample_pdf_url?: string;
   is_customizable: boolean;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface CateringPackage {
