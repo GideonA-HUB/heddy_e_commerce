@@ -1,8 +1,8 @@
 from rest_framework import viewsets, filters, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from .models import MealPlan, MealPlanSubscription
-from .serializers import MealPlanSerializer, MealPlanSubscriptionSerializer
+from .serializers import MealPlanSerializer, MealPlanSubscriptionSerializer, PublicMealPlanSubscriptionSerializer
 
 
 class MealPlanViewSet(viewsets.ReadOnlyModelViewSet):
@@ -101,3 +101,31 @@ class MealPlanSubscriptionViewSet(viewsets.ModelViewSet):
             'status': 'Plan changed',
             'plan': MealPlanSerializer(new_plan).data
         })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def create_public_subscription(request):
+    """
+    Public endpoint for creating meal plan subscriptions (no authentication required).
+    Creates or retrieves user based on email, then creates subscription.
+    """
+    serializer = PublicMealPlanSubscriptionSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return Response(
+            {'error': 'Validation failed', 'details': serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        subscription = serializer.save()
+        return Response(
+            serializer.to_representation(subscription),
+            status=status.HTTP_201_CREATED
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )

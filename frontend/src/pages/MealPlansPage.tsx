@@ -4,11 +4,14 @@ import { Calendar, UtensilsCrossed, Award, BookOpen } from 'lucide-react';
 import { mealplansAPI } from '../api';
 import { MealPlan } from '../types';
 import SkeletonLoader from '../components/SkeletonLoader';
+import MealPlanSubscriptionModal from '../components/MealPlanSubscriptionModal';
 
 const MealPlansPage: React.FC = () => {
   const [plans, setPlans] = useState<MealPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -66,6 +69,11 @@ const MealPlansPage: React.FC = () => {
     }
     
     return features;
+  };
+
+  const handleSubscribeClick = (plan: MealPlan) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -214,6 +222,7 @@ const MealPlansPage: React.FC = () => {
 
                         {/* Subscribe Button - Fixed at bottom */}
                         <button
+                          onClick={() => handleSubscribeClick(plan)}
                           className="block w-full btn-primary text-center text-sm md:text-base py-2.5"
                         >
                           Subscribe Now
@@ -227,6 +236,16 @@ const MealPlansPage: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Meal Plan Subscription Modal */}
+      <MealPlanSubscriptionModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedPlan(null);
+        }}
+        planData={selectedPlan}
+      />
     </div>
   );
 };

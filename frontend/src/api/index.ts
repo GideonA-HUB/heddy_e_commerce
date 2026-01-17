@@ -97,6 +97,21 @@ export const blogAPI = {
 export const mealplansAPI = {
   getPlans: () =>
     apiClient.get<PaginatedResponse<MealPlan>>('/mealplans/plans/'),
+  subscribe: (data: {
+    meal_plan_id: number;
+    full_name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postal_code?: string;
+    start_date?: string;
+    special_instructions?: string;
+    dietary_preferences?: string;
+  }) =>
+    apiClient.post('/mealplans/subscribe/', data),
 };
 
 // Catering APIs
