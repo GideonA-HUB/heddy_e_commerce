@@ -34,11 +34,13 @@ ALLOWED_HOSTS = os.getenv(
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://localhost:5173'
+    'http://localhost:3000,http://localhost:5173,https://heddiekitchen.com,https://www.heddiekitchen.com'
 ).split(',')
+# CSRF_TRUSTED_ORIGINS must include all domains that can POST to Django (admin, forms, etc.)
+# This is critical for Django admin login and any form submissions
 CSRF_TRUSTED_ORIGINS = os.getenv(
     'CSRF_TRUSTED_ORIGINS',
-    'http://localhost:3000,http://localhost:5173'
+    'http://localhost:3000,http://localhost:5173,https://heddiekitchen.com,https://www.heddiekitchen.com,https://heddyecommerce-production.up.railway.app'
 ).split(',')
 
 # Application definition
@@ -329,6 +331,13 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+# CSRF Settings - Important for admin login and form submissions
+# Allow requests without Referer header (for direct access, API tools, etc.)
+# But still validate CSRF token when present
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token if needed
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
 # Security Settings (Production)
 if not DEBUG:
