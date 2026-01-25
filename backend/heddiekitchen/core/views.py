@@ -1,38 +1,24 @@
 """
-Views for core app: auth, site assets, newsletter, contact.
+Views for core app (authentication, profiles, etc.).
 """
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact
-from heddiekitchen.core.serializers import (
-    UserSerializer, UserProfileSerializer, SiteAssetSerializer,
-    NewsletterSerializer, ContactSerializer
+from .models import UserProfile, Newsletter, Contact, SiteAsset
+from .serializers import (
+    UserSerializer, UserProfileSerializer, NewsletterSerializer,
+    ContactSerializer, SiteAssetSerializer
 )
-
-
-class SiteAssetViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for SiteAsset model (favicon, logos).
-    Read-only for public endpoints.
-    """
-    queryset = SiteAsset.objects.all()
-    serializer_class = SiteAssetSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def get_serializer_context(self):
-        """Add request to serializer context for URL generation."""
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for UserProfile.
+    ViewSet for user profiles.
+    - GET /api/auth/profile/ - Get current user's profile
+    - PATCH /api/auth/profile/ - Update current user's profile
     """
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -42,37 +28,44 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         return UserProfile.objects.filter(user=self.request.user)
 
     def get_object(self):
-        """Get current user's profile, create if doesn't exist."""
+        """Get or create profile for current user."""
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
-    
-    def list(self, request, *args, **kwargs):
-        """Return current user's profile (only one profile per user)."""
-        profile = self.get_object()
-        serializer = self.get_serializer(profile)
-        return Response(serializer.data)
-    
-    def partial_update(self, request, *args, **kwargs):
-        """Handle PATCH /api/auth/profile/ (without ID) or /api/auth/profile/{id}/."""
-        # If no pk in kwargs, use get_object() to get current user's profile
-        if 'pk' not in kwargs or kwargs['pk'] is None:
-            profile = self.get_object()
-        else:
-            profile = self.get_object()
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-    
-    def update(self, request, *args, **kwargs):
-        """Handle PUT /api/auth/profile/ (without ID) or /api/auth/profile/{id}/."""
-        return self.partial_update(request, *args, **kwargs)
-    
+
     def get_serializer_context(self):
-        """Add request to serializer context for absolute URLs."""
+        """Add request to serializer context."""
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+
+@api_view(['GET', 'PATCH', 'PUT'])
+@permission_classes([permissions.IsAuthenticated])
+def profile_endpoint(request):
+    """
+    Custom endpoint for GET and PATCH /api/auth/profile/
+    This handles profile operations without requiring an ID in the URL.
+    """
+    from .serializers import UserProfileSerializer
+    
+    # Get or create user profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method in ['PATCH', 'PUT']:
+        serializer = UserProfileSerializer(
+            profile, 
+            data=request.data, 
+            partial=request.method == 'PATCH',
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -156,8 +149,11 @@ def logout_user(request):
     Logout user (delete token).
     POST /api/auth/logout/
     """
-    request.user.auth_token.delete()
-    return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
+    try:
+        request.user.auth_token.delete()
+    except:
+        pass
+    return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -167,79 +163,167 @@ def current_user(request):
     Get current authenticated user.
     GET /api/auth/me/
     """
+    profile = None
+    try:
+        profile = request.user.userprofile
+    except:
+        pass
+    
     return Response({
         'user': UserSerializer(request.user).data,
-        'profile': UserProfileSerializer(request.user.profile, context={'request': request}).data
+        'profile': UserProfileSerializer(profile).data if profile else None
     })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def grant_staff_access(request):
+    """
+    One-time secure endpoint to grant staff/superuser status to a user.
+    Protected by ADMIN_SETUP_TOKEN environment variable.
+    
+    POST /api/auth/grant-staff/
+    Body: {
+        "token": "your-admin-setup-token",
+        "username": "heydaddy",
+        "superuser": true  // optional, defaults to false
+    }
+    """
+    import os
+    
+    # Get the admin setup token from environment
+    admin_token = os.getenv('ADMIN_SETUP_TOKEN', '')
+    
+    if not admin_token:
+        return Response(
+            {'error': 'ADMIN_SETUP_TOKEN not configured. Please set it in your environment variables.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+    # Verify the token
+    provided_token = request.data.get('token')
+    if not provided_token or provided_token != admin_token:
+        return Response(
+            {'error': 'Invalid or missing token'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    # Get username and superuser flag
+    username = request.data.get('username')
+    make_superuser = request.data.get('superuser', False)
+    
+    if not username:
+        return Response(
+            {'error': 'username is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user = User.objects.get(username=username)
+        
+        if user.is_staff and (not make_superuser or user.is_superuser):
+            return Response({
+                'message': f'User "{username}" already has staff status' + (' and superuser status' if make_superuser and user.is_superuser else ''),
+                'user': {
+                    'username': user.username,
+                    'email': user.email,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser,
+                    'is_active': user.is_active
+                }
+            }, status=status.HTTP_200_OK)
+        
+        user.is_staff = True
+        if make_superuser:
+            user.is_superuser = True
+        user.save()
+        
+        status_msg = 'staff and superuser' if make_superuser else 'staff'
+        return Response({
+            'message': f'Successfully granted {status_msg} status to user "{username}"',
+            'user': {
+                'username': user.username,
+                'email': user.email,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
+                'is_active': user.is_active
+            }
+        }, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        # List available users
+        users = User.objects.all()[:10]  # Limit to first 10
+        return Response({
+            'error': f'User "{username}" does not exist',
+            'available_users': [
+                {
+                    'username': u.username,
+                    'email': u.email,
+                    'is_staff': u.is_staff,
+                    'is_superuser': u.is_superuser
+                } for u in users
+            ]
+        }, status=status.HTTP_404_NOT_FOUND)
 
 
 class NewsletterViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for Newsletter subscriptions.
+    ViewSet for newsletter subscriptions.
+    - POST /api/newsletter/ - Subscribe to newsletter
+    - GET /api/newsletter/ - List subscriptions (staff only)
     """
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
-    permission_classes = [permissions.AllowAny]
-    http_method_names = ['post', 'delete']
+    permission_classes = [permissions.AllowAny]  # Allow anyone to subscribe
+    
+    def get_permissions(self):
+        """Only staff can view subscriptions."""
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
 
-    def create(self, request, *args, **kwargs):
-        """Subscribe to newsletter."""
-        email = request.data.get('email')
-        if not email:
-            return Response(
-                {'error': 'email is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        newsletter, created = Newsletter.objects.get_or_create(
-            email=email,
-            defaults={'is_active': True}
-        )
-        
-        if not created and not newsletter.is_active:
-            newsletter.is_active = True
-            newsletter.save()
-
-        # Send welcome email asynchronously (don't block the response)
-        try:
-            import threading
-            from heddiekitchen.core.email_utils import send_newsletter_welcome_email
-            
-            def send_email_async():
-                try:
-                    send_newsletter_welcome_email(email)
-                except Exception as e:
-                    print(f"Error sending newsletter welcome email: {e}")
-            
-            # Send email in background thread
-            thread = threading.Thread(target=send_email_async)
-            thread.daemon = True
-            thread.start()
-        except Exception as e:
-            # Log error but don't fail the subscription
-            print(f"Error setting up newsletter email thread: {e}")
-
-        return Response(
-            NewsletterSerializer(newsletter).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
-        )
+    def perform_create(self, serializer):
+        """Create subscription and send welcome email."""
+        subscription = serializer.save()
+        # TODO: Send welcome email
+        return subscription
 
 
 class ContactViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for Contact form submissions.
+    ViewSet for contact form submissions.
+    - POST /api/contact/ - Submit contact form
+    - GET /api/contact/ - List submissions (staff only)
     """
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+    permission_classes = [permissions.AllowAny]  # Allow anyone to submit
+    
+    def get_permissions(self):
+        """Only staff can view submissions."""
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
+
+    def perform_create(self, serializer):
+        """Create contact submission."""
+        submission = serializer.save()
+        # TODO: Send notification email
+        return submission
+
+
+class SiteAssetViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only ViewSet for site assets (logos, favicon).
+    - GET /api/site-assets/ - Get site assets
+    """
+    queryset = SiteAsset.objects.all()
+    serializer_class = SiteAssetSerializer
     permission_classes = [permissions.AllowAny]
-    http_method_names = ['post', 'get']
-
+    
     def get_queryset(self):
-        """Admin can see all, others can't view."""
-        if self.request.user.is_staff:
-            return Contact.objects.all()
-        return Contact.objects.none()
-
-    def create(self, request, *args, **kwargs):
-        """Submit contact form."""
-        return super().create(request, *args, **kwargs)
+        """Return the first site asset or empty."""
+        asset = SiteAsset.objects.first()
+        if asset:
+            return SiteAsset.objects.filter(pk=asset.pk)
+        return SiteAsset.objects.none()

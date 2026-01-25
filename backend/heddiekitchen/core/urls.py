@@ -8,7 +8,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from heddiekitchen.core.views import (
     SiteAssetViewSet, UserProfileViewSet, NewsletterViewSet, ContactViewSet,
-    register_user, login_user, logout_user, current_user
+    register_user, login_user, logout_user, current_user, grant_staff_access
 )
 
 router = DefaultRouter()
@@ -43,6 +43,7 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('me/', current_user, name='current_user'),
+    path('grant-staff/', grant_staff_access, name='grant_staff_access'),  # One-time staff access grant
     # Custom route for GET and PATCH /api/auth/profile/ (before router)
     path('profile/', profile_endpoint, name='profile_endpoint'),
     path('', include(router.urls)),
