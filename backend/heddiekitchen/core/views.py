@@ -12,6 +12,7 @@ from .serializers import (
     UserSerializer, UserProfileSerializer, NewsletterSerializer,
     ContactSerializer, SiteAssetSerializer
 )
+from .email_utils import send_newsletter_welcome_email
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -285,7 +286,12 @@ class NewsletterViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create subscription and send welcome email."""
         subscription = serializer.save()
-        # TODO: Send welcome email
+        # Send welcome email to the subscriber
+        try:
+            send_newsletter_welcome_email(subscription.email)
+        except Exception as e:
+            # Log error but don't fail the subscription creation
+            print(f"Failed to send newsletter welcome email to {subscription.email}: {e}")
         return subscription
 
 
