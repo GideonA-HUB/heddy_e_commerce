@@ -310,7 +310,7 @@ const MenuItemDetailPage: React.FC = () => {
               )}
             </p>
 
-            {/* Qty + Add to Bag */}
+            {/* Qty + Add to Cart */}
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="inline-flex items-center rounded-xl border border-gray-300">
                 <button
@@ -341,7 +341,7 @@ const MenuItemDetailPage: React.FC = () => {
                 {addingToCart
                   ? 'Adding…'
                   : item.is_available
-                    ? 'Add to Bag'
+                    ? 'Add to Cart'
                     : 'Out of Stock'}
               </button>
             </div>

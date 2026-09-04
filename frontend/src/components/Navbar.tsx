@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, MessageCircle, Search, ShoppingBag, X } from 'lucide-react';
+import { Menu, MessageCircle, Search, ShoppingCart, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
@@ -8,19 +8,10 @@ import { useUIStore } from '../stores/uiStore';
 
 const WHATSAPP_URL = 'https://wa.me/2349035234365';
 
-const desktopLinks = [
-  { to: '/menu', label: 'Menu' },
-  { to: '/meal-plans', label: 'Meal Plans' },
-  { to: '/catering', label: 'Catering' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
-];
-
 /**
- * Sticky luxury header:
- * Left: WhatsApp + hamburger (mobile)
- * Center: Logo
- * Right: search + bag badge
+ * CasseoHair-structure header (restaurant brand):
+ * Top bar: Contact Us (WhatsApp) | NG NGN
+ * Main: hamburger (all links) | centered logo only | search + profile + cart
  */
 export const Navbar: React.FC = () => {
   const [shouldRotate, setShouldRotate] = useState(true);
@@ -28,7 +19,7 @@ export const Navbar: React.FC = () => {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { cart } = useCartStore();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const {
     siteAssetLogo,
     toggleMobileMenu,
@@ -44,11 +35,6 @@ export const Navbar: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -58,82 +44,89 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-secondary text-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative flex h-16 items-center justify-between md:h-[4.5rem]">
-          {/* Left */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              type="button"
-              className="rounded-lg p-2 transition hover:bg-white/10 lg:hidden"
-              onClick={toggleMobileMenu}
-              aria-label="Open menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-white/90 transition hover:bg-white/10 hover:text-white sm:inline-flex"
-              aria-label="Contact on WhatsApp"
-            >
-              <MessageCircle size={18} />
-              <span className="hidden md:inline">WhatsApp</span>
-            </a>
+    <header className="sticky top-0 z-50 bg-black text-white">
+      {/* Top utility bar — CasseoHair pattern */}
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 transition hover:text-emerald-300 sm:text-sm"
+            aria-label="Contact us on WhatsApp"
+          >
+            <MessageCircle size={14} className="text-emerald-500" />
+            Contact Us
+          </a>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/85 sm:text-xs">
+            <span aria-hidden>🇳🇬</span>
+            NG NGN
           </div>
+        </div>
+      </div>
 
-          {/* Center logo */}
+      {/* Main bar: hamburger | logo | search + profile + cart */}
+      <div className="border-b border-white/10">
+        <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 sm:px-6 lg:h-[4.25rem] lg:px-8">
+          {/* Left — hamburger (desktop + mobile) */}
+          <button
+            type="button"
+            className="rounded-lg p-2 transition hover:bg-white/10"
+            onClick={toggleMobileMenu}
+            aria-label="Open menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <Menu size={24} strokeWidth={1.75} />
+          </button>
+
+          {/* Center — logo image only (no wordmark) */}
           <Link
             to="/"
-            className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 sm:gap-3"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            aria-label="HEDDIEKITCHEN home"
           >
-            {siteAssetLogo && (
+            {siteAssetLogo ? (
               <motion.img
                 src={siteAssetLogo}
-                alt="HEDDIEKITCHEN logo"
-                className="h-10 w-10 object-contain rounded-full bg-white/5 p-1 md:h-14 md:w-14 md:p-1.5"
+                alt="HEDDIEKITCHEN"
+                className="h-12 w-12 rounded-2xl bg-white object-contain p-1 shadow-sm sm:h-14 sm:w-14 lg:h-16 lg:w-16"
                 initial={{ rotate: 0 }}
                 animate={shouldRotate ? { rotate: 360 } : { rotate: 0 }}
                 transition={{ duration: 0.8, ease: 'easeInOut' }}
               />
+            ) : (
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[10px] font-black uppercase tracking-tight text-primary sm:h-14 sm:w-14 lg:h-16 lg:w-16">
+                HK
+              </span>
             )}
-            <span className="font-black text-base tracking-tight uppercase sm:text-lg md:text-xl">
-              HEDDIEKITCHEN
-            </span>
           </Link>
 
-          {/* Right */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="hidden items-center gap-5 lg:flex lg:mr-3">
-              {desktopLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-sm font-medium text-white/85 transition hover:text-white"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-
+          {/* Right — search, profile/login, cart */}
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
               className="rounded-lg p-2 transition hover:bg-white/10"
               aria-label="Search menu"
             >
-              <Search size={20} />
+              <Search size={22} strokeWidth={1.75} />
             </button>
+
+            <Link
+              to={user ? '/profile' : '/login'}
+              className="rounded-lg p-2 transition hover:bg-white/10"
+              aria-label={user ? 'Your profile' : 'Login'}
+            >
+              <User size={22} strokeWidth={1.75} />
+            </Link>
 
             <button
               type="button"
               onClick={openCartDrawer}
               className="relative rounded-lg p-2 transition hover:bg-white/10"
-              aria-label="Open shopping bag"
+              aria-label="Open cart"
             >
-              <ShoppingBag size={20} />
+              <ShoppingCart size={22} strokeWidth={1.75} />
               {itemCount > 0 && (
                 <motion.span
                   className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white"
@@ -145,40 +138,15 @@ export const Navbar: React.FC = () => {
                 </motion.span>
               )}
             </button>
-
-            {user ? (
-              <div className="ml-1 hidden items-center gap-2 md:flex">
-                <Link
-                  to="/profile"
-                  className="max-w-[7rem] truncate text-sm font-medium text-white/90 hover:text-white"
-                >
-                  {user.username || user.email}
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold hover:bg-primary-700"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                className="ml-1 hidden rounded-lg border border-white/40 px-3 py-1.5 text-sm font-semibold hover:bg-white hover:text-black md:inline-block"
-              >
-                Login
-              </Link>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Search bar slide-down */}
+      {/* Search slide-down */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
-            className="border-t border-white/10 bg-secondary"
+            className="border-b border-white/10 bg-black"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -186,7 +154,7 @@ export const Navbar: React.FC = () => {
           >
             <form
               onSubmit={handleSearch}
-              className="container mx-auto flex gap-2 px-4 py-3 sm:px-6 lg:px-8"
+              className="mx-auto flex max-w-7xl gap-2 px-4 py-3 sm:px-6 lg:px-8"
             >
               <input
                 type="search"

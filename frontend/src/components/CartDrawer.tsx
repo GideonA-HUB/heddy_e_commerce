@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 import { useUIStore } from '../stores/uiStore';
 import { formatNGN } from '../utils/format';
@@ -61,12 +61,12 @@ export const CartDrawer: React.FC = () => {
             transition={{ type: 'spring', stiffness: 320, damping: 34 }}
             role="dialog"
             aria-modal="true"
-            aria-label="Shopping bag"
+            aria-label="Shopping cart"
           >
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
               <div className="flex items-center gap-2">
-                <ShoppingBag size={20} className="text-primary" />
-                <h2 className="text-lg font-bold text-gray-900">Your Bag</h2>
+                <ShoppingCart size={20} className="text-primary" />
+                <h2 className="text-lg font-bold text-gray-900">Your Cart</h2>
                 {items.length > 0 && (
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                     {cart?.item_count ?? items.length}
@@ -77,7 +77,7 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={close}
                 className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Close bag"
+                aria-label="Close cart"
               >
                 <X size={22} />
               </button>
@@ -88,9 +88,11 @@ export const CartDrawer: React.FC = () => {
                 <p className="py-12 text-center text-sm text-gray-500">Loading…</p>
               ) : items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <ShoppingBag size={40} className="mb-3 text-gray-300" />
-                  <p className="mb-1 font-medium text-gray-900">Your bag is empty</p>
-                  <p className="mb-6 text-sm text-gray-500">Add dishes from the menu to get started.</p>
+                  <ShoppingCart size={40} className="mb-3 text-gray-300" />
+                  <p className="mb-1 font-medium text-gray-900">Your cart is empty</p>
+                  <p className="mb-6 text-sm text-gray-500">
+                    Add dishes from the menu to get started.
+                  </p>
                   <button
                     type="button"
                     onClick={() => {
@@ -178,7 +180,9 @@ export const CartDrawer: React.FC = () => {
                   <span className="text-sm text-gray-600">Subtotal</span>
                   <span className="text-lg font-bold text-primary">{formatNGN(total)}</span>
                 </div>
-                <p className="mb-3 text-xs text-gray-500">Payments in NGN. Delivery calculated at checkout.</p>
+                <p className="mb-3 text-xs text-gray-500">
+                  Payments in NGN. Delivery calculated at checkout.
+                </p>
                 <button type="button" onClick={goCheckout} className="btn-primary w-full">
                   Proceed to Checkout
                 </button>

@@ -116,7 +116,7 @@ const CheckoutPage: React.FC = () => {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-white px-4">
         <div className="text-center">
-          <p className="mb-4 text-gray-600">Your bag is empty</p>
+          <p className="mb-4 text-gray-600">Your cart is empty</p>
           <button
             type="button"
             onClick={() => navigate('/menu')}
@@ -329,7 +329,7 @@ const CheckoutPage: React.FC = () => {
 
             {/* Order Summary — sticky */}
             <div className="lg:col-span-2">
-              <div className="sticky top-28 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:p-6">
+              <div className="sticky top-32 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:p-6">
                 <h2 className="mb-5 text-lg font-bold">Order Summary</h2>
 
                 <ul className="mb-5 max-h-64 space-y-3 overflow-y-auto">

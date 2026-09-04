@@ -103,7 +103,7 @@ const MenuPage: React.FC = () => {
         description="Browse HEDDIEKITCHEN’s full menu — authentic African dishes, seasonal specials, and customer favorites."
       />
 
-      <div className="sticky top-16 z-10 border-b border-gray-100 bg-white/95 backdrop-blur-sm md:top-[4.5rem]">
+      <div className="sticky top-[5.75rem] z-10 border-b border-gray-100 bg-white/95 backdrop-blur-sm sm:top-[6.25rem] lg:top-[7rem]">
         <div className="container mx-auto py-5 sm:py-6">
           <h1 className="heading-2 mb-5">{pageTitle}</h1>
 
@@ -195,7 +195,7 @@ const MenuPage: React.FC = () => {
           )}
 
           <aside className="hidden lg:col-span-1 lg:block">
-            <div className="sticky top-36 rounded-2xl border border-gray-100 bg-white p-5">
+            <div className="sticky top-40 rounded-2xl border border-gray-100 bg-white p-5">
               <div className="mb-4 flex items-center gap-2">
                 <Filter size={18} className="text-primary" />
                 <h2 className="font-semibold">Categories</h2>

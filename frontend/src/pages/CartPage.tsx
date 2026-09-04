@@ -26,13 +26,13 @@ const CartPage: React.FC = () => {
   if (!cart || cart.items.length === 0) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <SEO title="Your Bag" description="Your HEDDIEKITCHEN shopping bag." />
+        <SEO title="Your Cart" description="Your HEDDIEKITCHEN shopping cart." />
         <div className="max-w-md w-full text-center">
           <div className="p-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
               <ShoppingCart size={40} className="text-gray-400" />
             </div>
-            <h1 className="heading-2 mb-4">Your Bag is Empty</h1>
+            <h1 className="heading-2 mb-4">Your Cart is Empty</h1>
             <p className="text-body mb-8">Browse the menu to add dishes</p>
             <Link
               to="/menu"
@@ -54,9 +54,9 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <SEO title="Your Bag" description="Review your HEDDIEKITCHEN order before checkout." />
+      <SEO title="Your Cart" description="Review your HEDDIEKITCHEN order before checkout." />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <h1 className="heading-2 mb-8">Your Bag</h1>
+        <h1 className="heading-2 mb-8">Your Cart</h1>
 
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Cart Items */}
@@ -165,7 +165,7 @@ const CartPage: React.FC = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-md p-6 sticky top-24 lg:top-32">
+            <div className="bg-white rounded-xl shadow-md p-6 sticky top-32 lg:top-36">
               <h2 className="heading-3 mb-6">Order Summary</h2>
 
               <div className="space-y-4 mb-6">

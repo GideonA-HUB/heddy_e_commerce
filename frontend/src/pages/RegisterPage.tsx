@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { authAPI } from '../api';
+import SEO from '../components/SEO';
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const setUser = useAuthStore((s) => s.setUser);
-  const [form, setForm] = useState({ 
-    username: '', 
-    first_name: '', 
-    last_name: '', 
-    email: '', 
-    password: '', 
-    password2: '' 
+  const siteLogo = localStorage.getItem('heddiekitchen_logo');
+
+  const [form, setForm] = useState({
+    username: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    password2: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,113 +51,130 @@ const RegisterPage: React.FC = () => {
         setUser(res.data.user, profile, res.data.token);
         navigate('/');
       }
-    } catch (err: any) {
-      const errorData = err?.response?.data;
+    } catch (err: unknown) {
+      const errorData = (err as { response?: { data?: Record<string, unknown> } })
+        ?.response?.data;
       if (errorData?.username) {
-        setError(`Username: ${Array.isArray(errorData.username) ? errorData.username[0] : errorData.username}`);
+        const u = errorData.username;
+        setError(`Username: ${Array.isArray(u) ? u[0] : u}`);
       } else if (errorData?.email) {
-        setError(`Email: ${Array.isArray(errorData.email) ? errorData.email[0] : errorData.email}`);
+        const em = errorData.email;
+        setError(`Email: ${Array.isArray(em) ? em[0] : em}`);
       } else {
-        setError(errorData?.detail || 'Registration failed. Please try again.');
+        setError(
+          (errorData?.detail as string) || 'Registration failed. Please try again.'
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
+  const inputClass =
+    'w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 pl-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary';
+  const inputClassNoIcon =
+    'w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-              <UserPlus className="text-primary" size={32} />
-            </div>
-            <h2 className="heading-2">Create an account</h2>
-            <p className="text-body mt-2">Join us and start ordering delicious meals</p>
+    <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center bg-[#f7f7f8] px-4 py-8 sm:py-10">
+      <SEO title="Create Account" description="Join HEDDIEKITCHEN and start ordering." />
+
+      <div className="w-full max-w-[22rem] sm:max-w-sm">
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
+          <div className="mb-5 text-center">
+            {siteLogo ? (
+              <img
+                src={siteLogo}
+                alt=""
+                className="mx-auto mb-3 h-12 w-12 rounded-xl object-contain"
+              />
+            ) : null}
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+              Create account
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">Join and start ordering</p>
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4 flex gap-3">
-              <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="mb-4 flex gap-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5">
+              <AlertCircle className="mt-0.5 shrink-0 text-primary" size={16} />
+              <p className="text-xs text-red-700 sm:text-sm">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="mb-1 block text-xs font-semibold text-gray-700">
                 Username
               </label>
               <div className="relative">
+                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   name="username"
                   value={form.username}
                   onChange={handleChange}
                   placeholder="Choose a username"
                   required
-                  className="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="username"
+                  className={inputClass}
                 />
-                <User size={20} className="absolute left-4 top-3.5 text-gray-400" />
               </div>
             </div>
 
-            {/* Name */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  First Name
+                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                  First name
                 </label>
                 <input
                   name="first_name"
                   value={form.first_name}
                   onChange={handleChange}
-                  placeholder="First name"
+                  placeholder="First"
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="given-name"
+                  className={inputClassNoIcon}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Last Name
+                <label className="mb-1 block text-xs font-semibold text-gray-700">
+                  Last name
                 </label>
                 <input
                   name="last_name"
                   value={form.last_name}
                   onChange={handleChange}
-                  placeholder="Last name"
+                  placeholder="Last"
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="family-name"
+                  className={inputClassNoIcon}
                 />
               </div>
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
-              </label>
+              <label className="mb-1 block text-xs font-semibold text-gray-700">Email</label>
               <div className="relative">
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="your.email@example.com"
+                  placeholder="you@example.com"
                   type="email"
                   required
-                  className="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="email"
+                  className={inputClass}
                 />
-                <Mail size={20} className="absolute left-4 top-3.5 text-gray-400" />
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="mb-1 block text-xs font-semibold text-gray-700">
                 Password
               </label>
               <div className="relative">
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   name="password"
                   value={form.password}
@@ -162,57 +182,53 @@ const RegisterPage: React.FC = () => {
                   placeholder="At least 8 characters"
                   type="password"
                   required
-                  className="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="new-password"
+                  className={inputClass}
                 />
-                <Lock size={20} className="absolute left-4 top-3.5 text-gray-400" />
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password
+              <label className="mb-1 block text-xs font-semibold text-gray-700">
+                Confirm password
               </label>
               <div className="relative">
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   name="password2"
                   value={form.password2}
                   onChange={handleChange}
-                  placeholder="Confirm your password"
+                  placeholder="Confirm password"
                   type="password"
                   required
-                  className="w-full px-4 py-3 pl-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  autoComplete="new-password"
+                  className={inputClass}
                 />
-                <Lock size={20} className="absolute left-4 top-3.5 text-gray-400" />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary mt-1 w-full py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Creating…' : 'Create Account'}
             </button>
           </form>
 
-          <p className="text-sm text-gray-600 mt-6 text-center">
+          <p className="mt-5 text-center text-xs text-gray-500 sm:text-sm">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary font-semibold hover:text-primary-600 transition-colors">
+            <Link to="/login" className="font-semibold text-primary hover:underline">
               Sign in
             </Link>
           </p>
         </div>
 
-        {/* Back to Home */}
-        <div className="text-center mt-6">
-          <Link
-            to="/"
-            className="text-gray-600 hover:text-gray-700 text-sm font-medium transition-colors"
-          >
+        <p className="mt-5 text-center">
+          <Link to="/" className="text-xs font-medium text-gray-500 hover:text-gray-800">
             ← Back to Home
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );
