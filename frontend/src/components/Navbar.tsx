@@ -1,220 +1,209 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingCart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Menu, MessageCircle, Search, ShoppingBag, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
+const WHATSAPP_URL = 'https://wa.me/2349035234365';
+
+const desktopLinks = [
+  { to: '/menu', label: 'Menu' },
+  { to: '/meal-plans', label: 'Meal Plans' },
+  { to: '/catering', label: 'Catering' },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
+];
+
+/**
+ * Sticky luxury header:
+ * Left: WhatsApp + hamburger (mobile)
+ * Center: Logo
+ * Right: search + bag badge
+ */
 export const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [shouldRotate, setShouldRotate] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { cart } = useCartStore();
   const { user, logout } = useAuthStore();
-  const { siteAssetLogo } = useUIStore();
+  const {
+    siteAssetLogo,
+    toggleMobileMenu,
+    openCartDrawer,
+    isMobileMenuOpen,
+  } = useUIStore();
 
   const itemCount = cart?.item_count || 0;
 
-  // Rotate logo on page load/reload (works on both web and mobile)
   useEffect(() => {
-    // Trigger rotation animation on mount (page load/reload/refresh)
     setShouldRotate(true);
-    // Reset animation state after animation completes
-    const timer = setTimeout(() => {
-      setShouldRotate(false);
-    }, 900); // Animation duration (0.8s) + small buffer (0.1s)
+    const timer = setTimeout(() => setShouldRotate(false), 900);
     return () => clearTimeout(timer);
-  }, []); // Empty dependency array - runs on component mount (every page load/reload)
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/');
-    setIsOpen(false);
   };
 
-  const navLinks = [
-    { to: '/menu', label: 'Menu' },
-    { to: '/meal-plans', label: 'Meal Plans' },
-    { to: '/catering', label: 'Catering' },
-    { to: '/gallery', label: 'Gallery' },
-    { to: '/training', label: 'Training' },
-    { to: '/shipping', label: 'Shipping' },
-    { to: '/blog', label: 'Blog' },
-    { to: '/contact', label: 'Contact' },
-  ];
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    navigate(`/menu?q=${encodeURIComponent(query.trim())}`);
+    setSearchOpen(false);
+    setQuery('');
+  };
 
   return (
-    <nav className="bg-black text-white sticky top-0 z-50 shadow-lg border-b border-white/10">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-secondary text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
+        <div className="relative flex h-16 items-center justify-between md:h-[4.5rem]">
+          {/* Left */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              type="button"
+              className="rounded-lg p-2 transition hover:bg-white/10 lg:hidden"
+              onClick={toggleMobileMenu}
+              aria-label="Open menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-white/90 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+              aria-label="Contact on WhatsApp"
+            >
+              <MessageCircle size={18} />
+              <span className="hidden md:inline">WhatsApp</span>
+            </a>
+          </div>
+
+          {/* Center logo */}
+          <Link
+            to="/"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 sm:gap-3"
+          >
             {siteAssetLogo && (
               <motion.img
                 src={siteAssetLogo}
                 alt="HEDDIEKITCHEN logo"
-                className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 object-contain rounded-full bg-white/5 p-1.5 md:p-2"
-                initial={{ rotate: 0, scale: 1 }}
-                animate={shouldRotate ? { rotate: 360, scale: 1 } : { rotate: 0, scale: 1 }}
-                transition={{
-                  rotate: {
-                    duration: 0.8,
-                    ease: "easeInOut",
-                    repeat: 0
-                  },
-                  scale: {
-                    duration: 0.3
-                  }
-                }}
-                whileHover={{ scale: 1.1, rotate: 12 }}
-                whileTap={{ scale: 0.95 }}
+                className="h-10 w-10 object-contain rounded-full bg-white/5 p-1 md:h-14 md:w-14 md:p-1.5"
+                initial={{ rotate: 0 }}
+                animate={shouldRotate ? { rotate: 360 } : { rotate: 0 }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
               />
             )}
-            <span className="font-black text-lg md:text-xl lg:text-2xl tracking-tight uppercase">
+            <span className="font-black text-base tracking-tight uppercase sm:text-lg md:text-xl">
               HEDDIEKITCHEN
             </span>
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-6 lg:gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="text-white/90 hover:text-white transition-colors duration-200 font-medium tracking-wide"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {/* Right */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="hidden items-center gap-5 lg:flex lg:mr-3">
+              {desktopLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-sm font-medium text-white/85 transition hover:text-white"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3 md:gap-4">
-            {/* Cart */}
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              className="rounded-lg p-2 transition hover:bg-white/10"
+              aria-label="Search menu"
             >
-              <Link
-                to="/cart"
-                className="relative p-2 hover:bg-white/10 rounded-lg transition-colors"
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart size={22} className="md:w-6 md:h-6" />
-                {itemCount > 0 && (
-                  <motion.span 
-                    className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  >
-                    {itemCount > 99 ? '99+' : itemCount}
-                  </motion.span>
-                )}
-              </Link>
-            </motion.div>
+              <Search size={20} />
+            </button>
 
-            {/* Auth - Desktop */}
+            <button
+              type="button"
+              onClick={openCartDrawer}
+              className="relative rounded-lg p-2 transition hover:bg-white/10"
+              aria-label="Open shopping bag"
+            >
+              <ShoppingBag size={20} />
+              {itemCount > 0 && (
+                <motion.span
+                  className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                >
+                  {itemCount > 99 ? '99+' : itemCount}
+                </motion.span>
+              )}
+            </button>
+
             {user ? (
-              <div className="hidden md:flex items-center gap-3">
+              <div className="ml-1 hidden items-center gap-2 md:flex">
                 <Link
                   to="/profile"
-                  className="text-white/90 hover:text-white transition-colors font-semibold"
+                  className="max-w-[7rem] truncate text-sm font-medium text-white/90 hover:text-white"
                 >
                   {user.username || user.email}
                 </Link>
                 <button
+                  type="button"
                   onClick={handleLogout}
-                  className="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold hover:bg-primary-700"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="border-2 border-white/70 text-white px-4 py-2 rounded-lg font-semibold hover:bg-white hover:text-black transition-all duration-200"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-primary hover:bg-accent text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  Sign Up
-                </Link>
-              </div>
+              <Link
+                to="/login"
+                className="ml-1 hidden rounded-lg border border-white/40 px-3 py-1.5 text-sm font-semibold hover:bg-white hover:text-black md:inline-block"
+              >
+                Login
+              </Link>
             )}
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
-              aria-expanded={isOpen}
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="lg:hidden bg-black border-t border-white/10">
-          <div className="container mx-auto px-4 py-4 space-y-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setIsOpen(false)}
-                className="block py-2 text-white/90 hover:text-white transition-colors font-medium tracking-wide"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="border-t border-white/10 pt-3 mt-3">
-              {user ? (
-                <>
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsOpen(false)}
-                    className="block py-2 text-white/90 hover:text-white transition-colors font-medium tracking-wide"
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left py-2 text-primary font-semibold"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="block py-2 text-white/90 hover:text-white transition-colors font-medium tracking-wide"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setIsOpen(false)}
-                    className="block py-2 text-white/90 hover:text-white transition-colors font-medium tracking-wide"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+      {/* Search bar slide-down */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            className="border-t border-white/10 bg-secondary"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <form
+              onSubmit={handleSearch}
+              className="container mx-auto flex gap-2 px-4 py-3 sm:px-6 lg:px-8"
+            >
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search dishes…"
+                className="flex-1 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                autoFocus
+              />
+              <button type="submit" className="btn-primary py-2.5 text-sm">
+                Search
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };
 

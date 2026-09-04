@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCartStore } from '../stores/cartStore';
-import { useAuthStore } from '../stores/authStore';
+import { formatNGN } from '../utils/format';
+import SEO from '../components/SEO';
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,27 +13,27 @@ const CartPage: React.FC = () => {
   const updateItem = useCartStore((state) => state.updateItem);
   const clearCart = useCartStore((state) => state.clearCart);
   const fetchCart = useCartStore((state) => state.fetchCart);
-  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
   const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
-  const deliveryFee = 4000; // Fixed or dynamic based on location
-  const tax = subtotal * 0.075; // 7.5% tax
+  const deliveryFee = 4000;
+  const tax = subtotal * 0.075;
   const total = subtotal + deliveryFee + tax;
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <SEO title="Your Bag" description="Your HEDDIEKITCHEN shopping bag." />
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-2xl shadow-xl p-12">
+          <div className="p-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
               <ShoppingCart size={40} className="text-gray-400" />
             </div>
-            <h1 className="heading-2 mb-4">Your Cart is Empty</h1>
-            <p className="text-body mb-8">Start shopping to add items to your cart</p>
+            <h1 className="heading-2 mb-4">Your Bag is Empty</h1>
+            <p className="text-body mb-8">Browse the menu to add dishes</p>
             <Link
               to="/menu"
               className="btn-primary inline-flex items-center gap-2"
@@ -47,17 +48,15 @@ const CartPage: React.FC = () => {
   }
 
   const handleCheckout = () => {
-    if (!user) {
-      navigate('/login', { state: { from: '/cart' } });
-    } else {
-      navigate('/checkout');
-    }
+    // Guest checkout supported — no login required
+    navigate('/checkout');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
+      <SEO title="Your Bag" description="Review your HEDDIEKITCHEN order before checkout." />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <h1 className="heading-2 mb-8">Shopping Cart</h1>
+        <h1 className="heading-2 mb-8">Your Bag</h1>
 
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Cart Items */}
@@ -99,8 +98,8 @@ const CartPage: React.FC = () => {
                     <p className="text-gray-600 text-sm mb-2">
                       {item.menu_item.category?.name || 'Uncategorized'}
                     </p>
-                    <p className="text-primary font-bold text-lg">
-                      ₦{(item.price_at_add || item.menu_item.price).toLocaleString()}
+                    <p className="text-gray-900 font-bold text-lg">
+                      {formatNGN(item.price_at_add || item.menu_item.price)}
                     </p>
                   </div>
 
@@ -134,7 +133,7 @@ const CartPage: React.FC = () => {
                     {/* Item Total & Delete */}
                     <div className="flex flex-col items-end gap-2">
                       <p className="font-bold text-lg text-gray-900">
-                        ₦{((item.price_at_add || item.menu_item.price) * item.quantity).toLocaleString()}
+                        {formatNGN((item.price_at_add || item.menu_item.price) * item.quantity)}
                       </p>
                       <motion.button
                         onClick={async () => await removeItem(item.id)}
@@ -172,27 +171,19 @@ const CartPage: React.FC = () => {
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-700">
                   <span>Subtotal</span>
-                  <span className="font-semibold">
-                    ₦{subtotal.toLocaleString()}
-                  </span>
+                  <span className="font-semibold">{formatNGN(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
                   <span>Delivery Fee</span>
-                  <span className="font-semibold">
-                    ₦{deliveryFee.toLocaleString()}
-                  </span>
+                  <span className="font-semibold">{formatNGN(deliveryFee)}</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
                   <span>Tax (7.5%)</span>
-                  <span className="font-semibold">
-                    ₦{tax.toLocaleString()}
-                  </span>
+                  <span className="font-semibold">{formatNGN(tax)}</span>
                 </div>
                 <div className="border-t-2 border-gray-200 pt-4 flex justify-between">
                   <span className="font-bold text-xl text-gray-900">Total</span>
-                  <span className="font-bold text-xl text-primary">
-                    ₦{total.toLocaleString()}
-                  </span>
+                  <span className="font-bold text-xl text-primary">{formatNGN(total)}</span>
                 </div>
               </div>
 

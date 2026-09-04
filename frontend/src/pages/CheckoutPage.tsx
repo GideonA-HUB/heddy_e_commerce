@@ -1,44 +1,72 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertCircle, MapPin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AlertCircle, MapPin, Lock } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { orderAPI } from '../api';
 import apiClient from '../api/client';
+import SEO from '../components/SEO';
+import { formatNGN } from '../utils/format';
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const cart = useCartStore((state) => state.cart);
-  const user = useAuthStore((state) => state.user);
+  const cart = useCartStore((s) => s.cart);
+  const fetchCart = useCartStore((s) => s.fetchCart);
+  const user = useAuthStore((s) => s.user);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'paystack'>('paystack');
 
   const [shippingInfo, setShippingInfo] = useState({
-    full_name: user?.first_name || '',
+    full_name: user?.first_name
+      ? `${user.first_name} ${user.last_name || ''}`.trim()
+      : '',
     email: user?.email || '',
     phone: user?.userprofile?.phone || '',
     address: user?.userprofile?.address || '',
-    city: '',
-    state: '',
-    postal_code: '',
+    city: user?.userprofile?.city || '',
+    state: user?.userprofile?.state || '',
+    country: 'Nigeria',
+    postal_code: user?.userprofile?.zip_code || '',
+    order_notes: '',
   });
 
-  const subtotal = cart?.items.reduce((sum, item) => sum + (item.price_at_add || item.menu_item.price) * item.quantity, 0) || 0;
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const subtotal =
+    cart?.items.reduce(
+      (sum, item) =>
+        sum + (item.price_at_add || item.menu_item.price) * item.quantity,
+      0
+    ) || 0;
   const deliveryFee = 4000;
   const tax = subtotal * 0.075;
   const total = subtotal + deliveryFee + tax;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setShippingInfo(prev => ({ ...prev, [name]: value }));
+    setShippingInfo((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form
-    if (!shippingInfo.full_name || !shippingInfo.phone || !shippingInfo.address) {
+
+    if (
+      !shippingInfo.full_name ||
+      !shippingInfo.email ||
+      !shippingInfo.phone ||
+      !shippingInfo.address
+    ) {
       setError('Please fill in all required fields');
+      return;
+    }
+    if (!agreeTerms) {
+      setError('Please agree to the terms and conditions');
       return;
     }
 
@@ -46,7 +74,6 @@ const CheckoutPage: React.FC = () => {
     setError('');
 
     try {
-      // Create order from cart - send data in the format expected by backend
       const orderData = {
         shipping_name: shippingInfo.full_name,
         shipping_email: shippingInfo.email,
@@ -54,34 +81,32 @@ const CheckoutPage: React.FC = () => {
         shipping_address: shippingInfo.address,
         shipping_city: shippingInfo.city || '',
         shipping_state: shippingInfo.state || '',
-        shipping_country: 'Nigeria',
+        shipping_country: shippingInfo.country || 'Nigeria',
         shipping_zip: shippingInfo.postal_code || '',
-        special_instructions: '',
-        payment_method: 'paystack',
+        special_instructions: shippingInfo.order_notes || '',
+        payment_method: paymentMethod,
       };
 
       const orderResponse = await orderAPI.createOrder(orderData);
       const order = orderResponse.data;
 
-      // Initialize Paystack payment
-      try {
-        const paymentResponse = await apiClient.post('/payments/initialize/', {
-          order_id: order.id,
-          email: shippingInfo.email,
-        });
+      const paymentResponse = await apiClient.post('/payments/initialize/', {
+        order_id: order.id,
+        email: shippingInfo.email,
+      });
 
-        if (paymentResponse.data.authorization_url) {
-          // Redirect to Paystack payment page
-          window.location.href = paymentResponse.data.authorization_url;
-        } else {
-          setError('Failed to initialize payment. Please try again.');
-        }
-      } catch (paymentError: any) {
-        console.error('Payment initialization error:', paymentError);
-        setError(paymentError.response?.data?.error || 'Payment initialization failed');
+      if (paymentResponse.data.authorization_url) {
+        window.location.href = paymentResponse.data.authorization_url;
+      } else {
+        setError('Failed to initialize payment. Please try again.');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to create order');
+    } catch (err: unknown) {
+      const ax = err as { response?: { data?: { detail?: string; error?: string } } };
+      setError(
+        ax.response?.data?.detail ||
+          ax.response?.data?.error ||
+          'Failed to create order'
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -89,12 +114,13 @@ const CheckoutPage: React.FC = () => {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center bg-white px-4">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Your cart is empty</p>
+          <p className="mb-4 text-gray-600">Your bag is empty</p>
           <button
+            type="button"
             onClick={() => navigate('/menu')}
-            className="text-primary font-semibold"
+            className="font-semibold text-primary"
           >
             Continue Shopping
           </button>
@@ -103,32 +129,44 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+  const inputClass =
+    'w-full rounded-xl border border-gray-300 px-4 py-2.5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
+  return (
+    <div className="min-h-screen bg-white">
+      <SEO
+        title="Checkout"
+        description="Secure guest checkout — HEDDIEKITCHEN. Payments in NGN via Paystack."
+      />
+      <div className="container mx-auto max-w-6xl py-8 sm:py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Checkout</h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+            <Lock size={14} />
+            Secure guest checkout · Payments in NGN
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-8 lg:grid-cols-5">
+            {/* Delivery Details */}
+            <div className="space-y-6 lg:col-span-3">
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-                  <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                  <p className="text-red-700">{error}</p>
+                <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                  <AlertCircle className="shrink-0 text-primary" size={20} />
+                  <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
 
-              {/* Shipping Information */}
-              <div className="bg-white rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <MapPin size={24} />
-                  Shipping Information
+              <div className="rounded-2xl border border-gray-100 p-5 sm:p-6">
+                <h2 className="mb-5 flex items-center gap-2 text-lg font-bold">
+                  <MapPin size={20} className="text-primary" />
+                  Delivery Details
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       Full Name *
                     </label>
                     <input
@@ -137,12 +175,12 @@ const CheckoutPage: React.FC = () => {
                       value={shippingInfo.full_name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={inputClass}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       Email *
                     </label>
                     <input
@@ -150,13 +188,13 @@ const CheckoutPage: React.FC = () => {
                       name="email"
                       value={shippingInfo.email}
                       onChange={handleInputChange}
-                      disabled
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                      required
+                      className={inputClass}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       Phone *
                     </label>
                     <input
@@ -165,12 +203,12 @@ const CheckoutPage: React.FC = () => {
                       value={shippingInfo.phone}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={inputClass}
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       Address *
                     </label>
                     <input
@@ -179,12 +217,12 @@ const CheckoutPage: React.FC = () => {
                       value={shippingInfo.address}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={inputClass}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       City
                     </label>
                     <input
@@ -192,12 +230,12 @@ const CheckoutPage: React.FC = () => {
                       name="city"
                       value={shippingInfo.city}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={inputClass}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
                       State
                     </label>
                     <input
@@ -205,69 +243,147 @@ const CheckoutPage: React.FC = () => {
                       name="state"
                       value={shippingInfo.state}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={shippingInfo.country}
+                      onChange={handleInputChange}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                      Postal Code
+                    </label>
+                    <input
+                      type="text"
+                      name="postal_code"
+                      value={shippingInfo.postal_code}
+                      onChange={handleInputChange}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                      Order Notes
+                    </label>
+                    <textarea
+                      name="order_notes"
+                      value={shippingInfo.order_notes}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="Allergies, delivery instructions…"
+                      className={`${inputClass} resize-none`}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Order Summary */}
-              <div className="bg-white rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4">Order Items</h2>
-                <div className="space-y-3">
-                  {cart.items.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span>
-                        {item.menu_item.name} x {item.quantity}
-                      </span>
-                      <span className="font-semibold">
-                        ₦{((item.price_at_add || item.menu_item.price) * item.quantity).toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+              <div className="rounded-2xl border border-gray-100 p-5 sm:p-6">
+                <h2 className="mb-4 text-lg font-bold">Payment Method</h2>
+                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-primary bg-primary/5 px-4 py-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    checked={paymentMethod === 'paystack'}
+                    onChange={() => setPaymentMethod('paystack')}
+                    className="accent-primary"
+                  />
+                  <span className="text-sm font-medium">Paystack (NGN)</span>
+                </label>
               </div>
+
+              <label className="flex items-start gap-3 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-1 accent-primary"
+                />
+                <span>
+                  I agree to the{' '}
+                  <Link to="/shipping" className="font-medium text-primary hover:underline">
+                    Terms, Privacy & Refund Policy
+                  </Link>
+                </span>
+              </label>
 
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-accent transition disabled:opacity-50"
+                className="btn-primary w-full py-3.5 disabled:opacity-50 lg:hidden"
               >
-                {isProcessing ? 'Processing...' : 'Continue to Payment'}
+                {isProcessing ? 'Processing…' : `Pay ${formatNGN(total)}`}
               </button>
-            </form>
-          </div>
+            </div>
 
-          {/* Order Summary Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg p-6 sticky top-24">
-              <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            {/* Order Summary — sticky */}
+            <div className="lg:col-span-2">
+              <div className="sticky top-28 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:p-6">
+                <h2 className="mb-5 text-lg font-bold">Order Summary</h2>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span>₦{subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Delivery Fee</span>
-                  <span>₦{deliveryFee.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax (7.5%)</span>
-                  <span>₦{tax.toLocaleString()}</span>
-                </div>
-                <div className="border-t pt-3 flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">₦{total.toLocaleString()}</span>
-                </div>
-              </div>
+                <ul className="mb-5 max-h-64 space-y-3 overflow-y-auto">
+                  {cart.items.map((item) => (
+                    <li key={item.id} className="flex justify-between gap-3 text-sm">
+                      <span className="min-w-0 flex-1 text-gray-700">
+                        <span className="font-medium text-gray-900">
+                          {item.menu_item.name}
+                        </span>
+                        <span className="text-gray-500"> × {item.quantity}</span>
+                      </span>
+                      <span className="shrink-0 font-semibold">
+                        {formatNGN(
+                          (item.price_at_add || item.menu_item.price) * item.quantity
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-                <p>You will be redirected to Paystack to complete payment securely.</p>
+                <div className="space-y-2 border-t border-gray-200 pt-4 text-sm">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>{formatNGN(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Delivery fee</span>
+                    <span>{formatNGN(deliveryFee)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Tax (7.5%)</span>
+                    <span>{formatNGN(tax)}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-bold">
+                    <span>Total</span>
+                    <span className="text-primary">{formatNGN(total)}</span>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs text-gray-500">
+                  You will be redirected to Paystack to complete payment securely.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary mt-5 hidden w-full py-3.5 disabled:opacity-50 lg:block"
+                >
+                  {isProcessing ? 'Processing…' : `Pay ${formatNGN(total)}`}
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

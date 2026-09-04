@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { orderAPI } from '../api';
 import SkeletonLoader from '../components/SkeletonLoader';
+import SEO from '../components/SEO';
 import { Package, MapPin, CheckCircle, Clock, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -73,6 +74,10 @@ const OrderConfirmationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <SEO
+        title={`Order ${order.order_number || id}`}
+        description="Your HEDDIEKITCHEN order confirmation and delivery status."
+      />
       <div className="max-w-4xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

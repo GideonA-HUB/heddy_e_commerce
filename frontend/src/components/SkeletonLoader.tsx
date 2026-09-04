@@ -1,24 +1,15 @@
 import React from 'react';
 
-export const SkeletonLoader: React.FC<{ count?: number }> = ({ count = 6 }) => {
+/** Skeleton matching CasseoHair product card grid (2 → 3 → 4 cols) */
+export const SkeletonLoader: React.FC<{ count?: number }> = ({ count = 4 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4">
       {[...Array(count)].map((_, i) => (
-        <div key={i} className="bg-white rounded-lg overflow-hidden shadow-md">
-          {/* Image Skeleton */}
-          <div className="h-48 bg-gray-200 animate-pulse" />
-
-          {/* Content Skeleton */}
-          <div className="p-4">
-            <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-1/3" />
-            <div className="h-6 bg-gray-200 rounded animate-pulse mb-3" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-2/3" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse mb-4 w-1/2" />
-            <div className="flex justify-between">
-              <div className="h-6 bg-gray-200 rounded animate-pulse w-1/3" />
-              <div className="h-10 bg-gray-200 rounded animate-pulse w-1/3" />
-            </div>
-          </div>
+        <div key={i} className="flex flex-col gap-2.5">
+          <div className="aspect-[4/5] animate-pulse rounded-[1.25rem] bg-gray-200" />
+          <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+          <div className="h-5 w-1/2 animate-pulse rounded bg-gray-200" />
+          <div className="h-10 w-full animate-pulse rounded-xl bg-gray-200" />
         </div>
       ))}
     </div>

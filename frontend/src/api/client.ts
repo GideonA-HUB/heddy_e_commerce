@@ -12,6 +12,8 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Required for Django session guest cart cookies
+  withCredentials: true,
 });
 
 // Add token to requests if available
@@ -23,14 +25,18 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle response errors
+// Handle response errors — do not force-redirect guests on every 401
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      const hadToken = !!localStorage.getItem('authToken');
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only bounce authenticated sessions that expired; keep guest browsing intact
+      if (hadToken && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

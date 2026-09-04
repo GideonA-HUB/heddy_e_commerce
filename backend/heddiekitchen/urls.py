@@ -10,10 +10,20 @@ from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from pathlib import Path
 
+from heddiekitchen.core.seo_views import (
+    robots_txt,
+    sitemap_xml,
+    menu_item_share_page,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Handle missing trailing slash for admin when APPEND_SLASH=False
     path('admin', RedirectView.as_view(url='/admin/', permanent=False)),
+
+    # SEO
+    path('robots.txt', robots_txt, name='robots'),
+    path('sitemap.xml', sitemap_xml, name='sitemap'),
     
     # API Schema & Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -54,12 +64,9 @@ if FRONTEND_BUILD_DIR.exists() and (FRONTEND_BUILD_DIR / 'index.html').exists():
                 'show_indexes': False,
             }),
         ]
-    # Serve index.html for all other routes (React Router will handle routing)
-    # Explicitly handle root path and all other paths to avoid redirect loops
-    # WhiteNoise will also serve static files from STATICFILES_DIRS
+    # Menu item share/OG page must be registered before SPA catch-all
     urlpatterns += [
-        # Explicit root path handler
+        path('menu/<int:item_id>', menu_item_share_page, name='menu-item-share'),
         path('', TemplateView.as_view(template_name='index.html'), name='home'),
-        # Catch-all for all other non-API routes
         re_path(r'^(?!api|admin|media|static|assets).*$', TemplateView.as_view(template_name='index.html')),
     ]

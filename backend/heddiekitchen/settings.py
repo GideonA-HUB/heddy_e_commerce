@@ -36,6 +36,8 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:3000,http://localhost:5173,https://heddiekitchen.com,https://www.heddiekitchen.com'
 ).split(',')
+# Required for guest cart session cookies from the Vite frontend
+CORS_ALLOW_CREDENTIALS = True
 # CSRF_TRUSTED_ORIGINS must include all domains that can POST to Django (admin, forms, etc.)
 # This is critical for Django admin login and any form submissions
 CSRF_TRUSTED_ORIGINS = os.getenv(

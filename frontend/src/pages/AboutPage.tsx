@@ -1,9 +1,14 @@
 import React from 'react';
 import { ChefHat, Heart, Award, Users } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="About"
+        description="Meet HEDDIEKITCHEN — authentic African cuisine brought to your doorstep with love, care, and premium ingredients."
+      />
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary via-primary-500 to-accent text-white section-padding">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">

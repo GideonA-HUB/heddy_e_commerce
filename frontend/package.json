@@ -12,11 +12,13 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.102.8",
     "axios": "^1.6.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-helmet-async": "^3.0.0",
     "react-markdown": "^9.0.0",
     "react-router-dom": "^6.20.0",
     "serve": "^14.2.1",

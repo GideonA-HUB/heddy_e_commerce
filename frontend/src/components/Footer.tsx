@@ -124,16 +124,19 @@ export const Footer: React.FC = () => {
             <p className="text-white/70 text-sm text-center md:text-left">
               &copy; {new Date().getFullYear()} HEDDIEKITCHEN. All rights reserved.
             </p>
-            <div className="flex gap-4 md:gap-6 text-sm text-white/70">
-              <a href="#" className="hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Cookies
-              </a>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-white/70">
+              <Link to="/about" className="hover:text-white transition-colors">
+                About
+              </Link>
+              <Link to="/contact" className="hover:text-white transition-colors">
+                Contact
+              </Link>
+              <Link to="/shipping" className="hover:text-white transition-colors">
+                Privacy & Refund
+              </Link>
+              <Link to="/shipping" className="hover:text-white transition-colors">
+                Terms
+              </Link>
             </div>
           </div>
         </div>

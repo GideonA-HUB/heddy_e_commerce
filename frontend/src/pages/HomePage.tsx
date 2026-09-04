@@ -1,77 +1,108 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, Clock, Award, ChefHat, Sparkles, ShoppingBag, Headphones, Zap, Bell, Package, Shield, Heart, Users } from 'lucide-react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import MenuItemCard from '../components/MenuItemCard';
-import SkeletonLoader from '../components/SkeletonLoader';
+import {
+  ArrowRight,
+  Award,
+  ChefHat,
+  Clock,
+  Heart,
+  Shield,
+  Truck,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import SectionHeader from '../components/SectionHeader';
+import PaginatedProductGrid from '../components/PaginatedProductGrid';
 import TrainingBanner from '../components/TrainingBanner';
+import SEO from '../components/SEO';
 import { menuAPI, newsletterAPI } from '../api';
-import { MenuItem } from '../types';
 import { useCartStore } from '../stores/cartStore';
 
+const WHY_US = [
+  {
+    icon: Truck,
+    title: 'Fast Delivery',
+    desc: 'Quick delivery within Abuja and nationwide shipping.',
+  },
+  {
+    icon: Clock,
+    title: 'Fresh Daily',
+    desc: 'Prepared fresh with premium African ingredients.',
+  },
+  {
+    icon: Award,
+    title: 'Quality Assured',
+    desc: 'Certified kitchens and careful preparation.',
+  },
+  {
+    icon: ChefHat,
+    title: 'Expert Chefs',
+    desc: 'Authentic recipes by experienced African chefs.',
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote: 'The jollof tastes like home. Delivery was on time and beautifully packed.',
+    name: 'Amaka O.',
+  },
+  {
+    quote: 'Ordered catering for our office — everyone asked where the food came from.',
+    name: 'Tunde K.',
+  },
+  {
+    quote: 'Meal plans made my week so much easier. Fresh, flavourful, consistent.',
+    name: 'Chioma E.',
+  },
+];
+
 const HomePage: React.FC = () => {
-  const [featuredItems, setFeaturedItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  
-  // Parallax scroll refs
-  const heroRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const coveredSectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  
-  // Parallax transforms with enhanced 3D effects
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 200]);
-  const featuresY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const smoothY = useSpring(heroY, { stiffness: 100, damping: 30 });
-  const smoothBackgroundY = useSpring(backgroundY, { stiffness: 50, damping: 30 });
-  const smoothScale = useSpring(heroScale, { stiffness: 100, damping: 30 });
-  
-  // Covered section parallax
-  const coveredSectionY = useTransform(scrollYProgress, [0.2, 0.6], [0, -100]);
-  const smoothCoveredY = useSpring(coveredSectionY, { stiffness: 80, damping: 30 });
+  const fetchCart = useCartStore((s) => s.fetchCart);
 
-  useEffect(() => {
-    const fetchFeaturedItems = async () => {
-      try {
-        setLoading(true);
-        const response = await menuAPI.getMenuItems({ featured: true, limit: 6 });
-        setFeaturedItems(response.data.results || []);
-      } catch (error) {
-        console.error('Failed to fetch featured items:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedItems();
-  }, []);
-
-  const fetchCart = useCartStore((state) => state.fetchCart);
-
-  useEffect(() => {
+  React.useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
-  const handleAddToCart = async () => {
-    // This is just for UI feedback - the actual add to cart is handled in MenuItemCard
-    // No need to call addItem again here
-  };
+  const featuredQuery = useQuery({
+    queryKey: ['menu', 'featured'],
+    queryFn: async () => {
+      const res = await menuAPI.getMenuItems({ is_featured: true, limit: 40 });
+      return res.data.results || [];
+    },
+  });
+
+  const newQuery = useQuery({
+    queryKey: ['menu', 'new'],
+    queryFn: async () => {
+      const res = await menuAPI.getMenuItems({ ordering: '-created_at', limit: 40 });
+      return res.data.results || [];
+    },
+  });
+
+  const categoriesQuery = useQuery({
+    queryKey: ['menu', 'categories'],
+    queryFn: async () => {
+      const res = await menuAPI.getCategories();
+      return (res.data.results || []).filter((c) => c.is_active).slice(0, 8);
+    },
+  });
+
+  const featuredItems = featuredQuery.data || [];
+  const newItems = newQuery.data || [];
+  const bestSellers = featuredItems.length > 0 ? featuredItems : newItems;
+  const categories = categoriesQuery.data || [];
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
-    
     try {
       await newsletterAPI.subscribe(newsletterEmail);
       setNewsletterStatus('success');
       setNewsletterEmail('');
       setTimeout(() => setNewsletterStatus('idle'), 3000);
-    } catch (error) {
+    } catch {
       setNewsletterStatus('error');
       setTimeout(() => setNewsletterStatus('idle'), 3000);
     }
@@ -79,743 +110,248 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section with Parallax and Background Image */}
-      <motion.section 
-        ref={heroRef}
-        style={{ y: smoothY, opacity: heroOpacity }}
-        className="relative overflow-hidden min-h-[85vh] sm:min-h-[90vh] md:min-h-screen flex items-center bg-white"
-      >
-        {/* Background Image with Parallax Effect */}
-        <motion.div 
-          className="absolute inset-0 w-full h-full"
-          style={{ 
-            y: smoothBackgroundY,
-            scale: smoothScale,
+      <SEO
+        title="HEDDIEKITCHEN — Authentic African Cuisine"
+        description="Order authentic African dishes, meal plans, and catering from HEDDIEKITCHEN. Fresh food delivered across Nigeria."
+        type="website"
+      />
+
+      {/* 1) Full-bleed hero */}
+      <section className="relative flex min-h-[88vh] items-end overflow-hidden sm:min-h-[92vh] md:min-h-screen">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?auto=format&fit=crop&w=2000&q=80)',
           }}
-        >
-          <div 
-            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url(https://danangfantasticity.com/wp-content/uploads/2022/11/A-Momentous-New-Year-Day-thang-muoi-hai-ruc-ro-tai-shilla-monogram-quangnam-danang.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center center',
-              transform: 'scale(1.1)',
-              willChange: 'transform',
-            }}
-          />
-        </motion.div>
-        
-        {/* Minimal overlay for text readability - reduced opacity */}
-        <div className="absolute inset-0 bg-white/15"></div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <motion.div 
-              className="text-center md:text-left"
-              initial={{ opacity: 0, x: -50, rotateY: -15 }}
-              animate={{ opacity: 1, x: 0, rotateY: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              style={{ 
-                transformStyle: 'preserve-3d',
-                perspective: '1000px'
-              }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/20" />
+
+        <div className="relative z-10 w-full px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8 lg:pb-28">
+          <div className="mx-auto max-w-7xl">
+            <motion.p
+              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-sm"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <motion.div 
-                className="inline-flex items-center gap-2 bg-red-600/90 backdrop-blur-md px-4 py-2 sm:px-5 sm:py-2.5 rounded-full mb-4 sm:mb-6 shadow-2xl border-2 border-red-700/50"
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
-                whileHover={{ scale: 1.05, y: -2 }}
-              >
-                <Sparkles size={18} className="text-white" />
-                <span className="text-sm sm:text-base font-bold text-white">Authentic African Cuisine</span>
-              </motion.div>
-              <motion.h1 
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight"
-                initial={{ opacity: 0, y: 30, rotateX: -10 }}
-                animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{ delay: 0.3, duration: 0.8, type: "spring", stiffness: 100 }}
-                style={{ 
-                  transformStyle: 'preserve-3d'
-                }}
-              >
-                <span className="block text-black drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]">Delicious Food,</span>
-                <motion.span 
-                  className="block text-red-600 drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]"
-                >
-                  Delivered Fresh
-                </motion.span>
-              </motion.h1>
-              <motion.p 
-                className="inline-block bg-red-600/95 backdrop-blur-md px-3 py-2 sm:px-3.5 sm:py-2 md:px-4 md:py-2.5 rounded-md sm:rounded-lg mb-4 sm:mb-5 md:mb-6 max-w-md sm:max-w-lg mx-auto md:mx-0 shadow-lg border-2 border-red-700/50"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                whileHover={{ scale: 1.02, y: -2 }}
-              >
-                <span className="text-sm sm:text-base text-white leading-snug font-serif italic font-medium">
-                  Experience authentic African cuisine with premium ingredients and fast delivery across Nigeria and international destinations.
-                </span>
-              </motion.p>
-              <motion.div 
-                className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start w-full sm:w-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.8 }}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="w-full sm:w-auto"
-                >
-                  <Link
-                    to="/menu"
-                    className="bg-red-600 hover:bg-red-700 text-white text-center shadow-2xl hover:shadow-[0_20px_40px_rgba(220,38,38,0.4)] transform transition-all duration-300 backdrop-blur-sm border-2 border-red-700/50 w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold"
-                  >
-                    Order Now
-                    <ArrowRight className="inline ml-2" size={20} />
-                  </Link>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="w-full sm:w-auto"
-                >
-                  <Link
-                    to="/about"
-                    className="border-2 border-black text-black hover:bg-black hover:text-white text-center backdrop-blur-sm bg-white/80 hover:bg-black transition-all duration-300 shadow-xl hover:shadow-2xl w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold"
-                  >
-                    Learn More
-                  </Link>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-            <motion.div 
-              className="hidden md:flex items-center justify-center"
-              initial={{ opacity: 0, x: 50, rotateY: 15, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
-              transition={{ delay: 0.4, duration: 1, type: "spring", stiffness: 100 }}
-              style={{ 
-                transformStyle: 'preserve-3d',
-                perspective: '1000px'
-              }}
+              HEDDIEKITCHEN
+            </motion.p>
+            <motion.h1
+              className="max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.55 }}
             >
-              <div className="relative w-full max-w-md aspect-square">
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 rounded-3xl"
-                  animate={{ 
-                    rotate: [6, -6, 6],
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ 
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <motion.div 
-                  className="relative w-full h-full bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-2xl border-2 border-red-600/30"
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <motion.div
-                    animate={{ 
-                      y: [0, -10, 0],
-                      rotate: [0, 5, 0]
-                    }}
-                    transition={{ 
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <ChefHat size={140} className="text-red-600" />
-                  </motion.div>
-                </motion.div>
-              </div>
+              Authentic African cuisine, delivered fresh
+            </motion.h1>
+            <motion.p
+              className="mt-4 max-w-lg text-base text-white/85 sm:text-lg"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.55 }}
+            >
+              Premium ingredients. Chef-crafted dishes. Order for tonight or plan the week.
+            </motion.p>
+            <motion.div
+              className="mt-8 flex flex-wrap gap-3"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.55 }}
+            >
+              <Link
+                to="/menu"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-primary-700 sm:text-base"
+              >
+                Order Now
+                <ArrowRight size={18} />
+              </Link>
+              <Link
+                to="/menu"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/60 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 sm:text-base"
+              >
+                View Menu
+              </Link>
             </motion.div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Training Banner */}
       <TrainingBanner />
 
-      {/* "HeddieKitchen has you covered" Section */}
-      <motion.section 
-        ref={coveredSectionRef}
-        style={{ y: smoothCoveredY }}
-        className="relative bg-gradient-to-br from-secondary via-gray-900 to-secondary text-white overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.8 }}
-      >
-        {/* Animated background pattern */}
-        <motion.div
-          className="absolute inset-0 opacity-10"
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(220,38,38,0.2) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(250,204,21,0.15) 0%, transparent 50%)',
-            backgroundSize: '400% 400%',
-          }}
-        />
-        
-        {/* 3D floating elements */}
-        <motion.div
-          className="absolute top-20 right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, 40, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 left-10 w-40 h-40 bg-accent/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -20, 0],
-            y: [0, -30, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32 relative z-10">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left side - Text content */}
-            <motion.div
-              className="text-center md:text-left"
-              initial={{ opacity: 0, x: -50, rotateY: -15 }}
-              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <motion.h2
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-                style={{
-                  textShadow: '2px 2px 10px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)',
-                }}
-              >
-                HeddieKitchen has you covered
-              </motion.h2>
-              <motion.p
-                className="text-base sm:text-lg md:text-xl mb-8 text-white/90 leading-relaxed max-w-xl mx-auto md:mx-0"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                style={{
-                  textShadow: '1px 1px 5px rgba(0,0,0,0.4)',
-                }}
-              >
-                What do you need? A quick fix on a busy day? Last-minute dinner backup? Supplies for the week? Just an order and let's deliver happiness to your doorstep in minutes.
-              </motion.p>
-            </motion.div>
-
-            {/* Right side - Scrolling features carousel */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 50, rotateY: 15 }}
-              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
-                {/* Infinite scrolling container */}
-                <motion.div
-                  className="flex flex-col"
-                  animate={{
-                    y: [0, -800],
-                  }}
-                  transition={{
-                    y: {
-                      duration: 30,
-                      repeat: Infinity,
-                      ease: "linear",
-                    },
-                  }}
+      {categories.length > 0 && (
+        <section className="section-padding bg-white">
+          <div className="container mx-auto">
+            <SectionHeader title="Categories" viewAllTo="/menu" viewAllLabel="Full Menu" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/menu?category=${cat.id}`}
+                  className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-secondary"
                 >
-                  {/* First set of items */}
-                  {[
-                    { icon: ShoppingBag, text: "Fresh Market Supply", color: "bg-primary" },
-                    { icon: Headphones, text: "24/7 Support for Customers", color: "bg-accent" },
-                    { icon: Zap, text: "Fast deliveries", color: "bg-primary" },
-                    { icon: Bell, text: "Updates on deliveries", color: "bg-accent" },
-                    { icon: Package, text: "Quality meal choices", color: "bg-primary" },
-                    { icon: Shield, text: "Secure payment options", color: "bg-accent" },
-                    { icon: Clock, text: "On-time guaranteed", color: "bg-primary" },
-                    { icon: Award, text: "Premium ingredients", color: "bg-accent" },
-                  ].map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <motion.div
-                        key={`first-${index}`}
-                        className="flex-shrink-0 px-4 py-3"
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
-                        whileHover={{ scale: 1.05, x: 10, rotateY: 5 }}
-                        style={{ transformStyle: "preserve-3d" }}
-                      >
-                        <div className={`${item.color} rounded-full px-6 py-4 flex items-center gap-3 shadow-lg hover:shadow-xl transition-all`}>
-                          <motion.div
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Icon size={24} className="text-white" />
-                          </motion.div>
-                          <span className="text-white font-semibold text-sm sm:text-base">{item.text}</span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                  {/* Duplicate for seamless loop */}
-                  {[
-                    { icon: ShoppingBag, text: "Fresh Market Supply", color: "bg-primary" },
-                    { icon: Headphones, text: "24/7 Support for Customers", color: "bg-accent" },
-                    { icon: Zap, text: "Fast deliveries", color: "bg-primary" },
-                    { icon: Bell, text: "Updates on deliveries", color: "bg-accent" },
-                    { icon: Package, text: "Quality meal choices", color: "bg-primary" },
-                    { icon: Shield, text: "Secure payment options", color: "bg-accent" },
-                    { icon: Clock, text: "On-time guaranteed", color: "bg-primary" },
-                    { icon: Award, text: "Premium ingredients", color: "bg-accent" },
-                  ].map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <motion.div
-                        key={`second-${index}`}
-                        className="flex-shrink-0 px-4 py-3"
-                        whileHover={{ scale: 1.05, x: 10, rotateY: 5 }}
-                        style={{ transformStyle: "preserve-3d" }}
-                      >
-                        <div className={`${item.color} rounded-full px-6 py-4 flex items-center gap-3 shadow-lg hover:shadow-xl transition-all`}>
-                          <motion.div
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Icon size={24} className="text-white" />
-                          </motion.div>
-                          <span className="text-white font-semibold text-sm sm:text-base">{item.text}</span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                  {/* Third set for extra smoothness */}
-                  {[
-                    { icon: ShoppingBag, text: "Fresh Market Supply", color: "bg-primary" },
-                    { icon: Headphones, text: "24/7 Support for Customers", color: "bg-accent" },
-                    { icon: Zap, text: "Fast deliveries", color: "bg-primary" },
-                    { icon: Bell, text: "Updates on deliveries", color: "bg-accent" },
-                  ].map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <motion.div
-                        key={`third-${index}`}
-                        className="flex-shrink-0 px-4 py-3"
-                        whileHover={{ scale: 1.05, x: 10, rotateY: 5 }}
-                        style={{ transformStyle: "preserve-3d" }}
-                      >
-                        <div className={`${item.color} rounded-full px-6 py-4 flex items-center gap-3 shadow-lg hover:shadow-xl transition-all`}>
-                          <motion.div
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Icon size={24} className="text-white" />
-                          </motion.div>
-                          <span className="text-white font-semibold text-sm sm:text-base">{item.text}</span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              </div>
-              
-              {/* Gradient fade edges */}
-              <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-secondary to-transparent pointer-events-none z-10" />
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-secondary to-transparent pointer-events-none z-10" />
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Features Section with Continuous Scrolling Carousel */}
-      <motion.section 
-        ref={featuresRef}
-        style={{ y: featuresY }}
-        className="section-padding bg-gray-50 relative overflow-hidden"
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div 
-            className="text-center mb-12 md:mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="heading-2 mb-4">Why Choose HEDDIEKITCHEN</h2>
-            <p className="text-body max-w-2xl mx-auto">
-              We bring you the best of African cuisine with quality, convenience, and care.
-            </p>
-          </motion.div>
-          
-          {/* Continuous Scrolling Carousel Container */}
-          <div className="relative overflow-hidden">
-            {/* Gradient fade edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10" />
-            
-            {/* Scrolling cards container */}
-            <motion.div
-              className="flex gap-6 md:gap-8"
-              animate={{
-                x: [0, -2400],
-              }}
-              transition={{
-                x: {
-                  duration: 40,
-                  repeat: Infinity,
-                  ease: "linear",
-                },
-              }}
-              style={{ width: 'max-content' }}
-            >
-              {/* First set of cards */}
-              {[
-                { icon: Truck, title: "Fast Delivery", desc: "Quick delivery within Lagos and nationwide shipping available" },
-                { icon: Clock, title: "Fresh Food", desc: "Prepared fresh daily with premium African ingredients" },
-                { icon: Award, title: "Quality Assured", desc: "Certified kitchens and health-inspected preparation" },
-                { icon: ChefHat, title: "Expert Chefs", desc: "Authentic recipes by experienced African chefs" },
-                { icon: Heart, title: "Customer Care", desc: "Dedicated support team ready to assist you anytime" },
-                { icon: Users, title: "Community Trust", desc: "Loved by thousands of satisfied customers nationwide" },
-              ].map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <motion.div
-                    key={`first-${feature.title}`}
-                    className="flex-shrink-0 w-72 sm:w-80 text-center p-6 bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300"
-                    initial={{ opacity: 0, y: 50, rotateX: -15, rotateY: -10 }}
-                    whileInView={{ opacity: 1, y: 0, rotateX: 0, rotateY: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ 
-                      delay: index * 0.1,
-                      duration: 0.6,
-                      type: "spring",
-                      stiffness: 100
-                    }}
-                    whileHover={{ 
-                      y: -15,
-                      rotateY: 8,
-                      rotateX: 5,
-                      scale: 1.05,
-                      transition: { duration: 0.3 }
-                    }}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    <motion.div 
-                      className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                      whileHover={{ rotate: 360, scale: 1.15, z: 20 }}
-                      transition={{ duration: 0.6 }}
-                      style={{ transformStyle: "preserve-3d" }}
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, 360],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{
-                          rotate: {
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "linear",
-                          },
-                          scale: {
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }
-                        }}
-                      >
-                        <Icon className="text-primary" size={32} />
-                      </motion.div>
-                    </motion.div>
-                    <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                    <p className="text-body text-sm leading-relaxed">{feature.desc}</p>
-                  </motion.div>
-                );
-              })}
-              
-              {/* Duplicate set for seamless loop */}
-              {[
-                { icon: Truck, title: "Fast Delivery", desc: "Quick delivery within Lagos and nationwide shipping available" },
-                { icon: Clock, title: "Fresh Food", desc: "Prepared fresh daily with premium African ingredients" },
-                { icon: Award, title: "Quality Assured", desc: "Certified kitchens and health-inspected preparation" },
-                { icon: ChefHat, title: "Expert Chefs", desc: "Authentic recipes by experienced African chefs" },
-                { icon: Heart, title: "Customer Care", desc: "Dedicated support team ready to assist you anytime" },
-                { icon: Users, title: "Community Trust", desc: "Loved by thousands of satisfied customers nationwide" },
-              ].map((feature) => {
-                const Icon = feature.icon;
-                return (
-                  <motion.div
-                    key={`second-${feature.title}`}
-                    className="flex-shrink-0 w-72 sm:w-80 text-center p-6 bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300"
-                    whileHover={{ 
-                      y: -15,
-                      rotateY: 8,
-                      rotateX: 5,
-                      scale: 1.05,
-                      transition: { duration: 0.3 }
-                    }}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    <motion.div 
-                      className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                      whileHover={{ rotate: 360, scale: 1.15, z: 20 }}
-                      transition={{ duration: 0.6 }}
-                      style={{ transformStyle: "preserve-3d" }}
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, 360],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{
-                          rotate: {
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "linear",
-                          },
-                          scale: {
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }
-                        }}
-                      >
-                        <Icon className="text-primary" size={32} />
-                      </motion.div>
-                    </motion.div>
-                    <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                    <p className="text-body text-sm leading-relaxed">{feature.desc}</p>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Featured Items Section */}
-      <motion.section 
-        className="section-padding bg-white relative overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 md:mb-12 gap-4"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="heading-2">Featured Dishes</h2>
-            <Link
-              to="/menu"
-              className="text-primary font-semibold flex items-center gap-2 hover:gap-3 transition-all group"
-            >
-              View All 
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </motion.div>
-
-          {loading ? (
-            <SkeletonLoader count={6} />
-          ) : featuredItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {featuredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ 
-                    delay: index * 0.1,
-                    duration: 0.5,
-                    type: "spring",
-                    stiffness: 100
-                  }}
-                  whileHover={{ 
-                    y: -5,
-                    transition: { duration: 0.2 }
-                  }}
-                >
-                  <MenuItemCard
-                    item={item}
-                    onAddToCart={handleAddToCart}
-                  />
-                </motion.div>
+                  {cat.icon && typeof cat.icon === 'string' ? (
+                    <img
+                      src={cat.icon}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-secondary to-primary/40" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white sm:text-base">
+                    {cat.name}
+                  </span>
+                </Link>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-12 md:py-16">
-              <p className="text-gray-500 text-lg">No featured items available</p>
-            </div>
-          )}
-        </div>
-      </motion.section>
+          </div>
+        </section>
+      )}
 
-      {/* CTA Section with Parallax */}
-      <motion.section 
-        className="text-white section-padding relative overflow-hidden bg-cover bg-center bg-no-repeat"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8 }}
-        style={{
-          backgroundImage: 'url(https://tse4.mm.bing.net/th/id/OIP.gj1rsvPivsIBsPB-v0aYYgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3)',
-        }}
-      >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
-        
-        {/* Additional gradient overlay for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70"></div>
-        
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.h2 
-            className="heading-2 text-white mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Subscribe to Our Meal Plans
-          </motion.h2>
-          <motion.p 
-            className="text-base sm:text-lg md:text-xl mb-8 text-white max-w-2xl mx-auto font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Get weekly or monthly meal subscriptions delivered to your door with customizable options
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link
-              to="/meal-plans"
-              className="inline-block bg-white text-primary px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
-            >
-              Explore Meal Plans
-            </Link>
-          </motion.div>
+      <section className="section-padding bg-white">
+        <div className="container mx-auto">
+          <SectionHeader
+            title="Featured Items"
+            viewAllTo="/menu?filter=featured"
+            viewAllLabel="Full Menu"
+          />
+          <PaginatedProductGrid
+            items={featuredItems}
+            loading={featuredQuery.isLoading}
+            badge="Featured"
+            emptyMessage="No featured dishes yet"
+          />
         </div>
-      </motion.section>
+      </section>
 
-      {/* Newsletter Section */}
-      <motion.section 
-        className="section-padding bg-gray-50"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
-          <motion.h2 
-            className="heading-2 text-center mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+      <section className="section-padding bg-gray-50">
+        <div className="container mx-auto">
+          <SectionHeader
+            title="Seasonal Specials"
+            viewAllTo="/menu?sort=-created_at"
+            viewAllLabel="All New"
+          />
+          <PaginatedProductGrid
+            items={newItems}
+            loading={newQuery.isLoading}
+            badge="New"
+            emptyMessage="No new dishes yet"
+          />
+        </div>
+      </section>
+
+      <section className="section-padding bg-white">
+        <div className="container mx-auto">
+          <SectionHeader
+            title="Customer Favorites"
+            viewAllTo="/menu"
+            viewAllLabel="Full Menu"
+          />
+          <PaginatedProductGrid
+            items={bestSellers}
+            loading={featuredQuery.isLoading || newQuery.isLoading}
+            badge="Bestseller"
+            emptyMessage="No favorites yet"
+          />
+        </div>
+      </section>
+
+      <section className="section-padding bg-secondary text-white">
+        <div className="container mx-auto">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Why Choose Us</h2>
+            <p className="mt-3 text-white/70">
+              The best of African cuisine with quality, convenience, and care.
+            </p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {WHY_US.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
+                    <Icon className="text-primary" size={26} />
+                  </div>
+                  <h3 className="mb-2 font-semibold">{item.title}</h3>
+                  <p className="text-sm leading-relaxed text-white/65">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-padding bg-white">
+        <div className="container mx-auto">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2 className="heading-2">What Guests Say</h2>
+            <p className="mt-3 text-body">Real stories from people who dine with us.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <blockquote
+                key={t.name}
+                className="rounded-2xl border border-gray-100 bg-gray-50 p-6"
+              >
+                <Heart size={18} className="mb-3 text-primary" />
+                <p className="mb-4 text-gray-700 leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
+                <footer className="text-sm font-semibold text-gray-900">— {t.name}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-secondary py-16 text-white sm:py-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-transparent" />
+        <div className="container relative z-10 mx-auto text-center">
+          <Shield className="mx-auto mb-4 text-primary" size={32} />
+          <h2 className="text-2xl font-bold sm:text-3xl">Subscribe to Our Meal Plans</h2>
+          <p className="mx-auto mt-3 max-w-xl text-white/70">
+            Weekly or monthly meals delivered to your door — customizable and consistent.
+          </p>
+          <Link
+            to="/meal-plans"
+            className="mt-8 inline-flex rounded-xl bg-white px-6 py-3 font-semibold text-primary transition hover:bg-gray-100"
           >
-            Stay Updated
-          </motion.h2>
-          <motion.p 
-            className="text-body text-center mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Subscribe to our newsletter for exclusive offers and new menu updates
-          </motion.p>
-          <motion.form 
-            onSubmit={handleNewsletterSubmit} 
-            className="flex flex-col sm:flex-row gap-3"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-          >
+            Explore Meal Plans
+          </Link>
+        </div>
+      </section>
+
+      <section className="section-padding bg-gray-50">
+        <div className="container mx-auto max-w-xl">
+          <h2 className="heading-2 text-center">Stay Updated</h2>
+          <p className="mt-3 text-center text-body">
+            Exclusive offers and new menu drops — straight to your inbox.
+          </p>
+          <form onSubmit={handleNewsletterSubmit} className="mt-8 flex flex-col gap-3 sm:flex-row">
             <input
               type="email"
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               required
+              className="flex-1 rounded-xl border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
-            <button
-              type="submit"
-              className="btn-primary whitespace-nowrap"
-            >
+            <button type="submit" className="btn-primary whitespace-nowrap">
               Subscribe
             </button>
-          </motion.form>
+          </form>
           {newsletterStatus === 'success' && (
-            <motion.p 
-              className="text-green-600 text-center mt-4 font-medium"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-              ✓ Successfully subscribed!
-            </motion.p>
+            <p className="mt-3 text-center text-sm font-medium text-green-600">
+              Successfully subscribed!
+            </p>
           )}
           {newsletterStatus === 'error' && (
-            <motion.p 
-              className="text-red-600 text-center mt-4 font-medium"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-              ✗ Subscription failed. Please try again.
-            </motion.p>
+            <p className="mt-3 text-center text-sm font-medium text-primary">
+              Subscription failed. Please try again.
+            </p>
           )}
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 };

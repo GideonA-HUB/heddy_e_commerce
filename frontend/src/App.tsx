@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
 import ScrollButtons from './components/ScrollButtons';
+import CartDrawer from './components/CartDrawer';
+import MobileMenu from './components/MobileMenu';
 import { useUIStore } from './stores/uiStore';
 import { useCartStore } from './stores/cartStore';
 import { useAuthStore } from './stores/authStore';
@@ -165,11 +167,9 @@ const App: React.FC = () => {
     loadSiteAssets();
   }, [setSiteAssetLogo, setShowSpinner]);
 
-  // Fetch cart when user is logged in
+  // Guest + authenticated cart (session-backed)
   useEffect(() => {
-    if (user) {
-      fetchCart();
-    }
+    fetchCart();
   }, [user, fetchCart]);
 
   return (
@@ -177,6 +177,8 @@ const App: React.FC = () => {
       <div className="flex flex-col min-h-screen">
         {showSpinner && <Loader />}
         <Navbar />
+        <MobileMenu />
+        <CartDrawer />
 
         <main className="flex-1">
           <Routes>

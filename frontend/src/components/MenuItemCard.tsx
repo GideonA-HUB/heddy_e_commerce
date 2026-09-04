@@ -1,153 +1,102 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Star } from 'lucide-react';
 import { MenuItem } from '../types';
-import { useAuthStore } from '../stores/authStore';
-import { useCartStore } from '../stores/cartStore';
+import { formatNGN } from '../utils/format';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  onAddToCart?: (item: MenuItem) => void;
+  badge?: 'Featured' | 'New' | 'Bestseller' | null;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
-  const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
-  const addItem = useCartStore((state) => state.addItem);
-
-  const handleCardClick = () => {
-    if (user) {
-      navigate(`/menu/${item.id}`);
-    }
-  };
-
-  const handleAddToCartClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await addItem(item.id, 1);
-      // onAddToCart is optional and should only be used for UI feedback, not for adding to cart
-      // The addItem function already handles adding to cart
-      if (onAddToCart) {
-        onAddToCart(item);
-      }
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
-  };
+/**
+ * CasseoHair-structure product card (restaurant brand colors):
+ * Image → Name (ellipsis) → optional rating → Price → "Select Options" ghost CTA
+ */
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, badge }) => {
+  const resolvedBadge =
+    badge ??
+    (item.is_featured ? 'Featured' : null);
 
   return (
-    <motion.div 
-      className="card group cursor-pointer"
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      style={{ transformStyle: "preserve-3d" }}
-      onClick={handleCardClick}
+    <motion.article
+      className="product-card group"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
     >
-      {/* Image */}
-      <div className="h-48 sm:h-56 bg-gray-200 overflow-hidden relative rounded-t-xl">
-        {item.image_url ? (
-          <motion.img
-            src={item.image_url}
-            alt={item.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            whileHover={{ scale: 1.15, rotate: 2 }}
-            transition={{ duration: 0.4 }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-            <span className="text-gray-500 text-sm">No image</span>
-          </div>
-        )}
-        {item.is_featured && (
-          <motion.span 
-            className="absolute top-2 right-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded-full shadow-md z-10"
-            animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              repeatDelay: 3
-            }}
-          >
-            Featured
-          </motion.span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4 sm:p-5">
-        {/* Category */}
-        {item.category_name && (
-          <p className="text-xs sm:text-sm text-primary font-medium mb-1 uppercase tracking-wide">
-            {item.category_name}
-          </p>
-        )}
-
-        {/* Title */}
-        <h3 className="text-base sm:text-lg font-bold mb-2 line-clamp-2 text-gray-900 group-hover:text-primary transition-colors">
-          {item.name}
-        </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
-          {item.description}
-        </p>
-
-        {/* Rating */}
-        {item.average_rating && item.average_rating > 0 && (
-          <div className="flex items-center gap-1.5 mb-3">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={14}
-                  className={i < Math.floor(item.average_rating!) 
-                    ? 'fill-yellow-400 text-yellow-400' 
-                    : 'text-gray-300'}
-                />
-              ))}
+      <Link to={`/menu/${item.id}`} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[1.25rem]">
+        <div className="product-card-image">
+          {item.image_url ? (
+            <img
+              src={item.image_url}
+              alt={item.name}
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+              <span className="text-sm text-gray-400">No image</span>
             </div>
-            <span className="text-xs sm:text-sm text-gray-600">
-              ({item.average_rating.toFixed(1)})
+          )}
+
+          {resolvedBadge && (
+            <span className="absolute left-2.5 top-2.5 rounded-md bg-primary px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm sm:text-xs">
+              {resolvedBadge}
+            </span>
+          )}
+
+          {!item.is_available && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/45">
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-900">
+                Unavailable
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+
+      <div className="flex min-w-0 flex-col gap-1 px-0.5">
+        <Link to={`/menu/${item.id}`} className="min-w-0">
+          <h3 className="truncate text-sm font-medium text-gray-600 sm:text-[15px]">
+            {item.name}
+          </h3>
+        </Link>
+
+        {item.average_rating != null && item.average_rating > 0 && (
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                size={12}
+                className={
+                  i < Math.floor(item.average_rating!)
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'text-gray-300'
+                }
+              />
+            ))}
+            <span className="text-[11px] text-gray-500">
+              {item.average_rating.toFixed(1)}
             </span>
           </div>
         )}
 
-        {/* Footer */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-          <div>
-            <p className="text-primary font-bold text-lg sm:text-xl">
-              ₦{item.price.toLocaleString()}
-            </p>
-            {item.prep_time_minutes && (
-              <p className="text-xs text-gray-500 mt-0.5">
-                {item.prep_time_minutes} min prep
-              </p>
-            )}
-          </div>
-          {item.is_available ? (
-            <motion.button
-              onClick={handleAddToCartClick}
-              className="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ShoppingCart size={16} />
-              <span className="hidden sm:inline">Add to Cart</span>
-              <span className="sm:hidden">Add</span>
-            </motion.button>
-          ) : !item.is_available ? (
-            <span className="text-gray-500 text-xs sm:text-sm font-medium bg-gray-100 px-3 py-2 rounded-lg">
-              Out of stock
-            </span>
-          ) : null}
-        </div>
+        <p className="text-sm font-bold text-gray-900 sm:text-base">
+          {formatNGN(item.price)}
+        </p>
       </div>
-    </motion.div>
+
+      <Link
+        to={`/menu/${item.id}`}
+        className="btn-select-options"
+        aria-label={`Select options for ${item.name}`}
+      >
+        Select Options
+      </Link>
+    </motion.article>
   );
 };
 

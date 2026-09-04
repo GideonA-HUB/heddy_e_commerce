@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MessageSquare, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { contactAPI } from '../api';
+import SEO from '../components/SEO';
 
 const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -32,6 +33,10 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <SEO
+        title="Contact"
+        description="Contact HEDDIEKITCHEN — questions, catering enquiries, and support."
+      />
       {/* Hero Section with Background Image */}
       <section className="relative overflow-hidden min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] flex items-center justify-center text-white">
         {/* Background Image */}
