@@ -3,7 +3,7 @@ Admin configuration for core app.
 """
 from django.contrib import admin
 from django.contrib.auth.models import User
-from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact
+from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact, HomepageHero
 
 
 @admin.register(SiteAsset)
@@ -86,3 +86,55 @@ class ContactAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Contact submissions are created via API only."""
         return False
+
+
+@admin.register(HomepageHero)
+class HomepageHeroAdmin(admin.ModelAdmin):
+    """Edit homepage hero copy and gallery images."""
+    list_display = ['headline', 'is_active', 'updated_at']
+    list_filter = ['is_active']
+    readonly_fields = ['created_at', 'updated_at', 'gallery_preview']
+    fieldsets = (
+        ('Copy', {
+            'fields': (
+                'eyebrow',
+                'headline',
+                'description',
+                'cta_primary_text',
+                'cta_primary_link',
+                'cta_secondary_text',
+                'cta_secondary_link',
+            ),
+        }),
+        ('Gallery images (upload — not URL paste)', {
+            'fields': (
+                'gallery_image_1', 'gallery_alt_1',
+                'gallery_image_2', 'gallery_alt_2',
+                'gallery_image_3', 'gallery_alt_3',
+                'gallery_image_4', 'gallery_alt_4',
+                'gallery_preview',
+            ),
+        }),
+        ('Status', {'fields': ('is_active', 'created_at', 'updated_at')}),
+    )
+
+    def has_add_permission(self, request):
+        return not HomepageHero.objects.exists() or request.user.is_superuser
+
+    def gallery_preview(self, obj):
+        from django.utils.html import format_html, mark_safe
+        if not obj:
+            return '—'
+        imgs = []
+        for field in ('gallery_image_1', 'gallery_image_2', 'gallery_image_3', 'gallery_image_4'):
+            f = getattr(obj, field, None)
+            if f:
+                imgs.append(
+                    format_html(
+                        '<img src="{}" style="width:80px;height:80px;object-fit:cover;'
+                        'border-radius:8px;margin:4px;" />',
+                        f.url,
+                    )
+                )
+        return mark_safe(''.join(imgs)) if imgs else 'No images uploaded yet'
+    gallery_preview.short_description = 'Gallery preview'

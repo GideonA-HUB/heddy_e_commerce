@@ -1,5 +1,24 @@
 // Core types for HEDDIEKITCHEN frontend
 
+export interface HomepageHeroImage {
+  url: string;
+  alt: string;
+  index: number;
+}
+
+export interface HomepageHero {
+  id: number;
+  eyebrow: string;
+  headline: string;
+  description: string;
+  cta_primary_text: string;
+  cta_primary_link: string;
+  cta_secondary_text?: string;
+  cta_secondary_link?: string;
+  gallery_images: HomepageHeroImage[];
+  updated_at?: string;
+}
+
 export interface SiteAsset {
   id: number;
   name: string;

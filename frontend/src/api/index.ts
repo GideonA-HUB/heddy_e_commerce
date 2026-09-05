@@ -14,6 +14,8 @@ import {
   GalleryCategory,
   GalleryImage,
   TrainingPackage,
+  HomepageHero,
+  SiteAsset,
 } from '../types';
 
 // Auth APIs
@@ -147,7 +149,9 @@ export const contactAPI = {
 // Core/Site Assets API
 export const coreAPI = {
   getSiteAssets: () =>
-    apiClient.get<PaginatedResponse<{ id: number; name: string; favicon_url?: string; logo_primary_url?: string; logo_light_url?: string; logo_dark_url?: string }>>('/auth/assets/'),
+    apiClient.get<PaginatedResponse<SiteAsset>>('/auth/assets/'),
+  getHomepageHero: () =>
+    apiClient.get<PaginatedResponse<HomepageHero>>('/auth/hero/'),
 };
 
 // Gallery APIs

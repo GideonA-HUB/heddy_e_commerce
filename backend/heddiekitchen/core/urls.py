@@ -8,11 +8,13 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from heddiekitchen.core.views import (
     SiteAssetViewSet, UserProfileViewSet, NewsletterViewSet, ContactViewSet,
+    HomepageHeroViewSet,
     register_user, login_user, logout_user, current_user, grant_staff_access
 )
 
 router = DefaultRouter()
 router.register(r'assets', SiteAssetViewSet, basename='asset')
+router.register(r'hero', HomepageHeroViewSet, basename='hero')
 router.register(r'profile', UserProfileViewSet, basename='profile')
 router.register(r'newsletter', NewsletterViewSet, basename='newsletter')
 router.register(r'contact', ContactViewSet, basename='contact')

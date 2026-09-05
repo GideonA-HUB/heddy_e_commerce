@@ -120,3 +120,71 @@ class Contact(models.Model):
         verbose_name = 'Contact Message'
         verbose_name_plural = 'Contact Messages'
         ordering = ['-created_at']
+
+
+class HomepageHero(models.Model):
+    """
+    Editable homepage hero (gallery CTA section).
+    Managed in Django admin — texts + 4 gallery images.
+    Prefer a single active record.
+    """
+    eyebrow = models.CharField(
+        max_length=120,
+        default='Authentic African Cuisine',
+        help_text='Small label above the headline',
+    )
+    headline = models.CharField(
+        max_length=200,
+        default='Delicious food, delivered fresh',
+    )
+    description = models.TextField(
+        default=(
+            'Premium ingredients. Chef-crafted dishes. '
+            'Order for tonight or plan the week with HEDDIEKITCHEN.'
+        ),
+    )
+    cta_primary_text = models.CharField(max_length=80, default='Order Now')
+    cta_primary_link = models.CharField(max_length=200, default='/menu')
+    cta_secondary_text = models.CharField(max_length=80, default='View Menu', blank=True)
+    cta_secondary_link = models.CharField(max_length=200, default='/menu', blank=True)
+
+    gallery_image_1 = models.ImageField(
+        upload_to='hero/',
+        null=True,
+        blank=True,
+        help_text='Hero gallery image 1 (top-right cell)',
+    )
+    gallery_image_2 = models.ImageField(
+        upload_to='hero/',
+        null=True,
+        blank=True,
+        help_text='Hero gallery image 2 (mid-left cell)',
+    )
+    gallery_image_3 = models.ImageField(
+        upload_to='hero/',
+        null=True,
+        blank=True,
+        help_text='Hero gallery image 3 (bottom-left cell)',
+    )
+    gallery_image_4 = models.ImageField(
+        upload_to='hero/',
+        null=True,
+        blank=True,
+        help_text='Hero gallery image 4 (mid-right cell)',
+    )
+    gallery_alt_1 = models.CharField(max_length=120, blank=True, default='Signature dish')
+    gallery_alt_2 = models.CharField(max_length=120, blank=True, default='Chef special')
+    gallery_alt_3 = models.CharField(max_length=120, blank=True, default='Fresh plate')
+    gallery_alt_4 = models.CharField(max_length=120, blank=True, default='African cuisine')
+
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Homepage Hero'
+        verbose_name_plural = 'Homepage Hero'
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f'Homepage Hero — {self.headline[:40]}'

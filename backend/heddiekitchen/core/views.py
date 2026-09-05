@@ -7,10 +7,10 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from .models import UserProfile, Newsletter, Contact, SiteAsset
+from .models import UserProfile, Newsletter, Contact, SiteAsset, HomepageHero
 from .serializers import (
     UserSerializer, UserProfileSerializer, NewsletterSerializer,
-    ContactSerializer, SiteAssetSerializer
+    ContactSerializer, SiteAssetSerializer, HomepageHeroSerializer
 )
 from .email_utils import send_newsletter_welcome_email
 
@@ -333,3 +333,18 @@ class SiteAssetViewSet(viewsets.ReadOnlyModelViewSet):
         if asset:
             return SiteAsset.objects.filter(pk=asset.pk)
         return SiteAsset.objects.none()
+
+
+class HomepageHeroViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Active homepage hero for the storefront gallery CTA.
+    GET /api/auth/hero/ — list (0–1 active)
+    """
+    serializer_class = HomepageHeroSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        hero = HomepageHero.objects.filter(is_active=True).order_by('-updated_at').first()
+        if hero:
+            return HomepageHero.objects.filter(pk=hero.pk)
+        return HomepageHero.objects.none()

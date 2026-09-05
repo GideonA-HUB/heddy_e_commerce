@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight,
   Award,
   ChefHat,
   Clock,
@@ -9,12 +8,12 @@ import {
   Shield,
   Truck,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import SectionHeader from '../components/SectionHeader';
 import PaginatedProductGrid from '../components/PaginatedProductGrid';
 import TrainingBanner from '../components/TrainingBanner';
 import SEO from '../components/SEO';
+import HeroSection from '../components/HeroSection';
 import { menuAPI, newsletterAPI } from '../api';
 import { useCartStore } from '../stores/cartStore';
 
@@ -116,66 +115,7 @@ const HomePage: React.FC = () => {
         type="website"
       />
 
-      {/* 1) Full-bleed hero */}
-      <section className="relative flex min-h-[88vh] items-end overflow-hidden sm:min-h-[92vh] md:min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?auto=format&fit=crop&w=2000&q=80)',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/20" />
-
-        <div className="relative z-10 w-full px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8 lg:pb-28">
-          <div className="mx-auto max-w-7xl">
-            <motion.p
-              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-sm"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              HEDDIEKITCHEN
-            </motion.p>
-            <motion.h1
-              className="max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.55 }}
-            >
-              Authentic African cuisine, delivered fresh
-            </motion.h1>
-            <motion.p
-              className="mt-4 max-w-lg text-base text-white/85 sm:text-lg"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.55 }}
-            >
-              Premium ingredients. Chef-crafted dishes. Order for tonight or plan the week.
-            </motion.p>
-            <motion.div
-              className="mt-8 flex flex-wrap gap-3"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.55 }}
-            >
-              <Link
-                to="/menu"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-primary-700 sm:text-base"
-              >
-                Order Now
-                <ArrowRight size={18} />
-              </Link>
-              <Link
-                to="/menu"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/60 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 sm:text-base"
-              >
-                View Menu
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       <TrainingBanner />
 
