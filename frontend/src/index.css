@@ -65,7 +65,7 @@
   }
 
   .product-card {
-    @apply flex flex-col gap-2.5;
+    @apply flex h-full flex-col gap-2.5;
   }
 
   .product-card-image {

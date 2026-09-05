@@ -7,10 +7,11 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db import IntegrityError
-from .models import UserProfile, Newsletter, Contact, SiteAsset, HomepageHero
+from .models import UserProfile, Newsletter, Contact, SiteAsset, HomepageHero, WhyChooseSection
 from .serializers import (
     UserSerializer, UserProfileSerializer, NewsletterSerializer,
-    ContactSerializer, SiteAssetSerializer, HomepageHeroSerializer
+    ContactSerializer, SiteAssetSerializer, HomepageHeroSerializer,
+    WhyChooseSectionSerializer,
 )
 from .email_utils import send_newsletter_welcome_email
 
@@ -348,3 +349,15 @@ class HomepageHeroViewSet(viewsets.ReadOnlyModelViewSet):
         if hero:
             return HomepageHero.objects.filter(pk=hero.pk)
         return HomepageHero.objects.none()
+
+
+class WhyChooseSectionViewSet(viewsets.ReadOnlyModelViewSet):
+    """Active Why Choose Us coverflow section + slides."""
+    serializer_class = WhyChooseSectionSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        section = WhyChooseSection.objects.filter(is_active=True).first()
+        if section:
+            return WhyChooseSection.objects.filter(pk=section.pk)
+        return WhyChooseSection.objects.none()

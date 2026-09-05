@@ -3,7 +3,7 @@ Serializers for core app.
 """
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact, HomepageHero
+from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact, HomepageHero, WhyChooseSection, WhyChooseSlide
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -156,3 +156,29 @@ class HomepageHeroSerializer(serializers.ModelSerializer):
             if url:
                 images.append({'url': url, 'alt': alt, 'index': i - 1})
         return images
+
+
+class WhyChooseSlideSerializer(serializers.ModelSerializer):
+    img = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WhyChooseSlide
+        fields = [
+            'id', 'tag', 'title_line1', 'title_line2', 'description',
+            'img', 'cta_text', 'cta_url', 'display_order',
+        ]
+
+    def get_img(self, obj):
+        return _absolute_image_url(obj.image, self.context.get('request'))
+
+
+class WhyChooseSectionSerializer(serializers.ModelSerializer):
+    slides = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WhyChooseSection
+        fields = ['id', 'section_label', 'slides']
+
+    def get_slides(self, obj):
+        qs = obj.slides.filter(is_active=True).order_by('display_order', 'id')
+        return WhyChooseSlideSerializer(qs, many=True, context=self.context).data

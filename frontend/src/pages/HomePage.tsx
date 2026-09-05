@@ -1,44 +1,18 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  Award,
-  ChefHat,
-  Clock,
-  Heart,
-  Shield,
-  Truck,
-} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, Shield } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import SectionHeader from '../components/SectionHeader';
 import PaginatedProductGrid from '../components/PaginatedProductGrid';
 import TrainingBanner from '../components/TrainingBanner';
 import SEO from '../components/SEO';
 import HeroSection from '../components/HeroSection';
-import { menuAPI, newsletterAPI } from '../api';
+import CoverFlowCarousel, {
+  defaultDishes,
+  type CarouselItem,
+} from '../components/ui/3-d-coverflow-carousel';
+import { menuAPI, newsletterAPI, coreAPI } from '../api';
 import { useCartStore } from '../stores/cartStore';
-
-const WHY_US = [
-  {
-    icon: Truck,
-    title: 'Fast Delivery',
-    desc: 'Quick delivery within Abuja and nationwide shipping.',
-  },
-  {
-    icon: Clock,
-    title: 'Fresh Daily',
-    desc: 'Prepared fresh with premium African ingredients.',
-  },
-  {
-    icon: Award,
-    title: 'Quality Assured',
-    desc: 'Certified kitchens and careful preparation.',
-  },
-  {
-    icon: ChefHat,
-    title: 'Expert Chefs',
-    desc: 'Authentic recipes by experienced African chefs.',
-  },
-];
 
 const TESTIMONIALS = [
   {
@@ -59,6 +33,7 @@ const HomePage: React.FC = () => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const fetchCart = useCartStore((s) => s.fetchCart);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     fetchCart();
@@ -80,85 +55,63 @@ const HomePage: React.FC = () => {
     },
   });
 
-  const categoriesQuery = useQuery({
-    queryKey: ['menu', 'categories'],
+  const whyChooseQuery = useQuery({
+    queryKey: ['why-choose'],
     queryFn: async () => {
-      const res = await menuAPI.getCategories();
-      return (res.data.results || []).filter((c) => c.is_active).slice(0, 8);
+      const res = await coreAPI.getWhyChoose();
+      return res.data.results?.[0] ?? null;
     },
   });
 
-  const featuredItems = featuredQuery.data || [];
-  const newItems = newQuery.data || [];
-  const bestSellers = featuredItems.length > 0 ? featuredItems : newItems;
-  const categories = categoriesQuery.data || [];
+  const coverflowItems: CarouselItem[] =
+    whyChooseQuery.data?.slides
+      ?.filter((s) => s.img)
+      .map((s) => ({
+        tag: s.tag || undefined,
+        titleLine1: s.title_line1,
+        titleLine2: s.title_line2 || undefined,
+        desc: s.description || undefined,
+        img: s.img,
+        ctaText: s.cta_text || 'View Menu',
+        ctaUrl: s.cta_url || '/menu',
+      })) ?? [];
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail) return;
     try {
       await newsletterAPI.subscribe(newsletterEmail);
       setNewsletterStatus('success');
       setNewsletterEmail('');
-      setTimeout(() => setNewsletterStatus('idle'), 3000);
     } catch {
       setNewsletterStatus('error');
-      setTimeout(() => setNewsletterStatus('idle'), 3000);
     }
   };
 
+  const featured = featuredQuery.data || [];
+  const newest = newQuery.data || [];
+  const bestSellers = [...featured, ...newest]
+    .filter((item, i, arr) => arr.findIndex((x) => x.id === item.id) === i)
+    .slice(0, 16);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div>
       <SEO
-        title="HEDDIEKITCHEN — Authentic African Cuisine"
-        description="Order authentic African dishes, meal plans, and catering from HEDDIEKITCHEN. Fresh food delivered across Nigeria."
-        type="website"
+        title="HeddieKitchen — Authentic African Cuisine"
+        description="Order fresh African meals, catering, and meal plans from HeddieKitchen."
       />
 
       <HeroSection />
-
       <TrainingBanner />
-
-      {categories.length > 0 && (
-        <section className="section-padding bg-white">
-          <div className="container mx-auto">
-            <SectionHeader title="Categories" viewAllTo="/menu" viewAllLabel="Full Menu" />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={`/menu?category=${cat.id}`}
-                  className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-secondary"
-                >
-                  {cat.icon && typeof cat.icon === 'string' ? (
-                    <img
-                      src={cat.icon}
-                      alt=""
-                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-secondary to-primary/40" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <span className="absolute bottom-3 left-3 right-3 text-sm font-semibold text-white sm:text-base">
-                    {cat.name}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className="section-padding bg-white">
         <div className="container mx-auto">
           <SectionHeader
-            title="Featured Items"
-            viewAllTo="/menu?filter=featured"
-            viewAllLabel="Full Menu"
+            title="Featured Dishes"
+            viewAllTo="/menu"
+            viewAllLabel="View Menu"
           />
           <PaginatedProductGrid
-            items={featuredItems}
+            items={featured}
             loading={featuredQuery.isLoading}
             badge="Featured"
             emptyMessage="No featured dishes yet"
@@ -169,12 +122,12 @@ const HomePage: React.FC = () => {
       <section className="section-padding bg-gray-50">
         <div className="container mx-auto">
           <SectionHeader
-            title="Seasonal Specials"
-            viewAllTo="/menu?sort=-created_at"
-            viewAllLabel="All New"
+            title="New on the Menu"
+            viewAllTo="/menu"
+            viewAllLabel="Browse All"
           />
           <PaginatedProductGrid
-            items={newItems}
+            items={newest}
             loading={newQuery.isLoading}
             badge="New"
             emptyMessage="No new dishes yet"
@@ -198,30 +151,19 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      <section className="section-padding bg-secondary text-white">
-        <div className="container mx-auto">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Why Choose Us</h2>
-            <p className="mt-3 text-white/70">
-              The best of African cuisine with quality, convenience, and care.
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {WHY_US.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
-                    <Icon className="text-primary" size={26} />
-                  </div>
-                  <h3 className="mb-2 font-semibold">{item.title}</h3>
-                  <p className="text-sm leading-relaxed text-white/65">{item.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <CoverFlowCarousel
+        items={coverflowItems.length > 0 ? coverflowItems : defaultDishes}
+        sectionLabel={whyChooseQuery.data?.section_label || 'WHY CHOOSE US'}
+        autoplay
+        onCtaClick={(item) => {
+          if (!item.ctaUrl) return;
+          if (/^https?:\/\//i.test(item.ctaUrl)) {
+            window.location.assign(item.ctaUrl);
+          } else {
+            navigate(item.ctaUrl);
+          }
+        }}
+      />
 
       <section className="section-padding bg-white">
         <div className="container mx-auto">

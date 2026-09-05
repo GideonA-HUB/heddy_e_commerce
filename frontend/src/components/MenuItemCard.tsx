@@ -11,23 +11,27 @@ interface MenuItemCardProps {
 }
 
 /**
- * CasseoHair-structure product card (restaurant brand colors):
- * Image → Name (ellipsis) → optional rating → Price → "Select Options" ghost CTA
+ * Equal-height product card: image → name → reserved rating row → price → CTA
  */
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, badge }) => {
   const resolvedBadge =
     badge ??
     (item.is_featured ? 'Featured' : null);
 
+  const hasRating = item.average_rating != null && item.average_rating > 0;
+
   return (
     <motion.article
-      className="product-card group"
+      className="product-card group h-full"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
     >
-      <Link to={`/menu/${item.id}`} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[1.25rem]">
+      <Link
+        to={`/menu/${item.id}`}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[1.25rem]"
+      >
         <div className="product-card-image">
           {item.image_url ? (
             <img
@@ -58,33 +62,38 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, badge }) => {
         </div>
       </Link>
 
-      <div className="flex min-w-0 flex-col gap-1 px-0.5">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1 px-0.5">
         <Link to={`/menu/${item.id}`} className="min-w-0">
           <h3 className="truncate text-sm font-medium text-gray-600 sm:text-[15px]">
             {item.name}
           </h3>
         </Link>
 
-        {item.average_rating != null && item.average_rating > 0 && (
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={12}
-                className={
-                  i < Math.floor(item.average_rating!)
-                    ? 'fill-amber-400 text-amber-400'
-                    : 'text-gray-300'
-                }
-              />
-            ))}
-            <span className="text-[11px] text-gray-500">
-              {item.average_rating.toFixed(1)}
-            </span>
-          </div>
-        )}
+        {/* Reserved row so cards stay equal height with/without ratings */}
+        <div className="flex h-5 items-center gap-1">
+          {hasRating ? (
+            <>
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={12}
+                  className={
+                    i < Math.floor(item.average_rating!)
+                      ? 'fill-amber-400 text-amber-400'
+                      : 'text-gray-300'
+                  }
+                />
+              ))}
+              <span className="text-[11px] text-gray-500">
+                {item.average_rating!.toFixed(1)}
+              </span>
+            </>
+          ) : (
+            <span className="sr-only">No rating</span>
+          )}
+        </div>
 
-        <p className="text-sm font-bold text-gray-900 sm:text-base">
+        <p className="mt-auto text-sm font-bold text-gray-900 sm:text-base">
           {formatNGN(item.price)}
         </p>
       </div>

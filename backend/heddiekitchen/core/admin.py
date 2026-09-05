@@ -3,7 +3,7 @@ Admin configuration for core app.
 """
 from django.contrib import admin
 from django.contrib.auth.models import User
-from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact, HomepageHero
+from heddiekitchen.core.models import SiteAsset, UserProfile, Newsletter, Contact, HomepageHero, WhyChooseSection, WhyChooseSlide
 
 
 @admin.register(SiteAsset)
@@ -138,3 +138,29 @@ class HomepageHeroAdmin(admin.ModelAdmin):
                 )
         return mark_safe(''.join(imgs)) if imgs else 'No images uploaded yet'
     gallery_preview.short_description = 'Gallery preview'
+
+
+class WhyChooseSlideInline(admin.TabularInline):
+    model = WhyChooseSlide
+    extra = 1
+    fields = (
+        'tag', 'title_line1', 'title_line2', 'description',
+        'image', 'cta_text', 'cta_url', 'display_order', 'is_active',
+    )
+
+
+@admin.register(WhyChooseSection)
+class WhyChooseSectionAdmin(admin.ModelAdmin):
+    list_display = ['section_label', 'is_active', 'updated_at']
+    inlines = [WhyChooseSlideInline]
+
+    def has_add_permission(self, request):
+        return not WhyChooseSection.objects.exists() or request.user.is_superuser
+
+
+@admin.register(WhyChooseSlide)
+class WhyChooseSlideAdmin(admin.ModelAdmin):
+    list_display = ['title_line1', 'tag', 'display_order', 'is_active', 'section']
+    list_editable = ['display_order', 'is_active']
+    list_filter = ['is_active']
+    search_fields = ['title_line1', 'title_line2', 'tag']

@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
 import ScrollButtons from './components/ScrollButtons';
+import ScrollRestoration from './components/ScrollRestoration';
 import CartDrawer from './components/CartDrawer';
 import MobileMenu from './components/MobileMenu';
 import { useUIStore } from './stores/uiStore';
@@ -174,6 +175,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <ScrollRestoration />
       <div className="flex flex-col min-h-screen">
         {showSpinner && <Loader />}
         <Navbar />

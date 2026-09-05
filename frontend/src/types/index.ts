@@ -19,6 +19,24 @@ export interface HomepageHero {
   updated_at?: string;
 }
 
+export interface WhyChooseSlide {
+  id: number;
+  tag: string;
+  title_line1: string;
+  title_line2: string;
+  description: string;
+  img: string;
+  cta_text: string;
+  cta_url: string;
+  display_order: number;
+}
+
+export interface WhyChooseSection {
+  id: number;
+  section_label: string;
+  slides: WhyChooseSlide[];
+}
+
 export interface SiteAsset {
   id: number;
   name: string;

@@ -15,6 +15,7 @@ import {
   GalleryImage,
   TrainingPackage,
   HomepageHero,
+  WhyChooseSection,
   SiteAsset,
 } from '../types';
 
@@ -152,6 +153,8 @@ export const coreAPI = {
     apiClient.get<PaginatedResponse<SiteAsset>>('/auth/assets/'),
   getHomepageHero: () =>
     apiClient.get<PaginatedResponse<HomepageHero>>('/auth/hero/'),
+  getWhyChoose: () =>
+    apiClient.get<PaginatedResponse<WhyChooseSection>>('/auth/why-choose/'),
 };
 
 // Gallery APIs

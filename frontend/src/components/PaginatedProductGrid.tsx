@@ -77,9 +77,11 @@ export const PaginatedProductGrid: React.FC<PaginatedProductGridProps> = ({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 items-stretch">
         {pageItems.map((item) => (
-          <MenuItemCard key={item.id} item={item} badge={badge} />
+          <div key={item.id} className="h-full min-h-0">
+            <MenuItemCard item={item} badge={badge} />
+          </div>
         ))}
       </div>
 

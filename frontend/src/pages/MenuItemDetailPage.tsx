@@ -206,7 +206,7 @@ const MenuItemDetailPage: React.FC = () => {
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Gallery */}
           <div>
-            <div className="overflow-hidden rounded-[1.5rem] bg-gray-100 aspect-[4/5] sm:aspect-square lg:aspect-[4/5]">
+            <div className="overflow-hidden rounded-[1.5rem] bg-gray-100 aspect-[4/5] sm:aspect-square lg:mx-auto lg:aspect-[3/4] lg:max-h-[480px] lg:w-full lg:max-w-[420px]">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={gallery[activeImage] || 'empty'}
@@ -414,29 +414,53 @@ const MenuItemDetailPage: React.FC = () => {
         </div>
 
         {/* Reviews */}
-        <section className="mt-14 border-t border-gray-100 pt-10">
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">Reviews</h2>
+        <section className="mt-16 border-t border-gray-100 pt-12">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Guest voices
+              </p>
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                Reviews
+              </h2>
+            </div>
+            {item.average_rating != null && item.average_rating > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-gray-900">
+                  {item.average_rating.toFixed(1)}
+                </span>
+                <span className="text-sm text-gray-500">
+                  / 5 · {item.reviews?.length || 0} review
+                  {(item.reviews?.length || 0) !== 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
+          </div>
 
           {user && !userReview && (
             <form
               onSubmit={handleSubmitReview}
-              className="mb-10 rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6"
+              className="mb-12 border-b border-gray-100 pb-10"
             >
-              <h3 className="mb-4 font-semibold">Write a Review</h3>
-              <div className="mb-4 flex gap-1">
+              <h3 className="mb-1 text-lg font-semibold text-gray-900">Share your experience</h3>
+              <p className="mb-5 text-sm text-gray-500">
+                Honest notes help other guests choose with confidence.
+              </p>
+              <div className="mb-5 flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <button
                     key={rating}
                     type="button"
                     onClick={() => setSelectedRating(rating)}
-                    className="focus:outline-none"
+                    className="rounded-md p-0.5 transition hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label={`${rating} stars`}
                   >
                     <Star
-                      size={28}
+                      size={26}
                       className={
                         rating <= selectedRating
                           ? 'fill-amber-400 text-amber-400'
-                          : 'text-gray-300'
+                          : 'text-gray-200'
                       }
                     />
                   </button>
@@ -446,30 +470,30 @@ const MenuItemDetailPage: React.FC = () => {
                 type="text"
                 value={reviewTitle}
                 onChange={(e) => setReviewTitle(e.target.value)}
-                placeholder="Review title"
+                placeholder="Title"
                 required
-                className="mb-3 w-full rounded-xl border border-gray-300 px-4 py-2.5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mb-3 w-full border-0 border-b border-gray-200 bg-transparent px-0 py-2.5 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-0"
               />
               <textarea
                 value={reviewComment}
                 onChange={(e) => setReviewComment(e.target.value)}
-                rows={4}
-                placeholder="Share your experience…"
+                rows={3}
+                placeholder="What stood out — flavour, portion, packaging…"
                 required
-                className="mb-4 w-full resize-none rounded-xl border border-gray-300 px-4 py-2.5 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mb-5 w-full resize-none border-0 border-b border-gray-200 bg-transparent px-0 py-2.5 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-0"
               />
               <button
                 type="submit"
                 disabled={submittingReview || !selectedRating}
                 className="btn-primary disabled:opacity-50"
               >
-                {submittingReview ? 'Submitting…' : 'Submit Review'}
+                {submittingReview ? 'Submitting…' : 'Post review'}
               </button>
             </form>
           )}
 
           {!user && (
-            <p className="mb-8 text-sm text-gray-500">
+            <p className="mb-10 text-sm text-gray-500">
               <Link to="/login" className="font-medium text-primary hover:underline">
                 Sign in
               </Link>{' '}
@@ -477,41 +501,55 @@ const MenuItemDetailPage: React.FC = () => {
             </p>
           )}
 
-          <div className="space-y-5">
+          <div className="divide-y divide-gray-100">
             {item.reviews && item.reviews.length > 0 ? (
-              item.reviews.map((review: MenuItemReview) => (
-                <article
-                  key={review.id}
-                  className="rounded-2xl border border-gray-100 bg-gray-50 p-5"
-                >
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-gray-900">{review.username}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(review.created_at).toLocaleDateString()}
-                      </p>
+              item.reviews.map((review: MenuItemReview) => {
+                const initial = (review.username || '?').charAt(0).toUpperCase();
+                return (
+                  <article key={review.id} className="flex gap-4 py-6 first:pt-0 last:pb-0">
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-white"
+                      aria-hidden
+                    >
+                      {initial}
                     </div>
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={
-                            i < review.rating
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-gray-300'
-                          }
-                        />
-                      ))}
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <p className="font-semibold text-gray-900">{review.username}</p>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              size={12}
+                              className={
+                                i < review.rating
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'text-gray-200'
+                              }
+                            />
+                          ))}
+                        </div>
+                        <time className="text-xs text-gray-400">
+                          {new Date(review.created_at).toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </time>
+                      </div>
+                      {review.title && (
+                        <h4 className="mb-1 text-[15px] font-medium text-gray-900">
+                          {review.title}
+                        </h4>
+                      )}
+                      <p className="text-sm leading-relaxed text-gray-600">{review.comment}</p>
                     </div>
-                  </div>
-                  <h4 className="mb-1 font-semibold">{review.title}</h4>
-                  <p className="text-sm leading-relaxed text-gray-600">{review.comment}</p>
-                </article>
-              ))
+                  </article>
+                );
+              })
             ) : (
-              <p className="py-6 text-center text-gray-500">
-                No reviews yet. Be the first to review!
+              <p className="py-10 text-center text-sm text-gray-500">
+                No reviews yet. Be the first to share your thoughts.
               </p>
             )}
           </div>

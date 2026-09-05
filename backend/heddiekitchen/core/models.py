@@ -188,3 +188,49 @@ class HomepageHero(models.Model):
 
     def __str__(self):
         return f'Homepage Hero — {self.headline[:40]}'
+
+class WhyChooseSection(models.Model):
+    """Singleton settings for the Why Choose Us coverflow section."""
+    section_label = models.CharField(
+        max_length=80,
+        default='WHY CHOOSE US',
+        help_text='Eyebrow label above the carousel',
+    )
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Why Choose Us Section'
+        verbose_name_plural = 'Why Choose Us Section'
+
+    def __str__(self):
+        return self.section_label
+
+
+class WhyChooseSlide(models.Model):
+    """Individual coverflow slide — editable in Django admin."""
+    section = models.ForeignKey(
+        WhyChooseSection,
+        on_delete=models.CASCADE,
+        related_name='slides',
+        null=True,
+        blank=True,
+    )
+    tag = models.CharField(max_length=60, blank=True, default='#Signature')
+    title_line1 = models.CharField(max_length=80)
+    title_line2 = models.CharField(max_length=80, blank=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='why_choose/', help_text='Slide image (upload)')
+    cta_text = models.CharField(max_length=40, default='View Menu')
+    cta_url = models.CharField(max_length=200, default='/menu')
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['display_order', 'id']
+        verbose_name = 'Why Choose Us Slide'
+        verbose_name_plural = 'Why Choose Us Slides'
+
+    def __str__(self):
+        return self.title_line1
